@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import { applyPayment, BillingCycleData } from "@/lib/interest";
 import { parseCurrency } from "@/lib/utils";
 import { eq, and, or } from "drizzle-orm";
+import { getErrorMessage } from "@/lib/errors";
 
 export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
     const params = await props.params;
@@ -86,7 +87,7 @@ export async function POST(req: NextRequest, props: { params: Promise<{ id: stri
         });
 
         return NextResponse.json({ data: recordedPayment });
-    } catch (err: any) {
-        return NextResponse.json({ error: err.message }, { status: 400 });
+    } catch (err: unknown) {
+        return NextResponse.json({ error: getErrorMessage(err) }, { status: 400 });
     }
 }

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { UploadCloudIcon } from "lucide-react";
 import { FilePreviewThumbnail } from "@/components/shared/FilePreviewThumbnail";
+import { getErrorMessage } from "@/lib/errors";
 
 export function IdDocumentUploader({ customerId }: { customerId: string }) {
     const [files, setFiles] = useState<File[]>([]);
@@ -45,8 +46,8 @@ export function IdDocumentUploader({ customerId }: { customerId: string }) {
             setFiles([]);
             if (inputRef.current) inputRef.current.value = "";
         },
-        onError: (error: any) => {
-            toast.error(error.message);
+        onError: (error: unknown) => {
+            toast.error(getErrorMessage(error));
         }
     });
 

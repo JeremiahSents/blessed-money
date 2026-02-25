@@ -4,6 +4,7 @@ import { payments } from "@/src/db/schema";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { desc } from "drizzle-orm";
+import { getErrorMessage } from "@/lib/errors";
 
 export async function GET() {
     const session = await auth.api.getSession({ headers: await headers() });
@@ -22,7 +23,7 @@ export async function GET() {
         });
 
         return NextResponse.json({ data });
-    } catch (err: any) {
-        return NextResponse.json({ error: err.message }, { status: 500 });
+    } catch (err: unknown) {
+        return NextResponse.json({ error: getErrorMessage(err) }, { status: 500 });
     }
 }

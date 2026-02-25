@@ -5,6 +5,7 @@ import { and, eq, lte, gt } from "drizzle-orm";
 import { calculateNextCycle } from "@/lib/interest";
 import { parseCurrency } from "@/lib/utils";
 import { addMonths } from "date-fns";
+import { getErrorMessage } from "@/lib/errors";
 
 export async function POST(req: NextRequest) {
     // Secured by CRON_SECRET
@@ -73,7 +74,7 @@ export async function POST(req: NextRequest) {
         }
 
         return NextResponse.json({ message: "Rollover complete", count: rolledOverCount });
-    } catch (err: any) {
-        return NextResponse.json({ error: err.message }, { status: 500 });
+    } catch (err: unknown) {
+        return NextResponse.json({ error: getErrorMessage(err) }, { status: 500 });
     }
 }

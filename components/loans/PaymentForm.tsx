@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/errors";
 
 const paymentSchema = z.object({
     amount: z.string().min(1, "Amount is required"),
@@ -59,8 +60,8 @@ export function PaymentForm({
             onOpenChange(false);
             form.reset();
         },
-        onError: (error: any) => {
-            toast.error(error.message);
+        onError: (error: unknown) => {
+            toast.error(getErrorMessage(error));
         }
     });
 

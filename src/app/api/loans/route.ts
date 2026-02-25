@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import db from "@/src/index";
-import { loans, billingCycles, collateral, auditLogs, customers } from "@/src/db/schema";
+import { loans, billingCycles, collateral, auditLogs } from "@/src/db/schema";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { createCycle } from "@/lib/interest";
 import { parseCurrency } from "@/lib/utils";
-import { desc, eq, ilike, or, sql } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
+import { getErrorMessage } from "@/lib/errors";
 
 export async function GET(req: NextRequest) {
     const session = await auth.api.getSession({ headers: await headers() });
@@ -41,8 +42,8 @@ export async function GET(req: NextRequest) {
             data,
             meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
         });
-    } catch (err: any) {
-        return NextResponse.json({ error: err.message }, { status: 500 });
+    } catch (err: unknown) {
+        return NextResponse.json({ error: getErrorMessage(err) }, { status: 500 });
     }
 }
 
@@ -134,7 +135,7 @@ export async function POST(req: NextRequest) {
         });
 
         return NextResponse.json({ data: newLoan });
-    } catch (err: any) {
-        return NextResponse.json({ error: err.message }, { status: 400 });
+    } catch (err: unknown) {
+        return NextResponse.json({ error: getErrorMessage(err) }, { status: 400 });
     }
 }

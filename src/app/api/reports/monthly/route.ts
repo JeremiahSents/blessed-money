@@ -4,6 +4,15 @@ import { loans, billingCycles, payments } from "@/src/db/schema";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { sql } from "drizzle-orm";
+import { getErrorMessage } from "@/lib/errors";
+
+type MonthRow = {
+    month: string;
+    count?: string | number;
+    total_principal?: string | number;
+    total_collected?: string | number;
+    total_interest?: string | number;
+};
 
 export async function GET() {
     const session = await auth.api.getSession({ headers: await headers() });
@@ -40,28 +49,32 @@ export async function GET() {
 
         // Merge into a cohesive array
         const monthsSet = new Set<string>();
-        loansIssuedRaw.forEach((row: any) => monthsSet.add(row.month));
-        collectedRaw.forEach((row: any) => monthsSet.add(row.month));
-        interestRaw.forEach((row: any) => monthsSet.add(row.month));
+        (loansIssuedRaw as unknown as MonthRow[]).forEach((row) => monthsSet.add(row.month));
+        (collectedRaw as unknown as MonthRow[]).forEach((row) => monthsSet.add(row.month));
+        (interestRaw as unknown as MonthRow[]).forEach((row) => monthsSet.add(row.month));
 
         const allMonths = Array.from(monthsSet).sort().reverse();
 
+        const issuedRows = loansIssuedRaw as unknown as MonthRow[];
+        const collectedRows = collectedRaw as unknown as MonthRow[];
+        const interestRows = interestRaw as unknown as MonthRow[];
+
         const data = allMonths.map(month => {
-            const issued = loansIssuedRaw.find((r: any) => r.month === month) || { count: 0, total_principal: 0 };
-            const collected = collectedRaw.find((r: any) => r.month === month) || { total_collected: 0 };
-            const interest = interestRaw.find((r: any) => r.month === month) || { total_interest: 0 };
+            const issued = issuedRows.find((r) => r.month === month) || { count: 0, total_principal: 0 };
+            const collected = collectedRows.find((r) => r.month === month) || { total_collected: 0 };
+            const interest = interestRows.find((r) => r.month === month) || { total_interest: 0 };
 
             return {
                 month,
-                loansIssuedCount: Number(issued.count),
-                loansIssuedPrincipal: Number(issued.total_principal),
-                collected: Number(collected.total_collected),
-                interestEarned: Number(interest.total_interest),
+                loansIssuedCount: Number(issued.count ?? 0),
+                loansIssuedPrincipal: Number(issued.total_principal ?? 0),
+                collected: Number(collected.total_collected ?? 0),
+                interestEarned: Number(interest.total_interest ?? 0),
             };
         });
 
         return NextResponse.json({ data });
-    } catch (err: any) {
-        return NextResponse.json({ error: err.message }, { status: 500 });
+    } catch (err: unknown) {
+        return NextResponse.json({ error: getErrorMessage(err) }, { status: 500 });
     }
 }

@@ -1,8 +1,9 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import type { BillingCycle } from "@/lib/types";
 
-export function BillingCycleTable({ cycles = [] }: { cycles: any[] }) {
+export function BillingCycleTable({ cycles = [] }: { cycles: BillingCycle[] }) {
     if (cycles.length === 0) {
         return <div className="text-zinc-500 text-sm p-4 border rounded-md bg-zinc-50">No billing cycles defined.</div>;
     }

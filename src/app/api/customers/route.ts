@@ -3,7 +3,8 @@ import db from "@/src/index";
 import { customers, auditLogs } from "@/src/db/schema";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { eq, ilike, or, desc, sql } from "drizzle-orm";
+import { ilike, or, desc, sql } from "drizzle-orm";
+import { getErrorMessage } from "@/lib/errors";
 
 export async function GET(req: NextRequest) {
     const session = await auth.api.getSession({ headers: await headers() });
@@ -43,8 +44,8 @@ export async function GET(req: NextRequest) {
             data,
             meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
         });
-    } catch (err: any) {
-        return NextResponse.json({ error: err.message }, { status: 500 });
+    } catch (err: unknown) {
+        return NextResponse.json({ error: getErrorMessage(err) }, { status: 500 });
     }
 }
 
@@ -81,7 +82,7 @@ export async function POST(req: NextRequest) {
         });
 
         return NextResponse.json({ data: newCustomer });
-    } catch (err: any) {
-        return NextResponse.json({ error: err.message }, { status: 400 });
+    } catch (err: unknown) {
+        return NextResponse.json({ error: getErrorMessage(err) }, { status: 400 });
     }
 }

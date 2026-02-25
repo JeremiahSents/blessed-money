@@ -3,8 +3,14 @@ import { Button } from "@/components/ui/button";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import Link from "next/link";
 import { AlertCircleIcon } from "lucide-react";
+import type { BillingCycle, Customer, LoanSummary } from "@/lib/types";
 
-export function OverduePanel({ overdueLoans = [] }: { overdueLoans: any[] }) {
+type OverdueLoan = LoanSummary & {
+    customer: Pick<Customer, "name">;
+    billingCycles?: BillingCycle[];
+};
+
+export function OverduePanel({ overdueLoans = [] }: { overdueLoans: OverdueLoan[] }) {
     if (overdueLoans.length === 0) {
         return (
             <Card className="border-emerald-200 bg-emerald-50/50 dark:border-emerald-900 dark:bg-emerald-900/10">
@@ -64,7 +70,7 @@ export function OverduePanel({ overdueLoans = [] }: { overdueLoans: any[] }) {
     );
 }
 
-function CheckMarkIcon(props: any) {
+function CheckMarkIcon(props: React.SVGProps<SVGSVGElement>) {
     return (
         <svg
             {...props}

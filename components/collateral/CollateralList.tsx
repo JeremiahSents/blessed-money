@@ -7,15 +7,16 @@ import { CollateralUploader, CollateralFormData } from "./CollateralUploader";
 import { PlusIcon } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import type { CollateralItem } from "@/lib/types";
+import { getErrorMessage } from "@/lib/errors";
 
-export function CollateralList({ loanId, items = [] }: { loanId: string; items: any[] }) {
+export function CollateralList({ loanId, items = [] }: { loanId: string; items: CollateralItem[] }) {
     const [isAdding, setIsAdding] = useState(false);
     const queryClient = useQueryClient();
 
     const addMutation = useMutation({
         mutationFn: async (data: CollateralFormData) => {
             // 1. Upload files first if any
-            const imagePaths: string[] = [];
             if (data.files.length > 0) {
                 // We'll call the direct image upload API for a dummy ID first, 
                 // OR better: we create the item first, then upload images to it.
@@ -64,7 +65,7 @@ export function CollateralList({ loanId, items = [] }: { loanId: string; items: 
             toast.success("Collateral added");
             setIsAdding(false);
         },
-        onError: (err: any) => toast.error(err.message)
+        onError: (err: unknown) => toast.error(getErrorMessage(err))
     });
 
     return (

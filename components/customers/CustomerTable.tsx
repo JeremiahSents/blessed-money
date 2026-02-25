@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
+import type { Customer } from "@/lib/types";
 
 export function CustomerTable() {
     const router = useRouter();
@@ -15,7 +16,7 @@ export function CustomerTable() {
     const [page, setPage] = useState(1);
     const limit = 10;
 
-    const { data, isLoading, isError } = useQuery({
+    const { data, isLoading, isError } = useQuery<{ data: Customer[]; meta: { totalPages: number } }>({
         queryKey: ['customers', search, page],
         queryFn: async () => {
             const res = await fetch(`/api/customers?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`);
@@ -69,7 +70,7 @@ export function CustomerTable() {
                                 <TableCell colSpan={5} className="text-center text-zinc-500 py-8">No customers found.</TableCell>
                             </TableRow>
                         ) : (
-                            data?.data?.map((customer: any) => (
+                            data?.data?.map((customer) => (
                                 <TableRow key={customer.id} className="cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900" onClick={() => router.push(`/customers/${customer.id}`)}>
                                     <TableCell className="font-medium">{customer.name}</TableCell>
                                     <TableCell>{customer.phone || "-"}</TableCell>
@@ -95,7 +96,7 @@ export function CustomerTable() {
                 </Table>
             </div>
 
-            {data?.meta?.totalPages > 1 && (
+            {((data?.meta?.totalPages ?? 0) > 1) && (
                 <div className="flex items-center justify-end space-x-2">
                     <Button
                         variant="outline"
@@ -106,13 +107,13 @@ export function CustomerTable() {
                         Previous
                     </Button>
                     <div className="text-sm text-zinc-500">
-                        Page {page} of {data.meta.totalPages}
+                        Page {page} of {data?.meta?.totalPages}
                     </div>
                     <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setPage((p) => Math.min(data.meta.totalPages, p + 1))}
-                        disabled={page === data.meta.totalPages}
+                        onClick={() => setPage((p) => Math.min(data?.meta?.totalPages ?? p, p + 1))}
+                        disabled={page === (data?.meta?.totalPages ?? page)}
                     >
                         Next
                     </Button>

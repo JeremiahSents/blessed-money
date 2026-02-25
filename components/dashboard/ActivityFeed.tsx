@@ -1,9 +1,10 @@
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { ArrowDownLeftIcon, ArrowUpRightIcon } from "lucide-react";
 import Link from "next/link";
+import type { ActivityItem } from "@/lib/types";
 
-export function ActivityFeed({ activity = [] }: { activity: any[] }) {
+export function ActivityFeed({ activity = [] }: { activity: ActivityItem[] }) {
     if (activity.length === 0) {
         return <div className="text-sm text-zinc-500 italic p-4 text-center">No recent activity.</div>;
     }

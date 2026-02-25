@@ -3,8 +3,9 @@ import { Badge } from "@/components/ui/badge";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import Link from "next/link";
 import { ArrowUpRightIcon } from "lucide-react";
+import type { LoanSummary } from "@/lib/types";
 
-export function LoanCard({ loan }: { loan: any }) {
+export function LoanCard({ loan }: { loan: LoanSummary }) {
     const isActive = loan.status === 'active';
     const isOverdue = loan.status === 'overdue';
 

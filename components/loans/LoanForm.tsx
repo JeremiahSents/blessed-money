@@ -11,12 +11,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { CollateralUploader, CollateralFormData } from "../collateral/CollateralUploader";
 import { useState } from "react";
-import { FilePreviewThumbnail } from "../shared/FilePreviewThumbnail";
 import { Trash2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import { addMonths } from "date-fns";
+import type { Customer } from "@/lib/types";
+import { getErrorMessage } from "@/lib/errors";
 
 const loanSchema = z.object({
     customerId: z.string().min(1, "Customer is required"),
@@ -35,7 +36,7 @@ export function LoanForm() {
     const [collateralItems, setCollateralItems] = useState<CollateralFormData[]>([]);
     const [isAddingCollateral, setIsAddingCollateral] = useState(false);
 
-    const { data: customersData } = useQuery({
+    const { data: customersData } = useQuery<{ data: Customer[] }>({
         queryKey: ['customers', '', 1],
         queryFn: async () => {
             const res = await fetch(`/api/customers?limit=100`);
@@ -64,61 +65,20 @@ export function LoanForm() {
         },
     });
 
-    const watchStartDate = form.watch("startDate");
-
-    // Auto-update due date when start date changes
-    useState(() => {
-        if (watchStartDate) {
-            form.setValue("dueDate", generateDefaultDueDate(watchStartDate))
-        }
-    }, [watchStartDate]);
-
     const mutation = useMutation({
         mutationFn: async (values: LoanFormValues) => {
-            // 1. We must prepare collateral items and their files
-            // Because file uploads are complex with JSON, we upload them directly first, 
-            // getting signed urls, but since there's no loan ID yet, it's tricky.
-            // Easiest is to send as multipart, OR upload to a temp path then move.
-            // Wait, easiest approach for MVP with our existing API: 
-            // Create empty loan, then use the Collateral API we built.
-
-            const payload = {
-                ...values,
-                collateralItems: collateralItems.map(c => ({
-                    description: c.description,
-                    estimatedValue: c.estimatedValue,
-                    serialNumber: c.serialNumber,
-                    notes: c.notes,
-                    imagePaths: [] // Handled in step 2
-                }))
-            };
-
-            const res = await fetch(`/api/loans`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
-
-            if (!res.ok) {
-                const err = await res.json();
-                throw new Error(err.error || "Failed to create loan");
-            }
-
-            const createdLoan = await res.json();
-            const loanId = createdLoan.data.id;
-
-            // 2. Upload collateral files if any
-            // We retrieve the newly created collateral records (they should be ordered or matched by description)
-            // Actually, my backend POST /api/loans doesn't return the collateral array explicitly.
-            // Let's refetch the loan to get collateral IDs, or adjust the API.
-            // Simpler approach: Create loan WITHOUT collateral, then iterate and call the Collateral POST API.
-            // Let's modify mutation to do this:
-
+            // Create loan first, then create collateral items (and upload images) against the loan.
             const res1 = await fetch(`/api/loans`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ...values, collateralItems: [] }),
             });
+
+            if (!res1.ok) {
+                const err = await res1.json();
+                throw new Error(err.error || "Failed to create loan");
+            }
+
             const loanData = await res1.json();
             const newLoanId = loanData.data.id;
 
@@ -154,8 +114,8 @@ export function LoanForm() {
             toast.success("Loan created successfully");
             router.push(`/loans/${id}`);
         },
-        onError: (error: any) => {
-            toast.error(error.message);
+        onError: (error: unknown) => {
+            toast.error(getErrorMessage(error));
         }
     });
 
@@ -192,7 +152,7 @@ export function LoanForm() {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            {customersData?.data?.map((c: any) => (
+                                            {customersData?.data?.map((c) => (
                                                 <SelectItem key={c.id} value={c.id}>{c.name} {c.phone ? `(${c.phone})` : ''}</SelectItem>
                                             ))}
                                         </SelectContent>

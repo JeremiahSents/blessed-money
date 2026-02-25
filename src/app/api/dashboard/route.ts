@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import db from "@/src/index";
-import { loans, billingCycles, payments, customers } from "@/src/db/schema";
+import { loans, billingCycles, payments } from "@/src/db/schema";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { eq, or, sql, gt, gte, desc } from "drizzle-orm";
+import { eq, or, sql, gte, desc } from "drizzle-orm";
 import { startOfMonth } from "date-fns";
+import { getErrorMessage } from "@/lib/errors";
 
 export async function GET() {
     const session = await auth.api.getSession({ headers: await headers() });
@@ -71,7 +72,7 @@ export async function GET() {
                 overdueLoansList
             }
         });
-    } catch (err: any) {
-        return NextResponse.json({ error: err.message }, { status: 500 });
+    } catch (err: unknown) {
+        return NextResponse.json({ error: getErrorMessage(err) }, { status: 500 });
     }
 }

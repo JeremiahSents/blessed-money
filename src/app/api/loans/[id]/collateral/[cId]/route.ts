@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { eq, and } from "drizzle-orm";
 import { deleteFile } from "@/lib/storage";
+import { getErrorMessage } from "@/lib/errors";
 
 export async function PUT(req: NextRequest, props: { params: Promise<{ id: string, cId: string }> }) {
     const params = await props.params;
@@ -15,7 +16,13 @@ export async function PUT(req: NextRequest, props: { params: Promise<{ id: strin
         const body = await req.json();
 
         // Support "markReturned" shortcut
-        const updateData: any = body.markReturned ? {
+        const updateData: {
+            returnedAt?: string;
+            description?: string;
+            estimatedValue?: string | null;
+            serialNumber?: string | null;
+            notes?: string | null;
+        } = body.markReturned ? {
             returnedAt: new Date().toISOString()
         } : {
             description: body.description,
@@ -48,8 +55,8 @@ export async function PUT(req: NextRequest, props: { params: Promise<{ id: strin
         });
 
         return NextResponse.json({ data: updatedItem });
-    } catch (err: any) {
-        return NextResponse.json({ error: err.message }, { status: 400 });
+    } catch (err: unknown) {
+        return NextResponse.json({ error: getErrorMessage(err) }, { status: 400 });
     }
 }
 
@@ -71,7 +78,7 @@ export async function DELETE(req: NextRequest, props: { params: Promise<{ id: st
                 for (const path of item.imagePaths) {
                     try {
                         await deleteFile('collateral-docs', path);
-                    } catch (ignore) {
+                    } catch {
                         // Ignore missing file errors if bucket got out of sync
                     }
                 }
@@ -89,7 +96,7 @@ export async function DELETE(req: NextRequest, props: { params: Promise<{ id: st
         });
 
         return NextResponse.json({ success: true });
-    } catch (err: any) {
-        return NextResponse.json({ error: err.message }, { status: 400 });
+    } catch (err: unknown) {
+        return NextResponse.json({ error: getErrorMessage(err) }, { status: 400 });
     }
 }

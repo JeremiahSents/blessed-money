@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { getErrorMessage } from "@/lib/errors";
 
 export function IdImageGallery({ customerId, paths = [] }: { customerId: string, paths: string[] }) {
     const queryClient = useQueryClient();
@@ -27,8 +28,8 @@ export function IdImageGallery({ customerId, paths = [] }: { customerId: string,
             toast.success("Document removed");
             setDeletePath(null);
         },
-        onError: (err: any) => {
-            toast.error(err.message);
+        onError: (err: unknown) => {
+            toast.error(getErrorMessage(err));
             setDeletePath(null);
         }
     });

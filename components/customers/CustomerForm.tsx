@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useEffect } from "react";
+import { getErrorMessage } from "@/lib/errors";
 
 const customerSchema = z.object({
     name: z.string().min(2, "Name is required"),
@@ -86,8 +87,8 @@ export function CustomerForm({ open, onOpenChange, defaultValues }: CustomerForm
             onOpenChange(false);
             if (!isEditing) form.reset();
         },
-        onError: (error: any) => {
-            toast.error(error.message);
+        onError: (error: unknown) => {
+            toast.error(getErrorMessage(error));
         }
     });
 

@@ -10,14 +10,16 @@ import { CheckCircleIcon, Trash2Icon, FileTextIcon } from "lucide-react";
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { formatDate, formatCurrency } from "@/lib/utils";
+import type { CollateralItem } from "@/lib/types";
+import { getErrorMessage } from "@/lib/errors";
 
-export function CollateralItemCard({ item, loanId }: { item: any; loanId: string }) {
+export function CollateralItemCard({ item, loanId }: { item: CollateralItem; loanId: string }) {
     const queryClient = useQueryClient();
     const [isDeleting, setIsDeleting] = useState(false);
     const [isReturning, setIsReturning] = useState(false);
 
     const updateMutation = useMutation({
-        mutationFn: async (payload: any) => {
+        mutationFn: async (payload: { markReturned: true } | Partial<Pick<CollateralItem, "description" | "estimatedValue" | "serialNumber" | "notes">>) => {
             const res = await fetch(`/api/loans/${loanId}/collateral/${item.id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
@@ -30,7 +32,7 @@ export function CollateralItemCard({ item, loanId }: { item: any; loanId: string
             queryClient.invalidateQueries({ queryKey: ["loan", loanId] });
             toast.success("Collateral updated");
         },
-        onError: (err: any) => toast.error(err.message),
+        onError: (err: unknown) => toast.error(getErrorMessage(err)),
         onSettled: () => setIsReturning(false)
     });
 
@@ -47,8 +49,8 @@ export function CollateralItemCard({ item, loanId }: { item: any; loanId: string
             toast.success("Collateral deleted");
             setIsDeleting(false);
         },
-        onError: (err: any) => {
-            toast.error(err.message);
+        onError: (err: unknown) => {
+            toast.error(getErrorMessage(err));
             setIsDeleting(false);
         }
     });
