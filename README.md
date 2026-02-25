@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LendTrack
 
-## Getting Started
+LendTrack is a personal loan portfolio management application built for a solo money lender. It provides a comprehensive dashboard, customer management, billing cycle tracking, collateral management, and Cent-based interest calculations.
 
-First, run the development server:
+## Technology Stack
+- **Framework:** Next.js 16 (App Router)
+- **Database:** Supabase (PostgreSQL) + Drizzle ORM
+- **Authentication:** Better Auth (Google OAuth)
+- **UI & Styling:** Tailwind CSS v4, shadcn/ui (base-nova with hugeicons), Lucide Icons
+- **Forms & Validation:** React Hook Form + Zod
+- **Data Fetching:** TanStack Query v5
+- **PDF Generation:** jsPDF + jspdf-autotable
 
+## Local Setup
+
+### 1. Prerequisites
+- Node.js >= 20
+- A Supabase account and project
+- A Google Cloud project (for OAuth credentials)
+
+### 2. Environment Variables
+Copy the `.env.example` file to a new `.env` file:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env
+```
+Fill in the placeholders with your actual Supabase and Google OAuth credentials.
+
+### 3. Supabase Storage Setup
+1. Go to your Supabase project dashboard -> Storage.
+2. Create two new buckets:
+   - `customer-ids`
+   - `collateral-docs`
+3. Both buckets should be **private** (the application server uses the Service Role key to generate Signed URLs for secure viewing).
+
+### 4. Database Setup
+Ensure your local `.env` has the correct `DATABASE_URL`. Run the Drizzle migrations to set up the schema:
+```bash
+npm run db:push
+```
+Or generate and apply migrations:
+```bash
+npx drizzle-kit generate
+npx drizzle-kit migrate
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 5. Seeding Dummy Data (Optional)
+To test the application out of the box with sample data:
+```bash
+npx tsx scripts/seed.ts
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 6. Start the Development Server
+```bash
+npm run dev
+```
+Visit `http://localhost:3000`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Automated Nightly Rollover (Cron)
+LendTrack includes an automated cron job route that rolls over billing cycles when they expire, capitalizing interest and marking accounts as overdue if they miss payments.
+- **Route:** `POST /api/cron/rollover`
+- **Security:** Requires a Bearer token matching your `CRON_SECRET` environment variable.
+- **Vercel Setup:** If deploying to Vercel, configure a Cron Job in your `vercel.json` pointing to this route to run every night at midnight.
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Domain Logic: Interest Calculation Engine
+The application engine uses strict Cent-based arithmetic (`BigInt`) for all financial operations. This ensures zero floating-point drift over the lifetime of a loan.
+The logic resides in `lib/interest.ts`, and is heavily tested via Vitest (`lib/interest.test.ts`).
+1. **Cycle 1:** Computes interest on the original Principal.
+2. ** Rollover (Cycle 2+):** If a cycle is unpaid or partially paid by its due date, the remaining *Balance* (Principal + Unpaid Interest) becomes the *Opening Principal* for the next cycle. Interest is applied to this new amount. By doing this, the system mathematically acts as a compound interest model, which is the standard methodology for local money lenders.
