@@ -4,7 +4,8 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { CustomerTable } from "@/components/customers/CustomerTable";
 import { CustomerForm } from "@/components/customers/CustomerForm";
 import { Button } from "@/components/ui/button";
-import { PlusIcon } from "lucide-react";
+import { HugeiconsIcon } from '@hugeicons/react';
+import { PlusSignIcon } from '@hugeicons/core-free-icons';
 import { useState } from "react";
 
 export default function CustomersPage() {
@@ -17,7 +18,7 @@ export default function CustomersPage() {
                 description="Manage your client base and view their profiles."
                 action={
                     <Button onClick={() => setIsFormOpen(true)}>
-                        <PlusIcon className="w-4 h-4 mr-2" />
+                        <HugeiconsIcon icon={PlusSignIcon} className="w-4 h-4 mr-2" />
                         Add Customer
                     </Button>
                 }

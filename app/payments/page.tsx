@@ -5,7 +5,8 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { Loader2Icon, DownloadIcon } from "lucide-react";
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Loading02Icon, Download04Icon } from '@hugeicons/core-free-icons';
 import Link from "next/link";
 
 export default function PaymentsPage() {
@@ -49,7 +50,7 @@ export default function PaymentsPage() {
                 description="A complete chronological ledger of all payments received."
                 action={
                     <Button variant="outline" onClick={exportCSV} disabled={!data?.data?.length}>
-                        <DownloadIcon className="w-4 h-4 mr-2" />
+                        <HugeiconsIcon icon={Download04Icon} className="w-4 h-4 mr-2" />
                         Export CSV
                     </Button>
                 }
@@ -70,7 +71,7 @@ export default function PaymentsPage() {
                         {isLoading ? (
                             <TableRow>
                                 <TableCell colSpan={5} className="py-12 text-center text-zinc-500">
-                                    <Loader2Icon className="w-6 h-6 animate-spin mx-auto" />
+                                    <HugeiconsIcon icon={Loading02Icon} className="w-6 h-6 animate-spin mx-auto" />
                                 </TableCell>
                             </TableRow>
                         ) : data?.data?.length === 0 ? (

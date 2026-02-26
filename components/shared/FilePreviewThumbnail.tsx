@@ -1,6 +1,7 @@
 "use client";
 
-import { XIcon, FileIcon } from "lucide-react";
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Cancel01Icon, DocumentAttachmentIcon } from '@hugeicons/core-free-icons';
 import Image from "next/image";
 
 export function FilePreviewThumbnail({
@@ -19,7 +20,7 @@ export function FilePreviewThumbnail({
                 <img src={url} alt={file.name} className="object-cover w-full h-full" />
             ) : (
                 <div className="flex flex-col items-center p-2 text-center text-zinc-500">
-                    <FileIcon className="w-8 h-8 mb-1" />
+                    <HugeiconsIcon icon={DocumentAttachmentIcon} className="w-8 h-8 mb-1" />
                     <span className="text-[10px] truncate max-w-full">{file.name}</span>
                 </div>
             )}
@@ -29,7 +30,7 @@ export function FilePreviewThumbnail({
                     onClick={onRemove}
                     className="absolute top-1 right-1 bg-black/50 hover:bg-black/80 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                 >
-                    <XIcon className="w-3 h-3" />
+                    <HugeiconsIcon icon={Cancel01Icon} className="w-3 h-3" />
                 </button>
             )}
         </div>

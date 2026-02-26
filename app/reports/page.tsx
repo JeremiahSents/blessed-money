@@ -5,7 +5,8 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
-import { Loader2Icon, DownloadIcon } from "lucide-react";
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Loading02Icon, Download04Icon } from '@hugeicons/core-free-icons';
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -56,7 +57,7 @@ export default function ReportsPage() {
                 description="Analyze your portfolio performance month over month."
                 action={
                     <Button variant="outline" onClick={exportPDF} disabled={!data?.data?.length}>
-                        <DownloadIcon className="w-4 h-4 mr-2" />
+                        <HugeiconsIcon icon={Download04Icon} className="w-4 h-4 mr-2" />
                         Export Report (PDF)
                     </Button>
                 }
@@ -77,7 +78,7 @@ export default function ReportsPage() {
                         {isLoading ? (
                             <TableRow>
                                 <TableCell colSpan={5} className="py-12 text-center text-zinc-500">
-                                    <Loader2Icon className="w-6 h-6 animate-spin mx-auto" />
+                                    <HugeiconsIcon icon={Loading02Icon} className="w-6 h-6 animate-spin mx-auto" />
                                 </TableCell>
                             </TableRow>
                         ) : data?.data?.length === 0 ? (

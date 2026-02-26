@@ -4,7 +4,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CollateralItemCard } from "./CollateralItemCard";
 import { CollateralUploader, CollateralFormData } from "./CollateralUploader";
-import { PlusIcon } from "lucide-react";
+import { HugeiconsIcon } from '@hugeicons/react';
+import { PlusSignIcon } from '@hugeicons/core-free-icons';
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type { CollateralItem } from "@/lib/types";
@@ -74,7 +75,7 @@ export function CollateralList({ loanId, items = [] }: { loanId: string; items: 
                 <h3 className="text-lg font-semibold tracking-tight">Collateral</h3>
                 {!isAdding && (
                     <Button size="sm" onClick={() => setIsAdding(true)}>
-                        <PlusIcon className="w-4 h-4 mr-2" />
+                        <HugeiconsIcon icon={PlusSignIcon} className="w-4 h-4 mr-2" />
                         Add Item
                     </Button>
                 )}

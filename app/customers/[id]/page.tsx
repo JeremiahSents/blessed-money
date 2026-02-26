@@ -3,7 +3,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { Loader2Icon, EditIcon, ArrowLeftIcon, MailIcon, PhoneIcon } from "lucide-react";
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Loading02Icon, PencilEdit01Icon, ArrowLeft01Icon, Mail01Icon, TelephoneIcon } from '@hugeicons/core-free-icons';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CustomerForm } from "@/components/customers/CustomerForm";
@@ -63,7 +64,7 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
     };
 
     if (isLoading) {
-        return <div className="flex justify-center p-12"><Loader2Icon className="w-8 h-8 animate-spin text-zinc-400" /></div>;
+        return <div className="flex justify-center p-12"><HugeiconsIcon icon={Loading02Icon} className="w-8 h-8 animate-spin text-zinc-400" /></div>;
     }
 
     const customer = data?.data;
@@ -73,7 +74,7 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
         <div className="max-w-6xl mx-auto space-y-6">
             <div>
                 <Link href="/customers" className="text-sm font-medium text-zinc-500 hover:text-black dark:hover:text-white flex items-center mb-4 transition-colors">
-                    <ArrowLeftIcon className="w-4 h-4 mr-1" /> Back to Customers
+                    <HugeiconsIcon icon={ArrowLeft01Icon} className="w-4 h-4 mr-1" /> Back to Customers
                 </Link>
                 <PageHeader
                     title={customer.name}
@@ -82,7 +83,7 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
                         <div className="flex gap-2">
                             <Button variant="outline" onClick={generateStatement}>Export Statement</Button>
                             <Button onClick={() => setIsEditOpen(true)}>
-                                <EditIcon className="w-4 h-4 mr-2" />
+                                <HugeiconsIcon icon={PencilEdit01Icon} className="w-4 h-4 mr-2" />
                                 Edit Profile
                             </Button>
                         </div>
@@ -97,7 +98,7 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
 
                         <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center shrink-0">
-                                <PhoneIcon className="w-4 h-4 text-zinc-500" />
+                                <HugeiconsIcon icon={TelephoneIcon} className="w-4 h-4 text-zinc-500" />
                             </div>
                             <div>
                                 <p className="text-xs text-zinc-500 uppercase tracking-wider">Phone</p>
@@ -107,7 +108,7 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
 
                         <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center shrink-0">
-                                <MailIcon className="w-4 h-4 text-zinc-500" />
+                                <HugeiconsIcon icon={Mail01Icon} className="w-4 h-4 text-zinc-500" />
                             </div>
                             <div>
                                 <p className="text-xs text-zinc-500 uppercase tracking-wider">Email</p>

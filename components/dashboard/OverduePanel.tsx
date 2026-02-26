@@ -2,7 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import Link from "next/link";
-import { AlertCircleIcon } from "lucide-react";
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Alert02Icon } from '@hugeicons/core-free-icons';
 import type { BillingCycle, Customer, LoanSummary } from "@/lib/types";
 
 type OverdueLoan = LoanSummary & {
@@ -29,7 +30,7 @@ export function OverduePanel({ overdueLoans = [] }: { overdueLoans: OverdueLoan[
         <Card className="border-red-200 bg-red-50/50 dark:border-red-900/50 dark:bg-red-950/20">
             <CardHeader className="pb-3 border-b border-red-100 dark:border-red-900/50">
                 <CardTitle className="text-red-800 dark:text-red-300 flex items-center text-base">
-                    <AlertCircleIcon className="w-5 h-5 mr-2" />
+                    <HugeiconsIcon icon={Alert02Icon} className="w-5 h-5 mr-2" />
                     Immediate Attention Required
                 </CardTitle>
             </CardHeader>

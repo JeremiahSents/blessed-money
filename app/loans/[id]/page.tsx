@@ -3,7 +3,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { Loader2Icon, ArrowLeftIcon, AlertCircleIcon, FileTextIcon, HistoryIcon } from "lucide-react";
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Loading02Icon, ArrowLeft01Icon, Alert02Icon, PropertyEditIcon, TimeQuarterPastIcon } from '@hugeicons/core-free-icons';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CollateralList } from "@/components/collateral/CollateralList";
@@ -27,7 +28,7 @@ export default function LoanDetailPage(props: { params: Promise<{ id: string }> 
     });
 
     if (isLoading) {
-        return <div className="flex justify-center p-12"><Loader2Icon className="w-8 h-8 animate-spin text-zinc-400" /></div>;
+        return <div className="flex justify-center p-12"><HugeiconsIcon icon={Loading02Icon} className="w-8 h-8 animate-spin text-zinc-400" /></div>;
     }
 
     const loan = data?.data;
@@ -40,7 +41,7 @@ export default function LoanDetailPage(props: { params: Promise<{ id: string }> 
         <div className="max-w-6xl mx-auto space-y-8 pb-12">
             <div>
                 <Link href={`/customers/${loan.customerId}`} className="text-sm font-medium text-zinc-500 hover:text-black dark:hover:text-white flex items-center mb-4 transition-colors">
-                    <ArrowLeftIcon className="w-4 h-4 mr-1" /> Back to Customer
+                    <HugeiconsIcon icon={ArrowLeft01Icon} className="w-4 h-4 mr-1" /> Back to Customer
                 </Link>
                 <PageHeader
                     title={`Loan for ${loan.customer.name}`}
@@ -69,7 +70,7 @@ export default function LoanDetailPage(props: { params: Promise<{ id: string }> 
                 </div>
                 <div className="bg-white dark:bg-zinc-950 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 space-y-1 md:col-span-2 flex items-center gap-4">
                     <div className="w-12 h-12 bg-red-50 dark:bg-red-950 rounded-full flex items-center justify-center shrink-0">
-                        <AlertCircleIcon className="w-5 h-5 text-red-500" />
+                        <HugeiconsIcon icon={Alert02Icon} className="w-5 h-5 text-red-500" />
                     </div>
                     <div>
                         <p className="text-sm text-zinc-500">Outstanding Cycles</p>
@@ -84,7 +85,7 @@ export default function LoanDetailPage(props: { params: Promise<{ id: string }> 
                 <div className="lg:col-span-2 space-y-8">
                     <div className="space-y-4">
                         <div className="flex items-center gap-2">
-                            <HistoryIcon className="w-5 h-5 text-zinc-500" />
+                            <HugeiconsIcon icon={TimeQuarterPastIcon} className="w-5 h-5 text-zinc-500" />
                             <h2 className="text-xl font-semibold">Billing Cycles</h2>
                         </div>
                         <BillingCycleTable cycles={loan.billingCycles} />
@@ -92,7 +93,7 @@ export default function LoanDetailPage(props: { params: Promise<{ id: string }> 
 
                     <div className="space-y-4 pt-4 border-t border-zinc-200 dark:border-zinc-800">
                         <div className="flex items-center gap-2">
-                            <FileTextIcon className="w-5 h-5 text-zinc-500" />
+                            <HugeiconsIcon icon={PropertyEditIcon} className="w-5 h-5 text-zinc-500" />
                             <h2 className="text-xl font-semibold">Internal Notes</h2>
                         </div>
                         <p className="text-zinc-600 dark:text-zinc-400 whitespace-pre-wrap bg-zinc-50 dark:bg-zinc-950 p-4 rounded-xl border border-zinc-100 dark:border-zinc-800">

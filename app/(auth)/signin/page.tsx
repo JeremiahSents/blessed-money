@@ -3,7 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { authClient } from "@/lib/auth-client";
-import { Loader2Icon, BookOpenIcon } from "lucide-react";
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Loading02Icon, Book02Icon } from '@hugeicons/core-free-icons';
 import { useState } from "react";
 
 export default function SignIn() {
@@ -26,7 +27,7 @@ export default function SignIn() {
         <Card className="w-full max-w-sm rounded-2xl border-zinc-200 dark:border-zinc-800 shadow-sm mx-auto">
             <CardHeader className="text-center pb-6">
                 <div className="mx-auto bg-primary/10 w-12 h-12 rounded-xl flex items-center justify-center mb-4">
-                    <BookOpenIcon className="w-6 h-6 text-primary" />
+                    <HugeiconsIcon icon={Book02Icon} className="w-6 h-6 text-primary" />
                 </div>
                 <CardTitle className="text-2xl font-bold tracking-tight">LendTrack</CardTitle>
                 <CardDescription className="text-sm text-zinc-500">

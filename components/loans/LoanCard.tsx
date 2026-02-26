@@ -2,7 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import Link from "next/link";
-import { ArrowUpRightIcon } from "lucide-react";
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ArrowUpRight01Icon } from '@hugeicons/core-free-icons';
 import type { LoanSummary } from "@/lib/types";
 
 export function LoanCard({ loan }: { loan: LoanSummary }) {
@@ -32,7 +33,7 @@ export function LoanCard({ loan }: { loan: LoanSummary }) {
                                 Started {formatDate(loan.startDate)}
                             </p>
                         </div>
-                        <ArrowUpRightIcon className="w-5 h-5 text-zinc-300 group-hover:text-black dark:group-hover:text-white transition-colors" />
+                        <HugeiconsIcon icon={ArrowUpRight01Icon} className="w-5 h-5 text-zinc-300 group-hover:text-black dark:group-hover:text-white transition-colors" />
                     </div>
                 </CardContent>
             </Card>

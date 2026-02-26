@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { UploadCloudIcon, PlusIcon } from "lucide-react";
+import { HugeiconsIcon } from '@hugeicons/react';
+import { CloudUploadIcon, PlusSignIcon } from '@hugeicons/core-free-icons';
 import { FilePreviewThumbnail } from "@/components/shared/FilePreviewThumbnail";
 
 export interface CollateralFormData {
@@ -111,7 +112,7 @@ export function CollateralUploader({
                     className="border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl p-6 text-center cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                     onClick={() => inputRef.current?.click()}
                 >
-                    <UploadCloudIcon className="w-6 h-6 mx-auto text-zinc-400 mb-2" />
+                    <HugeiconsIcon icon={CloudUploadIcon} className="w-6 h-6 mx-auto text-zinc-400 mb-2" />
                     <p className="text-sm text-zinc-600 dark:text-zinc-400 font-medium">Add Files</p>
                     <input
                         type="file"
@@ -138,7 +139,7 @@ export function CollateralUploader({
                     </Button>
                 )}
                 <Button type="submit" disabled={!description.trim()}>
-                    <PlusIcon className="w-4 h-4 mr-2" />
+                    <HugeiconsIcon icon={PlusSignIcon} className="w-4 h-4 mr-2" />
                     Save Item
                 </Button>
             </div>

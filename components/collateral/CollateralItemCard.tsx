@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { toast } from "sonner";
-import { CheckCircleIcon, Trash2Icon, FileTextIcon } from "lucide-react";
+import { HugeiconsIcon } from '@hugeicons/react';
+import { CheckmarkCircle02Icon, Delete02Icon, PropertyEditIcon } from '@hugeicons/core-free-icons';
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { formatDate, formatCurrency } from "@/lib/utils";
@@ -103,7 +104,7 @@ export function CollateralItemCard({ item, loanId }: { item: CollateralItem; loa
                                     return (
                                         <div key={path} className="w-16 h-16 rounded-md overflow-hidden border border-zinc-200 dark:border-zinc-800 relative bg-zinc-50 flex items-center justify-center cursor-pointer group hover:border-black transition-colors">
                                             {isPdf ? (
-                                                <FileTextIcon className="w-6 h-6 text-zinc-400 group-hover:text-black transition-colors" />
+                                                <HugeiconsIcon icon={PropertyEditIcon} className="w-6 h-6 text-zinc-400 group-hover:text-black transition-colors" />
                                             ) : (
                                                 <SignedImage bucket="collateral-docs" path={path} className="w-full h-full object-cover" alt="Collateral Document" />
                                             )}
@@ -124,7 +125,7 @@ export function CollateralItemCard({ item, loanId }: { item: CollateralItem; loa
                         className="text-red-600 hover:text-red-700 hover:bg-red-50"
                         onClick={() => setIsDeleting(true)}
                     >
-                        <Trash2Icon className="w-4 h-4 mr-2" />
+                        <HugeiconsIcon icon={Delete02Icon} className="w-4 h-4 mr-2" />
                         Delete
                     </Button>
 
@@ -134,7 +135,7 @@ export function CollateralItemCard({ item, loanId }: { item: CollateralItem; loa
                             variant="outline"
                             onClick={() => setIsReturning(true)}
                         >
-                            <CheckCircleIcon className="w-4 h-4 mr-2" />
+                            <HugeiconsIcon icon={CheckmarkCircle02Icon} className="w-4 h-4 mr-2" />
                             Mark Returned
                         </Button>
                     )}

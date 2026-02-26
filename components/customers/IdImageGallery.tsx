@@ -4,7 +4,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { SignedImage } from "@/components/shared/SignedImage";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Trash2Icon } from "lucide-react";
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Delete02Icon } from '@hugeicons/core-free-icons';
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { getErrorMessage } from "@/lib/errors";
@@ -55,7 +56,7 @@ export function IdImageGallery({ customerId, paths = [] }: { customerId: string,
                                 size="icon"
                                 onClick={() => setDeletePath(path)}
                             >
-                                <Trash2Icon className="w-4 h-4" />
+                                <HugeiconsIcon icon={Delete02Icon} className="w-4 h-4" />
                             </Button>
                         </div>
                     </div>

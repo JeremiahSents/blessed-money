@@ -1,6 +1,7 @@
 import { formatCurrency } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
-import { ArrowDownLeftIcon, ArrowUpRightIcon } from "lucide-react";
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ArrowDownLeft01Icon, ArrowUpRight01Icon } from '@hugeicons/core-free-icons';
 import Link from "next/link";
 import type { ActivityItem } from "@/lib/types";
 
@@ -23,7 +24,7 @@ export function ActivityFeed({ activity = [] }: { activity: ActivityItem[] }) {
                         <div className="shrink-0 mt-1">
                             <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 border-white dark:border-zinc-950 shadow-sm ${isPayment ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-300' : 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300'
                                 }`}>
-                                {isPayment ? <ArrowDownLeftIcon className="w-5 h-5" /> : <ArrowUpRightIcon className="w-5 h-5" />}
+                                {isPayment ? <HugeiconsIcon icon={ArrowDownLeft01Icon} className="w-5 h-5" /> : <HugeiconsIcon icon={ArrowUpRight01Icon} className="w-5 h-5" />}
                             </div>
                         </div>
 

@@ -11,7 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { CollateralUploader, CollateralFormData } from "../collateral/CollateralUploader";
 import { useState } from "react";
-import { Trash2Icon } from "lucide-react";
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Delete02Icon } from '@hugeicons/core-free-icons';
 import { useRouter } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
@@ -269,7 +270,7 @@ export function LoanForm() {
                                     className="absolute top-2 right-2 w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity rounded-full"
                                     onClick={() => removeCollateral(idx)}
                                 >
-                                    <Trash2Icon className="w-3 h-3" />
+                                    <HugeiconsIcon icon={Delete02Icon} className="w-3 h-3" />
                                 </Button>
                             </div>
                         ))}
