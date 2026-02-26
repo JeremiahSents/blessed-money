@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import db from "@/src/index";
-import { collateral, auditLogs } from "@/src/db/schema";
+import db from "@/core/db/index";
+import { collateral, auditLogs } from "@/core/db/schema";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { eq, and } from "drizzle-orm";
