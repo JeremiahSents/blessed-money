@@ -92,12 +92,17 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
                     title={customer.name}
                     description={`Customer since ${customer.createdAt ? new Date(customer.createdAt).toLocaleDateString() : 'unknown date'}`}
                     action={
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2 justify-end">
                             <Button variant="outline" onClick={generateStatement}>Export Statement</Button>
-                            <Button onClick={() => setIsEditOpen(true)}>
+                            <Button variant="outline" onClick={() => setIsEditOpen(true)}>
                                 <HugeiconsIcon icon={PencilEdit01Icon} className="w-4 h-4 mr-2" />
                                 Edit Profile
                             </Button>
+                            <Link href={`/loans/new?customer=${customer.id}`}>
+                                <Button>
+                                    Issue New Loan
+                                </Button>
+                            </Link>
                         </div>
                     }
                 />
@@ -145,11 +150,6 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
                         </TabsList>
 
                         <TabsContent value="loans" className="space-y-4">
-                            <div className="flex justify-end mb-4">
-                                <Link href={`/loans/new?customer=${customer.id}`}>
-                                    <Button size="sm">Issue New Loan</Button>
-                                </Link>
-                            </div>
                             {customer.loans?.length === 0 ? (
                                 <div className="text-center p-12 border border-dashed rounded-xl bg-zinc-50/50">
                                     <p className="text-zinc-500 text-sm">No loans issued for this customer yet.</p>

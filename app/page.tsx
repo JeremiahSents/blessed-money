@@ -1,6 +1,5 @@
 "use client";
 
-import { PageHeader } from "@/components/shared/page-header";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { OverduePanel } from "@/components/dashboard/overdue-panel";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
@@ -34,18 +33,14 @@ export default function DashboardPage() {
 
     return (
         <div className="space-y-8 max-w-6xl mx-auto">
-            <PageHeader
-                title="Dashboard"
-                description="Overview of your loan portfolio."
-                action={
-                    <Link href="/loans/new">
-                        <Button>
-                            <PlusIcon className="w-4 h-4 mr-2" />
-                            New Loan
-                        </Button>
-                    </Link>
-                }
-            />
+            <div className="flex justify-end mb-8">
+                <Link href="/loans/new">
+                    <Button>
+                        <PlusIcon className="w-4 h-4 mr-2" />
+                        New Loan
+                    </Button>
+                </Link>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard

@@ -12,9 +12,9 @@ import { toast } from "sonner";
 import { CollateralUploader, CollateralFormData } from "../collateral/collateral-uploader";
 import { useState } from "react";
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Delete02Icon } from '@hugeicons/core-free-icons';
+import { Delete02Icon, UserIcon, PlusSignIcon } from '@hugeicons/core-free-icons';
 import { useRouter } from "next/navigation";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import { addMonths } from "date-fns";
 import type { Customer } from "@/lib/types";
@@ -145,17 +145,56 @@ export function LoanForm() {
                             name="customerId"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Customer <span className="text-red-500">*</span></FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormLabel className="text-sm font-medium">Customer <span className="text-red-500">*</span></FormLabel>
+                                    <Select
+                                        onValueChange={(val) => {
+                                            if (val === "__new__") {
+                                                router.push("/customers/new?returnTo=/loans/new");
+                                                return;
+                                            }
+                                            field.onChange(val);
+                                        }}
+                                        defaultValue={field.value}
+                                    >
                                         <FormControl>
-                                            <SelectTrigger>
+                                            <SelectTrigger className="w-full h-11 px-3 gap-2 text-sm border border-zinc-200 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-900 hover:border-zinc-300 dark:hover:border-zinc-600 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary transition-all shadow-sm">
+                                                <HugeiconsIcon icon={UserIcon} className="size-4 text-zinc-400 shrink-0" />
                                                 <SelectValue placeholder="Select a customer" />
                                             </SelectTrigger>
                                         </FormControl>
-                                        <SelectContent>
-                                            {customersData?.data?.map((c) => (
-                                                <SelectItem key={c.id} value={c.id}>{c.name} {c.phone ? `(${c.phone})` : ''}</SelectItem>
-                                            ))}
+                                        <SelectContent className="rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700">
+                                            <SelectGroup>
+                                                <SelectItem
+                                                    value="__new__"
+                                                    className="mx-1 my-1 rounded-lg cursor-pointer bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 focus:bg-emerald-100 dark:focus:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400 font-semibold"
+                                                >
+                                                    <span className="flex items-center gap-2">
+                                                        <span className="flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-900 shrink-0">
+                                                            <HugeiconsIcon icon={PlusSignIcon} className="size-3 text-emerald-600 dark:text-emerald-400" />
+                                                        </span>
+                                                        <span className="flex flex-col">
+                                                            <span className="text-sm leading-tight">Add New Customer</span>
+                                                            <span className="text-xs font-normal text-emerald-600/70 dark:text-emerald-500/70 leading-tight">Create a customer profile first</span>
+                                                        </span>
+                                                    </span>
+                                                </SelectItem>
+                                            </SelectGroup>
+                                            {customersData?.data && customersData.data.length > 0 && (
+                                                <>
+                                                    <SelectSeparator />
+                                                    <SelectGroup>
+                                                        <SelectLabel className="px-3 py-1.5 text-xs font-medium text-zinc-400 uppercase tracking-wide">Existing Customers</SelectLabel>
+                                                        {customersData.data.map((c) => (
+                                                            <SelectItem key={c.id} value={c.id} className="mx-1 rounded-lg">
+                                                                <span className="flex flex-col">
+                                                                    <span className="font-medium">{c.name}</span>
+                                                                    {c.phone && <span className="text-xs text-zinc-400">{c.phone}</span>}
+                                                                </span>
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectGroup>
+                                                </>
+                                            )}
                                         </SelectContent>
                                     </Select>
                                     <FormMessage />
@@ -169,7 +208,7 @@ export function LoanForm() {
                                 name="principalAmount"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Principal Amount ($) <span className="text-red-500">*</span></FormLabel>
+                                        <FormLabel>Principal Amount (UGX) <span className="text-red-500">*</span></FormLabel>
                                         <FormControl>
                                             <Input type="number" step="0.01" placeholder="5000.00" {...field} />
                                         </FormControl>
@@ -262,7 +301,7 @@ export function LoanForm() {
                         {collateralItems.map((item, idx) => (
                             <div key={idx} className="p-3 border rounded-lg bg-zinc-50 relative group">
                                 <h4 className="font-medium text-sm">{item.description}</h4>
-                                <p className="text-xs text-zinc-500">Value: {item.estimatedValue ? `$${item.estimatedValue}` : "N/A"} • Files: {item.files.length}</p>
+                                <p className="text-xs text-zinc-500">Value: {item.estimatedValue ? `UGX ${Number(item.estimatedValue).toLocaleString()}` : "N/A"} • Files: {item.files.length}</p>
                                 <Button
                                     type="button"
                                     variant="destructive"
