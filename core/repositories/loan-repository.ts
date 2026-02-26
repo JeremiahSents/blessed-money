@@ -31,7 +31,13 @@ export async function findManyLoans(opts: {
         limit,
         offset,
         orderBy: [desc(loans.createdAt)],
-        with: { customer: true },
+        with: {
+            customer: true,
+            billingCycles: {
+                orderBy: (cycles, { desc: d }) => [d(cycles.cycleNumber)],
+                limit: 1, // only the latest/active cycle
+            },
+        },
     });
 
     const totalCountRes = await db

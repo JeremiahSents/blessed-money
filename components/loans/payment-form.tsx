@@ -86,7 +86,7 @@ export function PaymentForm({
                             name="amount"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Amount ($)</FormLabel>
+                                    <FormLabel>Amount (UGX)</FormLabel>
                                     <FormControl>
                                         <Input type="number" step="0.01" placeholder="100.00" {...field} />
                                     </FormControl>

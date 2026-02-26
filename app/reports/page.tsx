@@ -36,9 +36,9 @@ export default function ReportsPage() {
         const rows = data.data.map((m) => [
             m.month,
             m.loansIssuedCount.toString(),
-            formatCurrency(m.loansIssuedPrincipal * 100),
-            formatCurrency(m.collected * 100),
-            formatCurrency(m.interestEarned * 100),
+            formatCurrency(m.loansIssuedPrincipal),
+            formatCurrency(m.collected),
+            formatCurrency(m.interestEarned),
         ]);
 
         autoTable(doc, {

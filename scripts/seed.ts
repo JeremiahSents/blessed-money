@@ -146,7 +146,31 @@ function toAmount(value: number): string {
 }
 
 async function seed() {
-  console.log("Seeding database with UGX fixtures...");
+  console.log("🗑️  Dropping existing data...");
+
+  try {
+    // Truncate all app tables in dependency order (children first).
+    // CASCADE handles any remaining FK references automatically.
+    await client`
+      TRUNCATE TABLE
+        payments,
+        billing_cycles,
+        collateral,
+        loans,
+        customers
+      CASCADE
+    `;
+
+    // Remove the seed user so it is fully re-created below.
+    await client`DELETE FROM "user" WHERE id = 'system-seed-user'`;
+
+    console.log("✅ Tables cleared.");
+  } catch (error) {
+    console.error("❌ Failed to clear tables:", error);
+    process.exit(1);
+  }
+
+  console.log("🌱 Seeding database with UGX fixtures...");
 
   try {
     console.log("Ensuring seed user...");

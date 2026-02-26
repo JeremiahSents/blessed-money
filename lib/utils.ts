@@ -6,15 +6,13 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function formatCurrency(cents: number | bigint | string): string {
-  const amountStr = cents.toString();
-  // Represent internal value as cents, display in UGX (shillings) by dividing by 100
+export function formatCurrency(amount: number | bigint | string): string {
   return new Intl.NumberFormat('en-UG', {
     style: 'currency',
     currency: 'UGX',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(Number(amountStr) / 100);
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(Number(amount.toString()));
 }
 
 export function formatDate(date: Date | string): string {

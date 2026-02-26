@@ -228,7 +228,7 @@ export function LoanForm() {
                                     <FormItem>
                                         <FormLabel>Principal Amount (UGX) <span className="text-red-500">*</span></FormLabel>
                                         <FormControl>
-                                            <Input type="number" step="0.01" placeholder="5000.00" {...field} />
+                                            <Input type="number" step="1" placeholder="5000" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
