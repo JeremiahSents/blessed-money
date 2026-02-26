@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { HugeiconsIcon } from '@hugeicons/react';
 import { CloudUploadIcon } from '@hugeicons/core-free-icons';
-import { FilePreviewThumbnail } from "@/components/shared/FilePreviewThumbnail";
+import { FilePreviewThumbnail } from "@/components/shared/file-preview-thumbnail";
 import { getErrorMessage } from "@/lib/errors";
 
 export function IdDocumentUploader({ customerId }: { customerId: string }) {
