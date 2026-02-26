@@ -12,8 +12,8 @@ export const ourFileRouter = {
      * Input carries the customer ID so it can be persisted server-side after upload.
      */
     customerIdUploader: f({
-        image: { maxFileSize: "5MB", maxFileCount: 5 },
-        "application/pdf": { maxFileSize: "5MB", maxFileCount: 5 },
+        image: { maxFileSize: "4MB", maxFileCount: 5 },
+        "application/pdf": { maxFileSize: "4MB", maxFileCount: 5 },
     })
         .middleware(async () => {
             const session = await auth.api.getSession({ headers: await headers() });
@@ -30,8 +30,8 @@ export const ourFileRouter = {
      * Accepts images (JPG/PNG) and PDFs up to 10 MB, max 10 files at a time.
      */
     collateralUploader: f({
-        image: { maxFileSize: "10MB", maxFileCount: 10 },
-        "application/pdf": { maxFileSize: "10MB", maxFileCount: 10 },
+        image: { maxFileSize: "8MB", maxFileCount: 10 },
+        "application/pdf": { maxFileSize: "8MB", maxFileCount: 10 },
     })
         .middleware(async () => {
             const session = await auth.api.getSession({ headers: await headers() });
