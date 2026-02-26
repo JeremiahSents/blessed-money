@@ -28,6 +28,7 @@ export function Navigation() {
         { title: "Loans", url: "/loans/new", icon: <HugeiconsIcon icon={Wallet01Icon} className="w-5 h-5" /> },
         { title: "Payments", url: "/payments", icon: <HugeiconsIcon icon={PropertyEditIcon} className="w-5 h-5" /> },
         { title: "Reports", url: "/reports", icon: <HugeiconsIcon icon={Book02Icon} className="w-5 h-5" /> },
+        { title: "Settings", url: "/settings", icon: <HugeiconsIcon icon={Settings01Icon} className="w-5 h-5" /> },
     ];
 
     const currentTab = navItems.find((item) =>
@@ -47,7 +48,7 @@ export function Navigation() {
                     {/* DESKTOP TABS */}
                     <div className="hidden md:flex flex-1 items-center justify-center">
                         <Tabs value={currentTab} className="w-full max-w-2xl" onValueChange={(value) => router.push(value)}>
-                            <TabsList className="w-full grid grid-cols-5 h-11">
+                            <TabsList className="w-full grid grid-cols-6 h-11">
                                 {navItems.map((item) => (
                                     <TabsTrigger key={item.url} value={item.url} className="text-sm data-[state=active]:bg-primary/5">
                                         {item.title}
