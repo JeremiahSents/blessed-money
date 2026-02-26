@@ -116,12 +116,20 @@ export async function createLoanWithCycleAndAudit(
         }
 
         // 4. Audit Log for Loan
+        const initialCycleForAudit = {
+            openingPrincipalCents: Number(firstCycleData.openingPrincipalCents),
+            interestChargedCents: Number(firstCycleData.interestChargedCents),
+            totalDueCents: Number(firstCycleData.totalDueCents),
+            totalPaidCents: Number(firstCycleData.totalPaidCents),
+            balanceCents: Number(firstCycleData.balanceCents),
+        };
+
         await tx.insert(auditLogs).values({
             userId,
             action: "LOAN_CREATED",
             entityType: "loan",
             entityId: loan.id,
-            metadata: { after: loan, initialCycle: firstCycleData },
+            metadata: { after: loan, initialCycle: initialCycleForAudit },
         });
 
         return loan;
