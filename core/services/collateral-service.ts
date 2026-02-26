@@ -1,6 +1,8 @@
 import db from "@/core/db";
 import { auditLogs } from "@/core/db/schema";
-import { deleteFile } from "@/lib/storage";
+import { UTApi } from "uploadthing/server";
+
+const utapi = new UTApi();
 import {
     createCollateral,
     findCollateralById,
@@ -76,14 +78,16 @@ export async function removeCollateral(
 
         if (!item) throw new Error("Collateral not found");
 
-        // Delete images from storage bucket
+        // Delete images from UploadThing
+        // imagePaths now stores full UploadThing URLs (<appId>.ufs.sh/f/<key>)
         if (item.imagePaths && item.imagePaths.length > 0) {
-            for (const path of item.imagePaths) {
-                try {
-                    await deleteFile("collateral-docs", path);
-                } catch {
-                    // Ignore missing file errors if bucket got out of sync
-                }
+            try {
+                const keys = item.imagePaths
+                    .map((url) => url.split("/f/").at(-1))
+                    .filter((k): k is string => Boolean(k));
+                if (keys.length > 0) await utapi.deleteFiles(keys);
+            } catch {
+                // Ignore errors if files were already removed
             }
         }
 

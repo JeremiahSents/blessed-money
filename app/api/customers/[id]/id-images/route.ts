@@ -4,51 +4,39 @@ import { customers, auditLogs } from "@/core/db/schema";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { eq } from "drizzle-orm";
-import { uploadFile, deleteFile as deleteStorageFile } from "@/lib/storage";
+import { UTApi } from "uploadthing/server";
 
+const utapi = new UTApi();
+
+/**
+ * POST /api/customers/[id]/id-images
+ * Body: { urls: string[] }  — public UploadThing URLs returned from onClientUploadComplete
+ * Persists the UploadThing file URLs into the customer's nationalIdImagePaths array.
+ */
 export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
     const params = await props.params;
     const session = await auth.api.getSession({ headers: await headers() });
     if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     try {
-        const formData = await req.formData();
-        const files = formData.getAll('files') as File[];
+        const body = await req.json() as { urls: string[] };
+        const { urls } = body;
 
-        if (!files || files.length === 0) {
-            return NextResponse.json({ error: "No files provided" }, { status: 400 });
+        if (!urls || urls.length === 0) {
+            return NextResponse.json({ error: "No file URLs provided" }, { status: 400 });
         }
 
-        const uploadedPaths: string[] = [];
-
-        // Validations & Uploads
-        for (const file of files) {
-            if (file.size > 5 * 1024 * 1024) {
-                throw new Error(`File ${file.name} exceeds 5MB limit`);
-            }
-            if (!['image/jpeg', 'image/png', 'application/pdf'].includes(file.type)) {
-                throw new Error(`File ${file.name} has invalid type ${file.type}`);
-            }
-
-            const ext = file.name.split('.').pop();
-            const timestamp = Date.now();
-            const path = `${session.user.id}/${params.id}/id-${timestamp}.${ext}`;
-
-            const uploadedPath = await uploadFile('customer-ids', path, file);
-            uploadedPaths.push(uploadedPath);
-        }
-
-        // Update customer in transaction
         const updatedCustomer = await db.transaction(async (tx) => {
             const customer = await tx.query.customers.findFirst({
-                where: eq(customers.id, params.id)
+                where: eq(customers.id, params.id),
             });
 
             if (!customer) throw new Error("Customer not found");
 
-            const newPaths = [...(customer.nationalIdImagePaths || []), ...uploadedPaths];
+            const newPaths = [...(customer.nationalIdImagePaths || []), ...urls];
 
-            const [afterState] = await tx.update(customers)
+            const [afterState] = await tx
+                .update(customers)
                 .set({ nationalIdImagePaths: newPaths })
                 .where(eq(customers.id, params.id))
                 .returning();
@@ -58,7 +46,7 @@ export async function POST(req: NextRequest, props: { params: Promise<{ id: stri
                 action: "CUSTOMER_ID_UPLOADED",
                 entityType: "customer",
                 entityId: params.id,
-                metadata: { addedPaths: uploadedPaths, after: afterState }
+                metadata: { addedUrls: urls, after: afterState },
             });
 
             return afterState;
@@ -70,28 +58,38 @@ export async function POST(req: NextRequest, props: { params: Promise<{ id: stri
     }
 }
 
+/**
+ * DELETE /api/customers/[id]/id-images
+ * Body: { url: string }  — the UploadThing URL to remove
+ * Deletes the file from UploadThing and removes the URL from the DB.
+ */
 export async function DELETE(req: NextRequest, props: { params: Promise<{ id: string }> }) {
     const params = await props.params;
     const session = await auth.api.getSession({ headers: await headers() });
     if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     try {
-        const { path } = await req.json();
-        if (!path) return NextResponse.json({ error: "Path to delete is required" }, { status: 400 });
+        const { url } = await req.json() as { url: string };
+        if (!url) return NextResponse.json({ error: "url is required" }, { status: 400 });
 
-        // First delete from storage bucket
-        await deleteStorageFile('customer-ids', path);
+        // Extract the file key from the UploadThing URL  (<appId>.ufs.sh/f/<key>)
+        const key = url.split("/f/").at(-1);
+        if (!key) return NextResponse.json({ error: "Invalid UploadThing URL" }, { status: 400 });
 
-        // Then update database
+        // Delete from UploadThing storage
+        await utapi.deleteFiles([key]);
+
+        // Remove from database
         const updatedCustomer = await db.transaction(async (tx) => {
             const customer = await tx.query.customers.findFirst({
-                where: eq(customers.id, params.id)
+                where: eq(customers.id, params.id),
             });
             if (!customer) throw new Error("Customer not found");
 
-            const newPaths = (customer.nationalIdImagePaths || []).filter(p => p !== path);
+            const newPaths = (customer.nationalIdImagePaths || []).filter((u) => u !== url);
 
-            const [afterState] = await tx.update(customers)
+            const [afterState] = await tx
+                .update(customers)
                 .set({ nationalIdImagePaths: newPaths })
                 .where(eq(customers.id, params.id))
                 .returning();
@@ -101,7 +99,7 @@ export async function DELETE(req: NextRequest, props: { params: Promise<{ id: st
                 action: "CUSTOMER_ID_DELETED",
                 entityType: "customer",
                 entityId: params.id,
-                metadata: { deletedPath: path, after: afterState }
+                metadata: { deletedUrl: url, after: afterState },
             });
 
             return afterState;

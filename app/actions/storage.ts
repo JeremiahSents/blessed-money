@@ -1,13 +1,17 @@
 "use server";
 
-import { getSignedUrl } from "@/lib/storage";
-import { getErrorMessage } from "@/lib/errors";
-
-export async function getSignedUrlAction(bucket: string, path: string) {
-    try {
-        const url = await getSignedUrl(bucket, path);
-        return { url };
-    } catch (e: unknown) {
-        return { error: true, message: getErrorMessage(e) };
-    }
+/**
+ * UploadThing files are served from a public CDN at:
+ *   https://<appId>.ufs.sh/f/<fileKey>
+ *
+ * The URL returned by onClientUploadComplete (file.ufsUrl) is already the
+ * permanent, public URL — no signing or proxying is required.
+ *
+ * This action is kept for backwards compatibility but simply returns the
+ * URL unchanged.  If you later need signed/expiring URLs for private
+ * UploadThing files, use UTApi.generateSignedURL() here instead.
+ */
+export async function getSignedUrlAction(url: string): Promise<{ url: string } | { error: true; message: string }> {
+    if (!url) return { error: true, message: "url is required" };
+    return { url };
 }
