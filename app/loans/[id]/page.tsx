@@ -7,7 +7,7 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { Loading02Icon, ArrowLeft01Icon, Alert02Icon, PropertyEditIcon, TimeQuarterPastIcon } from '@hugeicons/core-free-icons';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CollateralList } from "@/components/collateral/CollateralList";
+import { CollateralList } from "@/components/collateral/collateral-list";
 import { BillingCycleTable } from "@/components/loans/BillingCycleTable";
 import { PaymentForm } from "@/components/loans/PaymentForm";
 import { formatCurrency, formatDate } from "@/lib/utils";

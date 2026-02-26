@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { CollateralItemCard } from "./CollateralItemCard";
-import { CollateralUploader, CollateralFormData } from "./CollateralUploader";
+import { CollateralItemCard } from "./collateral-item-card";
+import { CollateralUploader, CollateralFormData } from "./collateral-uploader";
 import { HugeiconsIcon } from '@hugeicons/react';
 import { PlusSignIcon } from '@hugeicons/core-free-icons';
 import { useMutation, useQueryClient } from "@tanstack/react-query";

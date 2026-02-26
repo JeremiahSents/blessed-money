@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { CollateralUploader, CollateralFormData } from "../collateral/CollateralUploader";
+import { CollateralUploader, CollateralFormData } from "../collateral/collateral-uploader";
 import { useState } from "react";
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Delete02Icon } from '@hugeicons/core-free-icons';
