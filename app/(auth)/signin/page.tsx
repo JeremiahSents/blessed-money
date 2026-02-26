@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
 import Image from "next/image";
+import { Loader2 } from "lucide-react";
 
 export default function SignIn() {
     const [isLoading, setIsLoading] = useState(false);
@@ -41,7 +42,10 @@ export default function SignIn() {
                     disabled={isLoading}
                 >
                     {isLoading ? (
-                        "Connecting..."
+                        <span className="flex items-center justify-center gap-2">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Connecting...
+                        </span>
                     ) : (
                         <div className="flex items-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5">

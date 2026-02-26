@@ -11,16 +11,22 @@ import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
 
 export default function SettingsPage() {
     const router = useRouter();
+    const [isSigningOut, setIsSigningOut] = useState(false);
 
     const handleSignOut = async () => {
+        if (isSigningOut) return;
+        setIsSigningOut(true);
         try {
             await authClient.signOut();
             router.push("/signin");
         } catch {
             toast.error("Failed to sign out");
+            setIsSigningOut(false);
         }
     };
 
@@ -87,8 +93,12 @@ export default function SettingsPage() {
                     </CardHeader>
                     <CardContent>
                         <Button variant="destructive" onClick={handleSignOut}>
-                            <HugeiconsIcon icon={Logout03Icon} className="w-4 h-4 mr-2" />
-                            Sign Out
+                            {isSigningOut ? (
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            ) : (
+                                <HugeiconsIcon icon={Logout03Icon} className="w-4 h-4 mr-2" />
+                            )}
+                            {isSigningOut ? "Signing out..." : "Sign Out"}
                         </Button>
                     </CardContent>
                 </Card>
