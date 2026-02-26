@@ -1,16 +1,18 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useParams, useRouter } from "next/navigation";
-import { PageHeader } from "@/components/shared/PageHeader";
+import { PageHeader } from "@/components/shared/page-header";
+
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Loading02Icon, PencilEdit01Icon, ArrowLeft01Icon, Mail01Icon, TelephoneIcon } from '@hugeicons/core-free-icons';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CustomerForm } from "@/components/customers/CustomerForm";
-import { IdDocumentUploader } from "@/components/customers/IdDocumentUploader";
-import { IdImageGallery } from "@/components/customers/IdImageGallery";
-import { LoanCard } from "@/components/loans/LoanCard";
+import { CustomerForm } from "@/components/customers/customer-form";
+import { IdDocumentUploader } from "@/components/customers/id-document-uploader";
+import { IdImageGallery } from "@/components/customers/id-image-gallery";
+import { LoanCard } from "@/components/loans/loan-card";
+import type { Customer, LoanSummary } from "@/lib/types";
+
 import { useState, use } from "react";
 import Link from "next/link";
 import { jsPDF } from "jspdf";
@@ -18,10 +20,9 @@ import autoTable from "jspdf-autotable";
 
 export default function CustomerDetailPage(props: { params: Promise<{ id: string }> }) {
     const params = use(props.params);
-    const router = useRouter();
     const [isEditOpen, setIsEditOpen] = useState(false);
 
-    const { data, isLoading } = useQuery({
+    const { data, isLoading } = useQuery<{ data: Customer }>({
         queryKey: ['customer', params.id],
         queryFn: async () => {
             const res = await fetch(`/api/customers/${params.id}`);
@@ -45,13 +46,13 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
         doc.text(`Phone: ${customer.phone || 'N/A'}`, 14, 38);
         doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, 44);
 
-        const loansData = customer.loans?.map((loan: any) => [
+        const loansData = (customer.loans || []).map((loan: LoanSummary) => [
             loan.id.slice(0, 8),
             `$${parseFloat(loan.principalAmount).toFixed(2)}`,
             `${(parseFloat(loan.interestRate) * 100).toFixed(1)}%`,
             new Date(loan.startDate).toLocaleDateString(),
             loan.status,
-        ]) || [];
+        ]);
 
         autoTable(doc, {
             startY: 55,
@@ -70,6 +71,17 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
     const customer = data?.data;
     if (!customer) return <div className="p-12 text-center">Customer not found.</div>;
 
+    const customerFormDefaults = {
+        id: customer.id,
+        name: customer.name,
+        phone: customer.phone ?? undefined,
+        email: customer.email ?? undefined,
+        nationalIdType: customer.nationalIdType ?? undefined,
+        nationalIdNumber: customer.nationalIdNumber ?? undefined,
+        nationalIdExpiry: customer.nationalIdExpiry ?? undefined,
+        notes: customer.notes ?? undefined,
+    };
+
     return (
         <div className="max-w-6xl mx-auto space-y-6">
             <div>
@@ -78,7 +90,7 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
                 </Link>
                 <PageHeader
                     title={customer.name}
-                    description={`Customer since ${new Date(customer.createdAt).toLocaleDateString()}`}
+                    description={`Customer since ${customer.createdAt ? new Date(customer.createdAt).toLocaleDateString() : 'unknown date'}`}
                     action={
                         <div className="flex gap-2">
                             <Button variant="outline" onClick={generateStatement}>Export Statement</Button>
@@ -144,7 +156,7 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    {customer.loans?.map((loan: any) => (
+                                    {customer.loans?.map((loan: LoanSummary) => (
                                         <LoanCard key={loan.id} loan={loan} />
                                     ))}
                                 </div>
@@ -175,7 +187,7 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
             <CustomerForm
                 open={isEditOpen}
                 onOpenChange={setIsEditOpen}
-                defaultValues={customer}
+                defaultValues={customerFormDefaults}
             />
         </div>
     );

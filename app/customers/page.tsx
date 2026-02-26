@@ -1,8 +1,8 @@
 "use client";
 
-import { PageHeader } from "@/components/shared/PageHeader";
-import { CustomerTable } from "@/components/customers/CustomerTable";
-import { CustomerForm } from "@/components/customers/CustomerForm";
+import { PageHeader } from "@/components/shared/page-header";
+import { CustomerTable } from "@/components/customers/customer-table";
+import { CustomerForm } from "@/components/customers/customer-form";
 import { Button } from "@/components/ui/button";
 import { HugeiconsIcon } from '@hugeicons/react';
 import { PlusSignIcon } from '@hugeicons/core-free-icons';

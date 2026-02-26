@@ -1,16 +1,16 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
-import { PageHeader } from "@/components/shared/PageHeader";
+import { PageHeader } from "@/components/shared/page-header";
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Loading02Icon, ArrowLeft01Icon, Alert02Icon, PropertyEditIcon, TimeQuarterPastIcon } from '@hugeicons/core-free-icons';
+import { Loading02Icon, ArrowLeft01Icon, Alert02Icon, PropertyEditIcon } from '@hugeicons/core-free-icons';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CollateralList } from "@/components/collateral/collateral-list";
-import { BillingCycleTable } from "@/components/loans/BillingCycleTable";
-import { PaymentForm } from "@/components/loans/PaymentForm";
+import { BillingCycleTable } from "@/components/loans/billing-cycle-table";
+import { PaymentForm } from "@/components/loans/payment-form";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import type { LoanDetail } from "@/lib/types";
 import { useState, use } from "react";
 import Link from "next/link";
 
@@ -18,7 +18,7 @@ export default function LoanDetailPage(props: { params: Promise<{ id: string }> 
     const params = use(props.params);
     const [isPaymentOpen, setIsPaymentOpen] = useState(false);
 
-    const { data, isLoading } = useQuery({
+    const { data, isLoading } = useQuery<{ data: LoanDetail }>({
         queryKey: ['loan', params.id],
         queryFn: async () => {
             const res = await fetch(`/api/loans/${params.id}`);
@@ -40,7 +40,7 @@ export default function LoanDetailPage(props: { params: Promise<{ id: string }> 
     return (
         <div className="max-w-6xl mx-auto space-y-8 pb-12">
             <div>
-                <Link href={`/customers/${loan.customerId}`} className="text-sm font-medium text-zinc-500 hover:text-black dark:hover:text-white flex items-center mb-4 transition-colors">
+                <Link href={`/customers/${loan.customer.id}`} className="text-sm font-medium text-zinc-500 hover:text-black dark:hover:text-white flex items-center mb-4 transition-colors">
                     <HugeiconsIcon icon={ArrowLeft01Icon} className="w-4 h-4 mr-1" /> Back to Customer
                 </Link>
                 <PageHeader
@@ -75,7 +75,7 @@ export default function LoanDetailPage(props: { params: Promise<{ id: string }> 
                     <div>
                         <p className="text-sm text-zinc-500">Outstanding Cycles</p>
                         <p className="text-sm font-medium">
-                            {loan.billingCycles.filter((c: any) => c.status !== 'closed').length} active cycle(s) requiring payment.
+                            {loan.billingCycles.filter((c) => c.status !== 'closed').length} active cycle(s) requiring payment.
                         </p>
                     </div>
                 </div>
@@ -85,7 +85,7 @@ export default function LoanDetailPage(props: { params: Promise<{ id: string }> 
                 <div className="lg:col-span-2 space-y-8">
                     <div className="space-y-4">
                         <div className="flex items-center gap-2">
-                            <HugeiconsIcon icon={TimeQuarterPastIcon} className="w-5 h-5 text-zinc-500" />
+                            <HugeiconsIcon icon={ArrowLeft01Icon} className="w-5 h-5 text-zinc-500" />
                             <h2 className="text-xl font-semibold">Billing Cycles</h2>
                         </div>
                         <BillingCycleTable cycles={loan.billingCycles} />

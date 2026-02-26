@@ -3,7 +3,7 @@ import { Geist, Geist_Mono, Roboto } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/sonner";
-import { Navigation } from "@/components/shared/Navigation";
+import { Navigation } from "@/components/shared/navigation";
 
 const roboto = Roboto({ subsets: ['latin'], variable: '--font-sans' });
 

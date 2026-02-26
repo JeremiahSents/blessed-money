@@ -1,9 +1,9 @@
 "use client";
 
-import { PageHeader } from "@/components/shared/PageHeader";
-import { StatCard } from "@/components/dashboard/StatCard";
-import { OverduePanel } from "@/components/dashboard/OverduePanel";
-import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
+import { PageHeader } from "@/components/shared/page-header";
+import { StatCard } from "@/components/dashboard/stat-card";
+import { OverduePanel } from "@/components/dashboard/overdue-panel";
+import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { useQuery } from "@tanstack/react-query";
 import { formatCurrency } from "@/lib/utils";
 import { HugeiconsIcon } from '@hugeicons/react';

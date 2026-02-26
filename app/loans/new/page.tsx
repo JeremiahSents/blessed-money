@@ -1,7 +1,7 @@
 "use client";
 
-import { PageHeader } from "@/components/shared/PageHeader";
-import { LoanForm } from "@/components/loans/LoanForm";
+import { PageHeader } from "@/components/shared/page-header";
+import { LoanForm } from "@/components/loans/loan-form";
 import Link from "next/link";
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowLeft01Icon } from '@hugeicons/core-free-icons';

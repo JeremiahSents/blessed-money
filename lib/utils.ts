@@ -8,11 +8,12 @@ export function cn(...inputs: ClassValue[]) {
 
 export function formatCurrency(cents: number | bigint | string): string {
   const amountStr = cents.toString();
-  // Simple parsed to number just for Intl format since it handles safe integers
-  // Cent value divided by 100 for display
-  return new Intl.NumberFormat('en-US', {
+  // Represent internal value as cents, display in UGX (shillings) by dividing by 100
+  return new Intl.NumberFormat('en-UG', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'UGX',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(Number(amountStr) / 100);
 }
 

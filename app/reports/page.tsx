@@ -1,17 +1,18 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { PageHeader } from "@/components/shared/PageHeader";
+import { PageHeader } from "@/components/shared/page-header";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
+import { MonthlyReportRow } from "@/lib/types";
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Loading02Icon, Download04Icon } from '@hugeicons/core-free-icons';
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 
 export default function ReportsPage() {
-    const { data, isLoading } = useQuery({
+    const { data, isLoading } = useQuery<{ data: MonthlyReportRow[] }>({
         queryKey: ['reports-monthly'],
         queryFn: async () => {
             const res = await fetch("/api/reports/monthly");
@@ -32,12 +33,12 @@ export default function ReportsPage() {
         doc.setFont("helvetica", "normal");
         doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
 
-        const rows = data.data.map((m: any) => [
+        const rows = data.data.map((m) => [
             m.month,
             m.loansIssuedCount.toString(),
-            `$${m.loansIssuedPrincipal.toFixed(2)}`,
-            `$${m.collected.toFixed(2)}`,
-            `$${m.interestEarned.toFixed(2)}`,
+            formatCurrency(m.loansIssuedPrincipal * 100),
+            formatCurrency(m.collected * 100),
+            formatCurrency(m.interestEarned * 100),
         ]);
 
         autoTable(doc, {
@@ -88,7 +89,7 @@ export default function ReportsPage() {
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            data?.data?.map((monthRecord: any, i: number) => (
+                            data?.data?.map((monthRecord, i: number) => (
                                 <TableRow key={i}>
                                     <TableCell className="font-bold">{monthRecord.month}</TableCell>
                                     <TableCell className="text-right">{monthRecord.loansIssuedCount}</TableCell>

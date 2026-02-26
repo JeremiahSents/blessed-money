@@ -1,16 +1,17 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { PageHeader } from "@/components/shared/PageHeader";
+import { PageHeader } from "@/components/shared/page-header";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import type { Payment } from "@/lib/types";
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Loading02Icon, Download04Icon } from '@hugeicons/core-free-icons';
 import Link from "next/link";
 
 export default function PaymentsPage() {
-    const { data, isLoading } = useQuery({
+    const { data, isLoading } = useQuery<{ data: Payment[] }>({
         queryKey: ['payments'],
         queryFn: async () => {
             const res = await fetch("/api/payments");
@@ -22,17 +23,20 @@ export default function PaymentsPage() {
     const exportCSV = () => {
         if (!data?.data) return;
         const headers = ["Date", "Customer", "Loan ID", "Amount", "Notes"];
-        const rows = data.data.map((p: any) => [
-            formatDate(p.paidAt),
-            `"${p.loan.customer.name}"`,
-            p.loanId,
-            p.amount,
-            `"${p.note || ''}"`
-        ]);
+        const rows: string[] = data.data.map((p) => {
+            const customerName = p.loan?.customer?.name || "";
+            return [
+                formatDate(p.paidAt),
+                `"${customerName}"`,
+                p.loanId,
+                p.amount,
+                `"${p.note || ''}"`,
+            ].join(",");
+        });
 
         const csvContent = "data:text/csv;charset=utf-8,"
             + headers.join(",") + "\n"
-            + rows.map((e: any[]) => e.join(",")).join("\n");
+            + rows.join("\n");
 
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
@@ -81,13 +85,17 @@ export default function PaymentsPage() {
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            data?.data?.map((payment: any) => (
+                            data?.data?.map((payment) => (
                                 <TableRow key={payment.id}>
                                     <TableCell className="font-medium">{formatDate(payment.paidAt)}</TableCell>
                                     <TableCell>
-                                        <Link href={`/customers/${payment.loan.customer.id}`} className="hover:underline font-medium">
-                                            {payment.loan.customer.name}
-                                        </Link>
+                                        {payment.loan?.customer?.id ? (
+                                            <Link href={`/customers/${payment.loan.customer.id}`} className="hover:underline font-medium">
+                                                {payment.loan.customer.name}
+                                            </Link>
+                                        ) : (
+                                            <span className="font-medium">-</span>
+                                        )}
                                     </TableCell>
                                     <TableCell className="font-bold text-emerald-600 dark:text-emerald-400">
                                         +{formatCurrency(parseFloat(payment.amount))}

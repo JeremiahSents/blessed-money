@@ -3,9 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { authClient } from "@/lib/auth-client";
-import { HugeiconsIcon } from '@hugeicons/react';
-import { Loading02Icon, Book02Icon } from '@hugeicons/core-free-icons';
 import { useState } from "react";
+import Image from "next/image";
 
 export default function SignIn() {
     const [isLoading, setIsLoading] = useState(false);
@@ -15,7 +14,7 @@ export default function SignIn() {
         try {
             await authClient.signIn.social({
                 provider: "google",
-                callbackURL: "/dashboard"
+                callbackURL: "/"
             });
         } catch (error) {
             console.error(error);
@@ -27,9 +26,9 @@ export default function SignIn() {
         <Card className="w-full max-w-sm rounded-2xl border-zinc-200 dark:border-zinc-800 shadow-sm mx-auto">
             <CardHeader className="text-center pb-6">
                 <div className="mx-auto bg-primary/10 w-12 h-12 rounded-xl flex items-center justify-center mb-4">
-                    <HugeiconsIcon icon={Book02Icon} className="w-6 h-6 text-primary" />
+                    <Image src="/blessed.png" alt="Blessed" width={28} height={28} priority />
                 </div>
-                <CardTitle className="text-2xl font-bold tracking-tight">LendTrack</CardTitle>
+                <CardTitle className="text-2xl font-bold tracking-tight">Blessed</CardTitle>
                 <CardDescription className="text-sm text-zinc-500">
                     Your lending business, organized.
                 </CardDescription>
