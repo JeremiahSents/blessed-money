@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { HugeiconsIcon } from '@hugeicons/react';
 import { CloudUploadIcon, PlusSignIcon } from '@hugeicons/core-free-icons';
-import { FilePreviewThumbnail } from "@/components/shared/FilePreviewThumbnail";
+import { FilePreviewThumbnail } from "@/components/shared/file-preview-thumbnail";
 
 export interface CollateralFormData {
     description: string;

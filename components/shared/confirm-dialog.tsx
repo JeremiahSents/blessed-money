@@ -8,7 +8,6 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
 
 export function ConfirmDialog({
     open,
@@ -18,7 +17,6 @@ export function ConfirmDialog({
     onConfirm,
     confirmText = "Confirm",
     cancelText = "Cancel",
-    variant = "default",
     isLoading = false,
 }: {
     open: boolean;

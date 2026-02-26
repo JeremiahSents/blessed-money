@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Image, { ImageProps } from "next/image";
-import { getSignedUrlAction } from "../../app/actions/storage";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface SignedImageProps extends Omit<ImageProps, "src"> {
@@ -10,6 +9,10 @@ interface SignedImageProps extends Omit<ImageProps, "src"> {
     path: string;
     fallbackText?: string;
 }
+
+type SignedUrlResponse =
+    | { url: string }
+    | { error: true; message?: string };
 
 export function SignedImage({ bucket, path, fallbackText, alt, ...props }: SignedImageProps) {
     const [url, setUrl] = useState<string | null>(null);
@@ -19,12 +22,21 @@ export function SignedImage({ bucket, path, fallbackText, alt, ...props }: Signe
         let active = true;
         (async () => {
             try {
-                const res = await getSignedUrlAction(bucket, path);
-                if (res.url && active) {
-                    setUrl(res.url);
-                } else if (res.error && active) {
-                    setError(true);
+                setError(false);
+                setUrl(null);
+
+                const res = await fetch(
+                    `/api/storage/signed-url?bucket=${encodeURIComponent(bucket)}&path=${encodeURIComponent(path)}`
+                );
+                if (!res.ok) throw new Error("Failed to fetch signed URL");
+
+                const data = (await res.json()) as SignedUrlResponse;
+                if ("url" in data && typeof data.url === "string") {
+                    if (active) setUrl(data.url);
+                    return;
                 }
+
+                throw new Error("Failed to fetch signed URL");
             } catch (e) {
                 if (active) setError(true);
             }
@@ -46,10 +58,9 @@ export function SignedImage({ bucket, path, fallbackText, alt, ...props }: Signe
         return <Skeleton className={`rounded-md ${props.className || ''}`} />;
     }
 
-    // Using standard img tag if width/height props are missing, but Image accepts fill
     if (props.fill) {
-        return <Image src={url} alt={alt || "Image"} {...props} unoptimized />;
+        return <Image fill src={url} alt={alt || "Image"} {...props} unoptimized />;
     }
 
-    return <img src={url} alt={alt || "Image"} {...(props as React.ImgHTMLAttributes<HTMLImageElement>)} />;
+    return <Image src={url} alt={alt || "Image"} {...props} unoptimized />;
 }

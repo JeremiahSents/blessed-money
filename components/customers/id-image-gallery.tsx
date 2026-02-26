@@ -1,13 +1,13 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { SignedImage } from "@/components/shared/SignedImage";
+import { SignedImage } from "@/components/shared/signed-image";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Delete02Icon } from '@hugeicons/core-free-icons';
 import { useState } from "react";
-import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { getErrorMessage } from "@/lib/errors";
 
 export function IdImageGallery({ customerId, paths = [] }: { customerId: string, paths: string[] }) {
@@ -65,7 +65,7 @@ export function IdImageGallery({ customerId, paths = [] }: { customerId: string,
 
             <ConfirmDialog
                 open={!!deletePath}
-                onOpenChange={(open) => !open && setDeletePath(null)}
+                onOpenChange={(open: boolean) => !open && setDeletePath(null)}
                 title="Delete Document"
                 description="Are you sure you want to delete this document? This action cannot be undone."
                 onConfirm={() => deletePath && deleteMutation.mutate(deletePath)}

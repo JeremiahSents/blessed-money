@@ -2,7 +2,7 @@
 
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Cancel01Icon, DocumentAttachmentIcon } from '@hugeicons/core-free-icons';
-import Image from "next/image";
+import Image from 'next/image';
 
 export function FilePreviewThumbnail({
     file,
@@ -17,7 +17,7 @@ export function FilePreviewThumbnail({
     return (
         <div className="relative group w-24 h-24 rounded-lg border border-zinc-200 overflow-hidden bg-zinc-50 flex items-center justify-center">
             {isImage && url ? (
-                <img src={url} alt={file.name} className="object-cover w-full h-full" />
+                <Image fill src={url} alt={file.name} className="object-cover w-full h-full" />
             ) : (
                 <div className="flex flex-col items-center p-2 text-center text-zinc-500">
                     <HugeiconsIcon icon={DocumentAttachmentIcon} className="w-8 h-8 mb-1" />

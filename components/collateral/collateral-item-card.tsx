@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { SignedImage } from "@/components/shared/SignedImage";
+import { SignedImage } from "@/components/shared/signed-image";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { HugeiconsIcon } from '@hugeicons/react';
 import { CheckmarkCircle02Icon, Delete02Icon, PropertyEditIcon } from '@hugeicons/core-free-icons';
 import { useState } from "react";
-import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { formatDate, formatCurrency } from "@/lib/utils";
 import type { CollateralItem } from "@/lib/types";
 import { getErrorMessage } from "@/lib/errors";
