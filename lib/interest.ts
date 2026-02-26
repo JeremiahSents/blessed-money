@@ -25,6 +25,53 @@ export function calculateInterest(principalCents: bigint, interestRateStr: strin
     return (principalCents * rateNumerator) / rateDenominator;
 }
 
+export function calculateSimpleInterestForTerm(
+    principalCents: bigint,
+    interestRateStr: string,
+    termMonths: number
+): bigint {
+    if (termMonths <= 0) return 0n;
+    const monthlyInterest = calculateInterest(principalCents, interestRateStr);
+    return monthlyInterest * BigInt(termMonths);
+}
+
+export function createAgreedTermCycle(
+    principalCents: bigint,
+    interestRateStr: string,
+    termMonths: number
+): BillingCycleData {
+    const interestChargedCents = calculateSimpleInterestForTerm(
+        principalCents,
+        interestRateStr,
+        termMonths
+    );
+    const totalDueCents = principalCents + interestChargedCents;
+
+    return {
+        openingPrincipalCents: principalCents,
+        interestChargedCents,
+        totalDueCents,
+        totalPaidCents: 0n,
+        balanceCents: totalDueCents,
+    };
+}
+
+export function createPenaltyCycleFromRemaining(
+    remainingBalanceCents: bigint,
+    interestRateStr: string
+): BillingCycleData {
+    const interestChargedCents = calculateInterest(remainingBalanceCents, interestRateStr);
+    const totalDueCents = remainingBalanceCents + interestChargedCents;
+
+    return {
+        openingPrincipalCents: remainingBalanceCents,
+        interestChargedCents,
+        totalDueCents,
+        totalPaidCents: 0n,
+        balanceCents: totalDueCents,
+    };
+}
+
 /**
  * Calculates a new cycle from an opening principal and rate.
  * Used for both Cycle 1 and subsequent rollover cycles.

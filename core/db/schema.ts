@@ -98,6 +98,24 @@ export const customers = pgTable("customers", {
     isActive: boolean("is_active").default(true).notNull(),
 });
 
+export const appSettings = pgTable(
+    "app_settings",
+    {
+        userId: text("user_id")
+            .primaryKey()
+            .references(() => user.id, { onDelete: "cascade" }),
+        workingCapital: numeric("working_capital", { precision: 14, scale: 2 })
+            .default("0")
+            .notNull(),
+        createdAt: timestamp("created_at").defaultNow().notNull(),
+        updatedAt: timestamp("updated_at")
+            .defaultNow()
+            .$onUpdate(() => /* @__PURE__ */ new Date())
+            .notNull(),
+    },
+    (table) => [index("app_settings_userId_idx").on(table.userId)],
+);
+
 export const loans = pgTable("loans", {
     id: uuid("id").primaryKey().defaultRandom(),
     createdAt: timestamp("created_at").defaultNow().notNull(),

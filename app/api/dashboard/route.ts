@@ -9,7 +9,7 @@ export async function GET() {
     if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     try {
-        const data = await getDashboardData();
+        const data = await getDashboardData(session.user.id);
         return NextResponse.json({ data });
     } catch (err: unknown) {
         return NextResponse.json({ error: getErrorMessage(err) }, { status: 500 });

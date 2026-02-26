@@ -1,7 +1,8 @@
 import db from "@/core/db";
 import { billingCycles, auditLogs } from "@/core/db/schema";
-import { createCycle } from "@/lib/interest";
+import { createAgreedTermCycle } from "@/lib/interest";
 import { parseCurrency } from "@/lib/utils";
+import { addMonths } from "date-fns";
 import {
     findManyLoans,
     findLoanById,
@@ -53,7 +54,14 @@ export async function createLoanWithCycleAndAudit(
     }
 
     const interestRate = data.interestRate || "0.2000";
-    const firstCycleData = createCycle(principalCents, interestRate);
+    const start = new Date(data.startDate);
+    const due = new Date(data.dueDate);
+    const termMonths = Math.max(
+        1,
+        (due.getFullYear() - start.getFullYear()) * 12 + (due.getMonth() - start.getMonth())
+    );
+
+    const firstCycleData = createAgreedTermCycle(principalCents, interestRate, termMonths);
 
     return db.transaction(async (tx) => {
         // 1. Create Loan
@@ -75,7 +83,9 @@ export async function createLoanWithCycleAndAudit(
             loanId: loan.id,
             cycleNumber: 1,
             cycleStartDate: loan.startDate,
-            cycleEndDate: loan.dueDate,
+            cycleEndDate: addMonths(new Date(loan.startDate), 1)
+                .toISOString()
+                .split("T")[0],
             openingPrincipal: (Number(firstCycleData.openingPrincipalCents) / 100).toFixed(2),
             interestCharged: (Number(firstCycleData.interestChargedCents) / 100).toFixed(2),
             totalDue: (Number(firstCycleData.totalDueCents) / 100).toFixed(2),

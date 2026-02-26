@@ -12,11 +12,26 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function SettingsPage() {
     const router = useRouter();
     const [isSigningOut, setIsSigningOut] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [workingCapital, setWorkingCapital] = useState<string>("0");
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const res = await fetch("/api/settings");
+                if (!res.ok) return;
+                const json = await res.json();
+                setWorkingCapital(String(json?.data?.workingCapital ?? "0"));
+            } catch {
+                return;
+            }
+        })();
+    }, []);
 
     const handleSignOut = async () => {
         if (isSigningOut) return;
@@ -30,8 +45,28 @@ export default function SettingsPage() {
         }
     };
 
-    const handleSave = () => {
-        toast.success("Settings saved successfully.");
+    const handleSave = async () => {
+        if (isSaving) return;
+        setIsSaving(true);
+
+        try {
+            const res = await fetch("/api/settings", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ workingCapital }),
+            });
+
+            if (!res.ok) {
+                const json = await res.json().catch(() => null);
+                throw new Error(json?.error || "Failed to save settings");
+            }
+
+            toast.success("Settings saved successfully.");
+        } catch (err: unknown) {
+            toast.error(err instanceof Error ? err.message : "Failed to save settings");
+        } finally {
+            setIsSaving(false);
+        }
     }
 
     return (
@@ -59,6 +94,14 @@ export default function SettingsPage() {
                         <div className="space-y-2">
                             <Label>Default Monthly Interest Rate (%)</Label>
                             <Input type="number" defaultValue="20" />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Working Capital (UGX)</Label>
+                            <Input
+                                type="number"
+                                value={workingCapital}
+                                onChange={(e) => setWorkingCapital(e.target.value)}
+                            />
                         </div>
                         <Button onClick={handleSave}>Save Preferences</Button>
                     </CardContent>

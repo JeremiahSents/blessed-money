@@ -1,8 +1,8 @@
 import db from "@/core/db";
-import { billingCycles, auditLogs } from "@/core/db/schema";
-import { calculateNextCycle } from "@/lib/interest";
+import { billingCycles, auditLogs, payments } from "@/core/db/schema";
+import { createPenaltyCycleFromRemaining } from "@/lib/interest";
 import { parseCurrency } from "@/lib/utils";
-import { and, eq, lte, gt } from "drizzle-orm";
+import { and, eq, lte, gt, sql } from "drizzle-orm";
 import { updateLoanStatus } from "@/core/repositories/loan-repository";
 import { updateBillingCycle } from "@/core/repositories/payment-repository";
 import { addMonths } from "date-fns";
@@ -30,12 +30,25 @@ export async function rolloverOverdueCycles() {
             // 2. Mark loan as overdue
             await updateLoanStatus(cycle.loanId, "overdue", tx);
 
-            // 3. Calculate next cycle values
+            // 3. Determine remaining balance and whether borrower has started paying
             const prevBalanceCents = parseCurrency(cycle.balance);
-            const nextCycleData = calculateNextCycle(
-                prevBalanceCents,
-                cycle.loan.interestRate
-            );
+
+            const paymentCountRes = await tx
+                .select({ count: sql<number>`count(*)` })
+                .from(payments)
+                .where(eq(payments.loanId, cycle.loanId));
+
+            const hasAnyPayments = (paymentCountRes[0]?.count || 0) > 0;
+
+            const nextCycleData = hasAnyPayments
+                ? createPenaltyCycleFromRemaining(prevBalanceCents, cycle.loan.interestRate)
+                : {
+                    openingPrincipalCents: prevBalanceCents,
+                    interestChargedCents: 0n,
+                    totalDueCents: prevBalanceCents,
+                    totalPaidCents: 0n,
+                    balanceCents: prevBalanceCents,
+                };
 
             const newStartDate = new Date(cycle.cycleEndDate);
             const newEndDate = addMonths(newStartDate, 1);
