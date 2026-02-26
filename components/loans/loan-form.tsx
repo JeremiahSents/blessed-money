@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { CollateralUploader, CollateralFormData } from "../collateral/collateral-uploader";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Delete02Icon, UserIcon, PlusSignIcon } from '@hugeicons/core-free-icons';
 import { useRouter } from "next/navigation";
@@ -36,6 +37,9 @@ export function LoanForm() {
     const router = useRouter();
     const [collateralItems, setCollateralItems] = useState<CollateralFormData[]>([]);
     const [isAddingCollateral, setIsAddingCollateral] = useState(false);
+
+    const searchParams = useSearchParams();
+    const preselectedCustomer = searchParams.get("customer") || "";
 
     const { data: customersData } = useQuery<{ data: Customer[] }>({
         queryKey: ['customers', '', 1],
@@ -65,6 +69,15 @@ export function LoanForm() {
             notes: "",
         },
     });
+
+    // Once customers data loads, set the preselected customer so the SelectItem
+    // is in the DOM and SelectValue renders the name instead of the raw UUID.
+    useEffect(() => {
+        if (preselectedCustomer && customersData?.data) {
+            const match = customersData.data.find(c => c.id === preselectedCustomer);
+            if (match) form.setValue("customerId", match.id);
+        }
+    }, [customersData, preselectedCustomer, form]);
 
     const mutation = useMutation({
         mutationFn: async (values: LoanFormValues) => {
@@ -154,12 +167,17 @@ export function LoanForm() {
                                             }
                                             field.onChange(val);
                                         }}
-                                        defaultValue={field.value}
+                                        value={field.value}
                                     >
                                         <FormControl>
                                             <SelectTrigger className="w-full h-11 px-3 gap-2 text-sm border border-zinc-200 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-900 hover:border-zinc-300 dark:hover:border-zinc-600 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary transition-all shadow-sm">
                                                 <HugeiconsIcon icon={UserIcon} className="size-4 text-zinc-400 shrink-0" />
-                                                <SelectValue placeholder="Select a customer" />
+                                                <span className="flex-1 text-left truncate">
+                                                    {field.value
+                                                        ? (customersData?.data?.find(c => c.id === field.value)?.name ?? field.value)
+                                                        : <span className="text-zinc-400">Select a customer</span>
+                                                    }
+                                                </span>
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent className="rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700">

@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { PageHeader } from "@/components/shared/page-header";
 import { LoanForm } from "@/components/loans/loan-form";
 import Link from "next/link";
@@ -17,7 +18,9 @@ export default function NewLoanPage() {
                 description="Set up a new loan schedule and record initial collateral items."
             />
 
-            <LoanForm />
+            <Suspense>
+                <LoanForm />
+            </Suspense>
         </div>
     );
 }
