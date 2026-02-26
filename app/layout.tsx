@@ -7,6 +7,7 @@ import { Navigation } from "@/components/shared/navigation";
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
 import { ourFileRouter } from "@/app/api/uploadthing/core";
+//trying to fix the uploadthing issue
 
 const roboto = Roboto({ subsets: ['latin'], variable: '--font-sans' });
 
