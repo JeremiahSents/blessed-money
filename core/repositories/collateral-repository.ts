@@ -14,7 +14,7 @@ export type CollateralCreateInput = {
 };
 
 export type CollateralUpdateInput = {
-    returnedAt?: string;
+    returnedAt?: Date;
     description?: string;
     estimatedValue?: string | null;
     serialNumber?: string | null;

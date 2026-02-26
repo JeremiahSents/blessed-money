@@ -8,7 +8,7 @@ import {
     deleteCollateral,
     type CollateralCreateInput,
     type CollateralUpdateInput,
-} from "@/core/repositories/collateral.repository";
+} from "@/core/repositories/collateral-repository";
 
 export type AddCollateralPayload = Omit<CollateralCreateInput, "loanId">;
 
@@ -44,7 +44,7 @@ export async function updateCollateralItem(
         if (!beforeState) throw new Error("Collateral not found");
 
         const updateData: CollateralUpdateInput = data.markReturned
-            ? { returnedAt: new Date().toISOString() }
+            ? { returnedAt: new Date() }
             : {
                 description: data.description,
                 estimatedValue: data.estimatedValue ?? null,

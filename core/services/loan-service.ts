@@ -7,7 +7,7 @@ import {
     findLoanById,
     createLoan,
 } from "@/core/repositories/loan-repository";
-import { createCollateral } from "@/core/repositories/collateral.repository";
+import { createCollateral } from "@/core/repositories/collateral-repository";
 
 export type LoanCreatePayload = {
     customerId: string;

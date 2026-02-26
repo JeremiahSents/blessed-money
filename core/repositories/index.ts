@@ -4,3 +4,4 @@ export * from "./payment-repository";
 export * from "./collateral-repository";
 export * from "./dashboard-repository";
 export * from "./report-repository";
+export type { Tx } from "./customer-repository";

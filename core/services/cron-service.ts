@@ -3,8 +3,8 @@ import { billingCycles, auditLogs } from "@/core/db/schema";
 import { calculateNextCycle } from "@/lib/interest";
 import { parseCurrency } from "@/lib/utils";
 import { and, eq, lte, gt } from "drizzle-orm";
-import { updateLoanStatus } from "@/core/repositories/loan.repository";
-import { updateBillingCycle } from "@/core/repositories/payment.repository";
+import { updateLoanStatus } from "@/core/repositories/loan-repository";
+import { updateBillingCycle } from "@/core/repositories/payment-repository";
 import { addMonths } from "date-fns";
 
 export async function rolloverOverdueCycles() {

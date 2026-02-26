@@ -1,4 +1,4 @@
-import { getMonthlyRawData } from "@/core/repositories/report.repository";
+import { getMonthlyRawData } from "@/core/repositories/report-repository";
 
 export async function getMonthlyReport() {
     const { issuedRows, collectedRows, interestRows } = await getMonthlyRawData();

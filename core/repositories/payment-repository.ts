@@ -45,7 +45,7 @@ export async function createPayment(input: PaymentCreateInput, tx?: Tx) {
 
 export async function updateBillingCycle(
     cycleId: string,
-    data: { totalPaid: string; balance: string; status: string },
+    data: { totalPaid: string; balance: string; status: "overdue" | "open" | "closed" },
     tx?: Tx
 ) {
     const runner = tx ?? db;

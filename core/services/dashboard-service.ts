@@ -2,7 +2,7 @@ import {
     getDashboardStats,
     getRecentActivity,
     getOverdueList,
-} from "@/core/repositories/dashboard.repository";
+} from "@/core/repositories/dashboard-repository";
 
 export async function getDashboardData() {
     const [stats, { recentPayments, recentLoans }, overdueLoansList] =

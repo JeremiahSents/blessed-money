@@ -8,7 +8,7 @@ import {
     createPayment,
     updateBillingCycle,
 } from "@/core/repositories/payment-repository";
-import { updateLoanStatus } from "@/core/repositories/loan.repository";
+import { updateLoanStatus } from "@/core/repositories/loan-repository";
 
 export async function listPayments() {
     return findAllPayments();
@@ -65,7 +65,7 @@ export async function recordPayment(
             {
                 totalPaid: (Number(updatedCycleData.totalPaidCents) / 100).toFixed(2),
                 balance: (Number(updatedCycleData.balanceCents) / 100).toFixed(2),
-                status: isSettled ? "closed" : cycle.status,
+                status: isSettled ? "closed" : (cycle.status as "open" | "closed" | "overdue"),
             },
             tx
         );
