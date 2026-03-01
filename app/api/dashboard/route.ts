@@ -11,6 +11,7 @@ export async function GET() {
 
     try {
         const business = await resolveBusinessForUser(session.user.id);
+        if (!business) return NextResponse.json({ error: "Business not found" }, { status: 404 });
         const data = await getDashboardData(business.id);
         return NextResponse.json({ data });
     } catch (err: unknown) {
