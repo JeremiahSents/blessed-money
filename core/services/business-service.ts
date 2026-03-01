@@ -3,17 +3,12 @@ import { businesses } from "@/core/db/schema";
 import { eq } from "drizzle-orm";
 
 export async function resolveBusinessForUser(userId: string) {
-    let business = await db.query.businesses.findFirst({
+    return db.query.businesses.findFirst({
         where: eq(businesses.userId, userId),
     });
+}
 
-    if (!business) {
-        const [newBusiness] = await db.insert(businesses).values({
-            userId,
-            name: "My Business",
-        }).returning();
-        business = newBusiness;
-    }
-
-    return business;
+export async function updateBusinessName(businessId: string, name: string) {
+    const [updated] = await db.update(businesses).set({ name }).where(eq(businesses.id, businessId)).returning();
+    return updated;
 }

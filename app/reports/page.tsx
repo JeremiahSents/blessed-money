@@ -33,12 +33,14 @@ export default function ReportsPage() {
         doc.setFont("helvetica", "normal");
         doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
 
+        const cleanCurrency = (val: number | string) => formatCurrency(val).replace(/\u00A0/g, ' ');
+
         const rows = data.data.map((m) => [
             m.month,
             m.loansIssuedCount.toString(),
-            formatCurrency(m.loansIssuedPrincipal),
-            formatCurrency(m.collected),
-            formatCurrency(m.interestEarned),
+            cleanCurrency(m.loansIssuedPrincipal),
+            cleanCurrency(m.collected),
+            cleanCurrency(m.interestEarned),
         ]);
 
         autoTable(doc, {

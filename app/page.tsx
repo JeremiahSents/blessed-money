@@ -1,35 +1,30 @@
-"use client";
-
 import { StatCard } from "@/components/dashboard/stat-card";
 import { OverduePanel } from "@/components/dashboard/overdue-panel";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
-import { useQuery } from "@tanstack/react-query";
 import { formatCurrency } from "@/lib/utils";
 import { HugeiconsIcon } from '@hugeicons/react';
-import { UserMultipleIcon, Wallet01Icon, Activity01Icon, PropertyEditIcon, Loading02Icon } from '@hugeicons/core-free-icons';
+import { UserMultipleIcon, Wallet01Icon, Activity01Icon, PropertyEditIcon } from '@hugeicons/core-free-icons';
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { PlusIcon } from "lucide-react";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { resolveBusinessForUser } from "@/core/services/business-service";
+import { getDashboardData } from "@/core/services/dashboard-service";
 
-export default function DashboardPage() {
-    const { data, isLoading } = useQuery({
-        queryKey: ['dashboard'],
-        queryFn: async () => {
-            const res = await fetch("/api/dashboard");
-            if (!res.ok) throw new Error("Failed to fetch dashboard data");
-            return res.json();
-        }
-    });
-
-    if (isLoading) {
-        return (
-            <div className="flex items-center justify-center min-h-[50vh]">
-                <HugeiconsIcon icon={Loading02Icon} className="w-8 h-8 animate-spin text-zinc-400" />
-            </div>
-        )
+export default async function DashboardPage() {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session?.user) {
+        redirect("/signin");
     }
 
-    const { stats, activity, overdueLoansList } = data?.data || {};
+    const business = await resolveBusinessForUser(session.user.id);
+    if (!business) {
+        redirect("/onboarding");
+    }
+
+    const { stats, activity, overdueLoansList } = await getDashboardData(business.id);
 
     return (
         <div className="space-y-8 max-w-6xl mx-auto">
@@ -45,9 +40,9 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 <StatCard
                     title="Working Capital"
-                    value={formatCurrency(parseFloat(stats?.workingCapitalCurrent || 0))}
+                    value={formatCurrency(parseFloat(String(stats?.workingCapitalCurrent || 0)))}
                     icon={<HugeiconsIcon icon={Wallet01Icon} className="w-4 h-4" />}
-                    description={`Base: ${formatCurrency(parseFloat(stats?.workingCapitalBase || 0))}`}
+                    description={`Base: ${formatCurrency(parseFloat(String(stats?.workingCapitalBase || 0)))}`}
                 />
                 <StatCard
                     title="Active Loans"
@@ -57,18 +52,18 @@ export default function DashboardPage() {
                 />
                 <StatCard
                     title="Capital Outstanding"
-                    value={formatCurrency(parseFloat(stats?.capitalOutstanding || 0))}
+                    value={formatCurrency(parseFloat(String(stats?.capitalOutstanding || 0)))}
                     icon={<HugeiconsIcon icon={Wallet01Icon} className="w-4 h-4" />}
                 />
                 <StatCard
                     title="Expected This Cycle"
-                    value={formatCurrency(parseFloat(stats?.expectedThisCycle || 0))}
+                    value={formatCurrency(parseFloat(String(stats?.expectedThisCycle || 0)))}
                     icon={<HugeiconsIcon icon={Activity01Icon} className="w-4 h-4" />}
                     description="Total due across open cycles"
                 />
                 <StatCard
                     title="Collected This Month"
-                    value={formatCurrency(parseFloat(stats?.collectedThisMonth || 0))}
+                    value={formatCurrency(parseFloat(String(stats?.collectedThisMonth || 0)))}
                     icon={<HugeiconsIcon icon={UserMultipleIcon} className="w-4 h-4" />}
                     description="Since start of month"
                 />

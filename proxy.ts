@@ -1,6 +1,7 @@
 import { betterFetch } from "@better-fetch/fetch";
-import type { Session } from "better-auth/types";
+import type { Session, User } from "better-auth/types";
 import { NextResponse, type NextRequest } from "next/server";
+import { resolveBusinessForUser } from "@/core/services/business-service";
 
 export async function proxy(request: NextRequest) {
     const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || request.nextUrl.host;
@@ -13,9 +14,9 @@ export async function proxy(request: NextRequest) {
         return `${proto}://${host}`;
     })();
 
-    let session: Session | null = null;
+    let authData: { session: Session; user: User } | null = null;
     try {
-        const res = await betterFetch<Session>(
+        const res = await betterFetch<{ session: Session; user: User }>(
             "/api/auth/get-session",
             {
                 baseURL: derivedBaseUrl,
@@ -24,10 +25,13 @@ export async function proxy(request: NextRequest) {
                 },
             },
         );
-        session = res.data ?? null;
+        authData = res.data ?? null;
     } catch {
-        session = null;
+        authData = null;
     }
+
+    const session = authData?.session;
+    const user = authData?.user;
 
     const isHomeRoute = request.nextUrl.pathname === '/';
     const isAuthRoute = request.nextUrl.pathname.startsWith('/signin');
@@ -47,8 +51,26 @@ export async function proxy(request: NextRequest) {
         return NextResponse.redirect(new URL("/", request.url));
     }
 
+    // Business Onboarding Check
+    if (session) {
+        const business = await resolveBusinessForUser(user!.id);
+        const isOnboardingPage = request.nextUrl.pathname.startsWith('/onboarding');
+
+        if (!business) {
+            if (!isOnboardingPage && !request.nextUrl.pathname.startsWith('/api')) {
+                return NextResponse.redirect(new URL("/onboarding", request.url));
+            }
+        } else {
+            if (isOnboardingPage) {
+                return NextResponse.redirect(new URL("/", request.url));
+            }
+        }
+    }
+
     return NextResponse.next();
 }
+
+export default proxy;
 
 export const config = {
     matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],

@@ -18,7 +18,18 @@ export default function SettingsPage() {
     const router = useRouter();
     const [isSigningOut, setIsSigningOut] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    const [workingCapital, setWorkingCapital] = useState<string>("0");
+
+    const [businessName, setBusinessName] = useState("");
+    const [workingCapital, setWorkingCapital] = useState("");
+
+    const formatNumber = (val: string) => {
+        if (!val) return "";
+        const rawMatch = val.replace(/,/g, '').match(/^-?\d*\.?\d*/);
+        if (!rawMatch) return val;
+        const parts = rawMatch[0].split(".");
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        return parts.join(".");
+    };
 
     useEffect(() => {
         (async () => {
@@ -26,7 +37,8 @@ export default function SettingsPage() {
                 const res = await fetch("/api/settings");
                 if (!res.ok) return;
                 const json = await res.json();
-                setWorkingCapital(String(json?.data?.workingCapital ?? "0"));
+                setBusinessName(json?.data?.businessName || "");
+                setWorkingCapital(formatNumber(String(json?.data?.workingCapital ?? "0")));
             } catch {
                 return;
             }
@@ -53,7 +65,10 @@ export default function SettingsPage() {
             const res = await fetch("/api/settings", {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ workingCapital }),
+                body: JSON.stringify({
+                    workingCapital: workingCapital.replace(/,/g, ''),
+                    businessName
+                }),
             });
 
             if (!res.ok) {
@@ -85,11 +100,10 @@ export default function SettingsPage() {
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
                             <Label>Business Name</Label>
-                            <Input defaultValue="Blessed Money Lending" />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Contact Email</Label>
-                            <Input defaultValue="support@blessedmoney.com" />
+                            <Input
+                                value={businessName}
+                                onChange={(e) => setBusinessName(e.target.value)}
+                            />
                         </div>
                         <div className="space-y-2">
                             <Label>Default Monthly Interest Rate (%)</Label>
@@ -98,9 +112,9 @@ export default function SettingsPage() {
                         <div className="space-y-2">
                             <Label>Working Capital (UGX)</Label>
                             <Input
-                                type="number"
+                                type="text"
                                 value={workingCapital}
-                                onChange={(e) => setWorkingCapital(e.target.value)}
+                                onChange={(e) => setWorkingCapital(formatNumber(e.target.value))}
                             />
                         </div>
                         <Button onClick={handleSave}>Save Preferences</Button>

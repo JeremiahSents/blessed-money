@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { getErrorMessage } from "@/lib/errors";
 import { getAppSettings, updateAppSettings } from "@/core/services/settings-service";
-import { resolveBusinessForUser } from "@/core/services/business-service";
+import { resolveBusinessForUser, updateBusinessName } from "@/core/services/business-service";
 
 export async function GET() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -11,8 +11,11 @@ export async function GET() {
 
   try {
     const business = await resolveBusinessForUser(session.user.id);
+    if (!business) {
+      return NextResponse.json({ error: "No business found" }, { status: 404 });
+    }
     const data = await getAppSettings(business.id);
-    return NextResponse.json({ data });
+    return NextResponse.json({ data: { ...data, businessName: business.name } });
   } catch (err: unknown) {
     return NextResponse.json({ error: getErrorMessage(err) }, { status: 500 });
   }
@@ -25,8 +28,16 @@ export async function PUT(req: NextRequest) {
   try {
     const body = await req.json();
     const business = await resolveBusinessForUser(session.user.id);
-    const data = await updateAppSettings(business.id, body);
-    return NextResponse.json({ data });
+    if (!business) {
+      return NextResponse.json({ error: "No business found" }, { status: 404 });
+    }
+
+    if (body.businessName) {
+      await updateBusinessName(business.id, body.businessName);
+    }
+
+    const data = await updateAppSettings(business.id, { workingCapital: body.workingCapital });
+    return NextResponse.json({ data: { ...data, businessName: body.businessName || business.name } });
   } catch (err: unknown) {
     return NextResponse.json({ error: getErrorMessage(err) }, { status: 400 });
   }

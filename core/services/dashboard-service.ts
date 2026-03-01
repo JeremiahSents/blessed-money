@@ -3,6 +3,7 @@ import {
     getRecentActivity,
     getOverdueList,
 } from "@/core/repositories/dashboard-repository";
+import { ActivityItem } from "@/lib/types";
 
 export async function getDashboardData(businessId: string) {
     const [stats, { recentPayments, recentLoans }, overdueLoansList] =
@@ -13,9 +14,11 @@ export async function getDashboardData(businessId: string) {
         ]);
 
     const activity = [
-        ...recentPayments.map((p) => ({ type: "PAYMENT", date: p.createdAt, data: p })),
-        ...recentLoans.map((l) => ({ type: "LOAN", date: l.createdAt, data: l })),
-    ]
+        ...recentPayments.map((p) => ({ type: "PAYMENT" as const, date: p.createdAt, data: p })),
+        ...recentLoans.map((l) => ({ type: "LOAN" as const, date: l.createdAt, data: l })),
+    ] as ActivityItem[];
+
+    activity
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
         .slice(0, 10);
 

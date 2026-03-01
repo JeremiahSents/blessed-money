@@ -23,11 +23,13 @@ type PaymentFormValues = z.infer<typeof paymentSchema>;
 export function PaymentForm({
     loanId,
     open,
-    onOpenChange
+    onOpenChange,
+    balance
 }: {
     loanId: string,
     open: boolean,
-    onOpenChange: (open: boolean) => void
+    onOpenChange: (open: boolean) => void,
+    balance?: number
 }) {
     const queryClient = useQueryClient();
 
@@ -66,7 +68,10 @@ export function PaymentForm({
     });
 
     const onSubmit = (values: PaymentFormValues) => {
-        mutation.mutate(values);
+        mutation.mutate({
+            ...values,
+            amount: values.amount.replace(/,/g, '')
+        });
     };
 
     return (
@@ -88,7 +93,41 @@ export function PaymentForm({
                                 <FormItem>
                                     <FormLabel>Amount (UGX)</FormLabel>
                                     <FormControl>
-                                        <Input type="number" step="0.01" placeholder="100.00" {...field} />
+                                        <Input
+                                            type="text"
+                                            placeholder="100,000"
+                                            {...field}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                const formatNumber = (v: string) => {
+                                                    if (!v) return "";
+                                                    const rawMatch = v.replace(/,/g, '').match(/^-?\d*\.?\d*/);
+                                                    if (!rawMatch) return v;
+                                                    const parts = rawMatch[0].split(".");
+                                                    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                                                    return parts.join(".");
+                                                };
+                                                field.onChange(formatNumber(val));
+                                            }}
+                                        />
+                                        {balance !== undefined && balance > 0 && (
+                                            <Button
+                                                type="button"
+                                                variant="secondary"
+                                                size="sm"
+                                                className="w-full mt-2 text-xs h-8"
+                                                onClick={() => {
+                                                    const formatNumber = (v: string) => {
+                                                        const parts = v.split(".");
+                                                        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                                                        return parts.join(".");
+                                                    };
+                                                    form.setValue("amount", formatNumber(balance.toString()));
+                                                }}
+                                            >
+                                                Pay Full Amount
+                                            </Button>
+                                        )}
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

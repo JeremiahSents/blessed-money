@@ -113,6 +113,7 @@ export default function LoanDetailPage(props: { params: Promise<{ id: string }> 
                 loanId={loan.id}
                 open={isPaymentOpen}
                 onOpenChange={setIsPaymentOpen}
+                balance={loan.billingCycles.find(c => c.status === 'open' || c.status === 'overdue') ? parseFloat(loan.billingCycles.find(c => c.status === 'open' || c.status === 'overdue')!.balance) : 0}
             />
         </div>
     );

@@ -179,6 +179,12 @@ async function seed() {
       })
       .returning();
 
+    console.log("Initializing settings...");
+    await db.insert(schema.appSettings).values({
+      businessId: seedBusiness.id,
+      workingCapital: "50000000.00", // 50M base for seed
+    });
+
     for (const customerData of seedCustomers) {
       const [customer] = await db
         .insert(schema.customers)

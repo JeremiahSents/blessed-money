@@ -79,7 +79,7 @@ function RecordPaymentDialog({ open, onOpenChange }: { open: boolean; onOpenChan
     const selectedLoan = activeLoans.find(l => l.id === selectedLoanId);
     const activeCycle = selectedLoan?.billingCycles?.find(c => c.status === "open" || c.status === "overdue");
     const balanceCents = activeCycle ? parseFloat(activeCycle.balance) : 0;
-    const enteredAmount = parseFloat(amountStr) || 0;
+    const enteredAmount = parseFloat(amountStr.replace(/,/g, '')) || 0;
     const remaining = Math.max(0, balanceCents - enteredAmount);
     const isFullPayment = enteredAmount > 0 && enteredAmount >= balanceCents;
 
@@ -88,7 +88,7 @@ function RecordPaymentDialog({ open, onOpenChange }: { open: boolean; onOpenChan
             const res = await fetch(`/api/loans/${values.loanId}/payments`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ amount: values.amount, paidAt: values.paidAt, note: values.note }),
+                body: JSON.stringify({ amount: values.amount.replace(/,/g, ''), paidAt: values.paidAt, note: values.note }),
             });
             if (!res.ok) {
                 const err = await res.json();
@@ -203,7 +203,41 @@ function RecordPaymentDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                                     <FormItem>
                                         <FormLabel>Amount (UGX) <span className="text-red-500">*</span></FormLabel>
                                         <FormControl>
-                                            <Input type="number" step="1" placeholder="50000" {...field} />
+                                            <Input
+                                                type="text"
+                                                placeholder="50,000"
+                                                {...field}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    const formatNumber = (v: string) => {
+                                                        if (!v) return "";
+                                                        const rawMatch = v.replace(/,/g, '').match(/^-?\d*\.?\d*/);
+                                                        if (!rawMatch) return v;
+                                                        const parts = rawMatch[0].split(".");
+                                                        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                                                        return parts.join(".");
+                                                    };
+                                                    field.onChange(formatNumber(val));
+                                                }}
+                                            />
+                                            {activeCycle && balanceCents > 0 && (
+                                                <Button
+                                                    type="button"
+                                                    variant="secondary"
+                                                    size="sm"
+                                                    className="w-full mt-2 text-xs h-8"
+                                                    onClick={() => {
+                                                        const formatNumber = (v: string) => {
+                                                            const parts = v.split(".");
+                                                            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                                                            return parts.join(".");
+                                                        };
+                                                        form.setValue("amount", formatNumber(balanceCents.toString()));
+                                                    }}
+                                                >
+                                                    Pay Full Amount
+                                                </Button>
+                                            )}
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
