@@ -16,6 +16,7 @@ export async function GET(req: NextRequest) {
 
     try {
         const business = await resolveBusinessForUser(session.user.id);
+        if (!business) return NextResponse.json({ error: "Business not found" }, { status: 404 });
         const { data, total } = await listCustomers({ businessId: business.id, search, page, limit });
 
         return NextResponse.json({
@@ -34,6 +35,7 @@ export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
         const business = await resolveBusinessForUser(session.user.id);
+        if (!business) return NextResponse.json({ error: "Business not found" }, { status: 404 });
 
         const newCustomer = await createCustomerWithAudit({
             businessId: business.id,
