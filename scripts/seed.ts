@@ -149,8 +149,6 @@ async function seed() {
   console.log("🗑️  Dropping existing data...");
 
   try {
-    // Truncate all app tables in dependency order (children first).
-    // CASCADE handles any remaining FK references automatically.
     await client`
       TRUNCATE TABLE
         payments,
@@ -160,10 +158,6 @@ async function seed() {
         customers
       CASCADE
     `;
-
-    // Remove the seed user so it is fully re-created below.
-    await client`DELETE FROM "user" WHERE id = 'system-seed-user'`;
-
     console.log("✅ Tables cleared.");
   } catch (error) {
     console.error("❌ Failed to clear tables:", error);
@@ -174,17 +168,14 @@ async function seed() {
 
   try {
     console.log("Ensuring seed user...");
-    const [seedUser] = await db
-      .insert(schema.user)
+    const seedUserId = "DPP7Eva9thOBdVLwEUoMz1MApvK8U9se";
+
+    console.log("Creating default business...");
+    const [seedBusiness] = await db
+      .insert(schema.businesses)
       .values({
-        id: "system-seed-user",
-        name: "System Admin",
-        email: "admin@blessedmoney.local",
-        emailVerified: true,
-      })
-      .onConflictDoUpdate({
-        target: schema.user.id,
-        set: { name: "System Admin" },
+        userId: seedUserId,
+        name: "Blessed Money Seed Business",
       })
       .returning();
 
@@ -192,7 +183,7 @@ async function seed() {
       const [customer] = await db
         .insert(schema.customers)
         .values({
-          userId: seedUser.id,
+          businessId: seedBusiness.id,
           name: customerData.name,
           email: customerData.email,
           phone: customerData.phone,

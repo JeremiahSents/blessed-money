@@ -77,7 +77,7 @@ export const verification = pgTable(
 
 // --- LendTrack Tables ---
 
-export const customers = pgTable("customers", {
+export const businesses = pgTable("businesses", {
     id: uuid("id").primaryKey().defaultRandom(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
@@ -87,6 +87,19 @@ export const customers = pgTable("customers", {
     userId: text("user_id")
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+});
+
+export const customers = pgTable("customers", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => /* @__PURE__ */ new Date())
+        .notNull(),
+    businessId: uuid("business_id")
+        .notNull()
+        .references(() => businesses.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
     phone: text("phone"),
     email: text("email"),
@@ -101,9 +114,9 @@ export const customers = pgTable("customers", {
 export const appSettings = pgTable(
     "app_settings",
     {
-        userId: text("user_id")
+        businessId: uuid("business_id")
             .primaryKey()
-            .references(() => user.id, { onDelete: "cascade" }),
+            .references(() => businesses.id, { onDelete: "cascade" }),
         workingCapital: numeric("working_capital", { precision: 14, scale: 2 })
             .default("0")
             .notNull(),
@@ -113,7 +126,7 @@ export const appSettings = pgTable(
             .$onUpdate(() => /* @__PURE__ */ new Date())
             .notNull(),
     },
-    (table) => [index("app_settings_userId_idx").on(table.userId)],
+    (table) => [index("app_settings_businessId_idx").on(table.businessId)],
 );
 
 export const loans = pgTable("loans", {
@@ -195,8 +208,7 @@ export const auditLogs = pgTable("audit_logs", {
 
 export const userRelations = relations(user, ({ many }) => ({
     sessions: many(session),
-    accounts: many(account),
-    customers: many(customers),
+    businesses: many(businesses),
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({
@@ -207,8 +219,14 @@ export const accountRelations = relations(account, ({ one }) => ({
     user: one(user, { fields: [account.userId], references: [user.id] }),
 }));
 
+export const businessRelations = relations(businesses, ({ one, many }) => ({
+    user: one(user, { fields: [businesses.userId], references: [user.id] }),
+    customers: many(customers),
+    settings: one(appSettings),
+}));
+
 export const customerRelations = relations(customers, ({ one, many }) => ({
-    user: one(user, { fields: [customers.userId], references: [user.id] }),
+    business: one(businesses, { fields: [customers.businessId], references: [businesses.id] }),
     loans: many(loans),
 }));
 

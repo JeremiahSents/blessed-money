@@ -4,24 +4,24 @@ import { eq } from "drizzle-orm";
 
 export type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
-export async function getSettingsByUserId(userId: string, tx?: Tx) {
+export async function getSettingsByBusinessId(businessId: string, tx?: Tx) {
   const runner = tx ?? db;
   return runner.query.appSettings.findFirst({
-    where: eq(appSettings.userId, userId),
+    where: eq(appSettings.businessId, businessId),
   });
 }
 
 export async function upsertSettings(
-  userId: string,
+  businessId: string,
   data: { workingCapital: string },
   tx?: Tx
 ) {
   const runner = tx ?? db;
   const [record] = await runner
     .insert(appSettings)
-    .values({ userId, workingCapital: data.workingCapital })
+    .values({ businessId, workingCapital: data.workingCapital })
     .onConflictDoUpdate({
-      target: appSettings.userId,
+      target: appSettings.businessId,
       set: { workingCapital: data.workingCapital },
     })
     .returning();

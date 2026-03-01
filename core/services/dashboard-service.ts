@@ -4,12 +4,12 @@ import {
     getOverdueList,
 } from "@/core/repositories/dashboard-repository";
 
-export async function getDashboardData(userId: string) {
+export async function getDashboardData(businessId: string) {
     const [stats, { recentPayments, recentLoans }, overdueLoansList] =
         await Promise.all([
-            getDashboardStats(userId),
-            getRecentActivity(userId),
-            getOverdueList(userId),
+            getDashboardStats(businessId),
+            getRecentActivity(businessId),
+            getOverdueList(businessId),
         ]);
 
     const activity = [

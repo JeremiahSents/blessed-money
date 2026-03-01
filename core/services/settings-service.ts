@@ -1,12 +1,12 @@
 import db from "@/core/db";
-import { getSettingsByUserId, upsertSettings } from "@/core/repositories/settings-repository";
+import { getSettingsByBusinessId, upsertSettings } from "@/core/repositories/settings-repository";
 
-export async function getAppSettings(userId: string) {
-  const settings = await getSettingsByUserId(userId);
+export async function getAppSettings(businessId: string) {
+  const settings = await getSettingsByBusinessId(businessId);
 
   if (!settings) {
     const created = await db.transaction(async (tx) => {
-      return upsertSettings(userId, { workingCapital: "0" }, tx);
+      return upsertSettings(businessId, { workingCapital: "0" }, tx);
     });
     return created;
   }
@@ -15,15 +15,19 @@ export async function getAppSettings(userId: string) {
 }
 
 export async function updateAppSettings(
-  userId: string,
+  businessId: string,
   data: { workingCapital: string | number }
 ) {
-  const workingCapital =
-    typeof data.workingCapital === "number"
-      ? data.workingCapital.toFixed(2)
-      : String(data.workingCapital);
+  // Sanitize the input - remove commas and characters, just keep numbers and decimals
+  let rawStr = typeof data.workingCapital === "number"
+    ? data.workingCapital.toFixed(2)
+    : String(data.workingCapital || "0");
+
+  rawStr = rawStr.replace(/,/g, "").trim();
+  const parsed = parseFloat(rawStr);
+  const workingCapital = isNaN(parsed) ? "0" : parsed.toFixed(2);
 
   return db.transaction(async (tx) => {
-    return upsertSettings(userId, { workingCapital }, tx);
+    return upsertSettings(businessId, { workingCapital }, tx);
   });
 }

@@ -1,10 +1,10 @@
 import db from "@/core/db";
 import { customers, auditLogs } from "@/core/db/schema";
-import { ilike, or, desc, sql } from "drizzle-orm";
+import { ilike, or, desc, sql, and } from "drizzle-orm";
 import { eq } from "drizzle-orm";
 
 export type CustomerCreateInput = {
-    userId: string;
+    businessId: string;
     name: string;
     phone?: string | null;
     email?: string | null;
@@ -28,11 +28,12 @@ export type CustomerUpdateInput = {
 export type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 export async function findManyCustomers(opts: {
+    businessId: string;
     search: string;
     page: number;
     limit: number;
 }) {
-    const { search, page, limit } = opts;
+    const { businessId, search, page, limit } = opts;
     const offset = (page - 1) * limit;
 
     const whereClause = search
@@ -43,8 +44,12 @@ export async function findManyCustomers(opts: {
         )
         : undefined;
 
+    const finalWhere = whereClause
+        ? and(eq(customers.businessId, businessId), whereClause)
+        : eq(customers.businessId, businessId);
+
     const data = await db.query.customers.findMany({
-        where: whereClause,
+        where: finalWhere,
         limit,
         offset,
         orderBy: [desc(customers.createdAt)],
@@ -53,7 +58,7 @@ export async function findManyCustomers(opts: {
     const totalCountRes = await db
         .select({ count: sql<number>`count(*)` })
         .from(customers)
-        .where(whereClause);
+        .where(finalWhere);
 
     const total = totalCountRes[0].count;
 
@@ -77,7 +82,7 @@ export async function createCustomer(
 ) {
     const runner = tx ?? db;
     const [record] = await runner.insert(customers).values({
-        userId: input.userId,
+        businessId: input.businessId,
         name: input.name,
         phone: input.phone,
         email: input.email,
