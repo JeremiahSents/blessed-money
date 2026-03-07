@@ -6,6 +6,7 @@ import { and, eq, lte, gt, sql } from "drizzle-orm";
 import { updateLoanStatus } from "@/core/repositories/loan-repository";
 import { updateBillingCycle } from "@/core/repositories/payment-repository";
 import { addMonths } from "date-fns";
+import { sendDailyRemindersEmail } from "@/core/services/email-service";
 
 export async function rolloverOverdueCycles() {
     const today = new Date().toISOString().split("T")[0];
@@ -82,4 +83,78 @@ export async function rolloverOverdueCycles() {
     }
 
     return rolledOverCount;
+}
+
+export async function sendDailyReminders() {
+    const today = new Date().toISOString().split("T")[0];
+
+    // Find all billing cycles due today with an outstanding balance
+    const cyclesDueToday = await db.query.billingCycles.findMany({
+        where: and(
+            eq(billingCycles.cycleEndDate, today),
+            eq(billingCycles.status, "open"),
+            gt(billingCycles.balance, "0")
+        ),
+        with: {
+            loan: {
+                with: {
+                    customer: {
+                        with: {
+                            business: {
+                                with: {
+                                    user: true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+    });
+
+    // Group due payments by business/admin
+    const businessesToNotify = new Map<string, {
+        businessName: string;
+        adminName: string;
+        adminEmail: string;
+        duePayments: {
+            customerName: string;
+            amountDue: string;
+            loanId: string;
+        }[];
+    }>();
+
+    for (const cycle of cyclesDueToday) {
+        const loan = cycle.loan;
+        const customer = loan?.customer;
+        const business = customer?.business;
+        const admin = business?.user;
+
+        if (!admin || !admin.email) continue;
+
+        if (!businessesToNotify.has(business.id)) {
+            businessesToNotify.set(business.id, {
+                businessName: business.name,
+                adminName: admin.name,
+                adminEmail: admin.email,
+                duePayments: [],
+            });
+        }
+
+        businessesToNotify.get(business.id)!.duePayments.push({
+            customerName: customer.name,
+            amountDue: cycle.balance,
+            loanId: loan.id,
+        });
+    }
+
+    let emailsSent = 0;
+    for (const data of businessesToNotify.values()) {
+        const { error } = await sendDailyRemindersEmail(data);
+        if (!error) {
+            emailsSent++;
+        }
+    }
+
+    return { emailsSent, totalAdminNotified: businessesToNotify.size };
 }
