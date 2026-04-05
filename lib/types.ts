@@ -13,6 +13,9 @@ export interface Customer {
   isActive?: boolean;
   createdAt?: string | Date;
   loans?: LoanSummary[];
+  activeLoanCount?: number;
+  totalLent?: string;
+  outstandingBalance?: string;
 }
 
 export interface LoanSummary {

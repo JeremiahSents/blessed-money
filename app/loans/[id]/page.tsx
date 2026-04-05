@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { CollateralList } from "@/components/collateral/collateral-list";
 import { BillingCycleTable } from "@/components/loans/billing-cycle-table";
 import { PaymentForm } from "@/components/loans/payment-form";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency, formatDate, displayStatus } from "@/lib/utils";
 import type { LoanDetail } from "@/lib/types";
 import { useState, use } from "react";
 import Link from "next/link";
@@ -49,10 +49,10 @@ export default function LoanDetailPage(props: { params: Promise<{ id: string }> 
                     action={
                         <div className="flex gap-2 items-center">
                             <Badge className="text-sm px-4 py-1" variant={isActive ? "default" : isOverdue ? "destructive" : "secondary"}>
-                                {loan.status}
+                                {displayStatus(loan.status)}
                             </Badge>
                             {loan.status !== 'settled' && (
-                                <Button onClick={() => setIsPaymentOpen(true)}>Record Payment</Button>
+                                <Button onClick={() => setIsPaymentOpen(true)}>Collect Payment</Button>
                             )}
                         </div>
                     }
@@ -61,7 +61,7 @@ export default function LoanDetailPage(props: { params: Promise<{ id: string }> 
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="bg-white dark:bg-zinc-950 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 space-y-1">
-                    <p className="text-sm text-zinc-500">Principal Amount</p>
+                    <p className="text-sm text-zinc-500">Loan Amount</p>
                     <p className="text-2xl font-bold tracking-tight">{formatCurrency(parseFloat(loan.principalAmount))}</p>
                 </div>
                 <div className="bg-white dark:bg-zinc-950 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 space-y-1">
@@ -73,9 +73,9 @@ export default function LoanDetailPage(props: { params: Promise<{ id: string }> 
                         <HugeiconsIcon icon={Alert02Icon} className="w-5 h-5 text-red-500" />
                     </div>
                     <div>
-                        <p className="text-sm text-zinc-500">Outstanding Cycles</p>
+                        <p className="text-sm text-zinc-500">Unpaid Rounds</p>
                         <p className="text-sm font-medium">
-                            {loan.billingCycles.filter((c) => c.status !== 'closed').length} active cycle(s) requiring payment.
+                            {loan.billingCycles.filter((c) => c.status !== 'closed').length} round(s) still need payment.
                         </p>
                     </div>
                 </div>
@@ -86,7 +86,7 @@ export default function LoanDetailPage(props: { params: Promise<{ id: string }> 
                     <div className="space-y-4">
                         <div className="flex items-center gap-2">
                             <HugeiconsIcon icon={ArrowLeft01Icon} className="w-5 h-5 text-zinc-500" />
-                            <h2 className="text-xl font-semibold">Billing Cycles</h2>
+                            <h2 className="text-xl font-semibold">Payment Rounds</h2>
                         </div>
                         <BillingCycleTable cycles={loan.billingCycles} />
                     </div>
@@ -94,7 +94,7 @@ export default function LoanDetailPage(props: { params: Promise<{ id: string }> 
                     <div className="space-y-4 pt-4 border-t border-zinc-200 dark:border-zinc-800">
                         <div className="flex items-center gap-2">
                             <HugeiconsIcon icon={PropertyEditIcon} className="w-5 h-5 text-zinc-500" />
-                            <h2 className="text-xl font-semibold">Internal Notes</h2>
+                            <h2 className="text-xl font-semibold">Notes</h2>
                         </div>
                         <p className="text-zinc-600 dark:text-zinc-400 whitespace-pre-wrap bg-zinc-50 dark:bg-zinc-950 p-4 rounded-xl border border-zinc-100 dark:border-zinc-800">
                             {loan.notes || "No notes recorded for this loan."}
@@ -120,7 +120,7 @@ export default function LoanDetailPage(props: { params: Promise<{ id: string }> 
             {loan.status !== 'settled' && (
                 <div className="md:hidden fixed bottom-16 left-0 right-0 z-40 px-4 pb-3 pt-2 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-sm border-t border-zinc-200 dark:border-zinc-800">
                     <Button className="w-full" onClick={() => setIsPaymentOpen(true)}>
-                        Record Payment
+                        Collect Payment
                     </Button>
                 </div>
             )}

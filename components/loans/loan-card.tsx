@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency, formatDate, displayStatus } from "@/lib/utils";
 import Link from "next/link";
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowUpRight01Icon } from '@hugeicons/core-free-icons';
@@ -15,12 +15,12 @@ export function LoanCard({ loan }: { loan: LoanSummary }) {
             <Card className="hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors cursor-pointer group">
                 <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
                     <CardTitle className="text-sm font-medium text-zinc-500">
-                        Principal: {formatCurrency(parseFloat(loan.principalAmount))}
+                        Loan: {formatCurrency(parseFloat(loan.principalAmount))}
                     </CardTitle>
                     <Badge
                         variant={isActive ? "default" : isOverdue ? "destructive" : "secondary"}
                     >
-                        {loan.status}
+                        {displayStatus(loan.status)}
                     </Badge>
                 </CardHeader>
                 <CardContent>

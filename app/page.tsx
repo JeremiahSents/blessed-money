@@ -31,28 +31,28 @@ export default async function DashboardPage() {
       <HorizontalStats
         stats={[
           {
-            title: "Working Capital",
+            title: "Your Money",
             value: formatCurrency(parseFloat(String(stats?.workingCapitalCurrent || 0))),
             icon: <HugeiconsIcon icon={Wallet01Icon} className="w-4 h-4" />,
-            description: `Base: ${formatCurrency(parseFloat(String(stats?.workingCapitalBase || 0)))}`,
+            description: `Starting capital: ${formatCurrency(parseFloat(String(stats?.workingCapitalBase || 0)))}`,
           },
           {
-            title: "Outstanding",
+            title: "Lent Out",
             value: formatCurrency(parseFloat(String(stats?.capitalOutstanding || 0))),
             icon: <HugeiconsIcon icon={PropertyEditIcon} className="w-4 h-4" />,
-            description: `${stats?.activeLoans || 0} active loans`,
+            description: `${stats?.activeLoans || 0} running loans`,
           },
           {
-            title: "Due This Cycle",
+            title: "Coming Back",
             value: formatCurrency(parseFloat(String(stats?.expectedThisCycle || 0))),
             icon: <HugeiconsIcon icon={Activity01Icon} className="w-4 h-4" />,
-            description: "Total projected intake",
+            description: "Expected this month",
           },
           {
-            title: "Progress",
+            title: "Collected",
             value: formatCurrency(parseFloat(String(stats?.collectedThisMonth || 0))),
             icon: <HugeiconsIcon icon={UserMultipleIcon} className="w-4 h-4" />,
-            description: "Earned this month",
+            description: "Received this month",
           },
         ]}
       />
@@ -62,19 +62,19 @@ export default async function DashboardPage() {
           <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20 ring-4 ring-primary/10 group-active:scale-90 transition-all duration-200">
             <PlusIcon className="w-6 h-6 md:w-7 md:h-7" />
           </div>
-          <span className="text-[9px] font-semibold uppercase text-zinc-400 group-hover:text-primary transition-colors text-center truncate w-full">New Loan</span>
+          <span className="text-[9px] font-semibold uppercase text-zinc-400 group-hover:text-primary transition-colors text-center truncate w-full">Give Loan</span>
         </Link>
         <Link href="/payments" className="flex flex-col items-center gap-1.5 group min-w-0">
           <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center shadow-sm group-active:scale-90 transition-all duration-200">
             <HugeiconsIcon icon={PropertyEditIcon} className="w-5 h-5 md:w-6 md:h-6 text-zinc-600 dark:text-zinc-400" />
           </div>
-          <span className="text-[9px] font-semibold uppercase text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors text-center truncate w-full">Payment</span>
+          <span className="text-[9px] font-semibold uppercase text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors text-center truncate w-full">Collect Payment</span>
         </Link>
         <Link href="/customers" className="flex flex-col items-center gap-1.5 group min-w-0">
           <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center shadow-sm group-active:scale-90 transition-all duration-200">
             <HugeiconsIcon icon={UserMultipleIcon} className="w-5 h-5 md:w-6 md:h-6 text-zinc-600 dark:text-zinc-400" />
           </div>
-          <span className="text-[9px] font-semibold uppercase text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors text-center truncate w-full">Clients</span>
+          <span className="text-[9px] font-semibold uppercase text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors text-center truncate w-full">Customers</span>
         </Link>
         <Link href="/reports" className="flex flex-col items-center gap-1.5 group min-w-0">
           <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center shadow-sm group-active:scale-90 transition-all duration-200">

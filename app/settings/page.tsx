@@ -96,7 +96,7 @@ export default function SettingsPage() {
         <div className="max-w-4xl mx-auto space-y-6">
             <PageHeader
                 title="Settings"
-                description="Configure your LendTrack environment."
+                description="Manage your preferences."
             />
 
             <div className="grid grid-cols-1 gap-8">
@@ -111,7 +111,7 @@ export default function SettingsPage() {
                             <Input type="number" defaultValue="20" />
                         </div>
                         <div className="space-y-2">
-                            <Label>Working Capital (UGX)</Label>
+                            <Label>Your Money (UGX)</Label>
                             <Input
                                 type="text"
                                 value={workingCapital}
@@ -130,8 +130,8 @@ export default function SettingsPage() {
                     <CardContent className="space-y-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="font-medium text-sm">Automated Rollover Report</p>
-                                <p className="text-xs text-zinc-500">Receive a daily summary of accounts that rolled over.</p>
+                                <p className="font-medium text-sm">Daily Late Loans Summary</p>
+                                <p className="text-xs text-zinc-500">Receive a daily summary of loans that went overdue.</p>
                             </div>
                             <Switch checked={true} />
                         </div>

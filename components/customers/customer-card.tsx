@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
 import type { Customer } from "@/lib/types";
+import { formatCurrency } from "@/lib/utils";
 
 function getInitials(name: string) {
     const parts = name.trim().split(/\s+/);
@@ -34,7 +35,7 @@ export function CustomerCard({ customer }: CustomerCardProps) {
     const router = useRouter();
     const initials = getInitials(customer.name);
     const avatarColor = getAvatarColor(customer.name);
-    const activeLoans = customer.loans?.filter(l => l.status === "active" || l.status === "overdue").length ?? 0;
+    const activeLoans = customer.activeLoanCount ?? customer.loans?.filter(l => l.status === "active" || l.status === "overdue").length ?? 0;
 
     return (
         <button

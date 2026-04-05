@@ -27,7 +27,7 @@ export default function ReportsPage() {
 
         doc.setFont("helvetica", "bold");
         doc.setFontSize(20);
-        doc.text("Portfolio Performance Report", 14, 22);
+        doc.text("Business Summary Report", 14, 22);
 
         doc.setFontSize(10);
         doc.setFont("helvetica", "normal");
@@ -45,7 +45,7 @@ export default function ReportsPage() {
 
         autoTable(doc, {
             startY: 40,
-            head: [['Month', 'Loans Issued', 'Principal Issued', 'Total Collected', 'Interest Scheduled']],
+            head: [['Month', 'Loans Given', 'Amount Given', 'Total Collected', 'Interest Expected']],
             body: rows,
             theme: 'grid',
         });
@@ -56,8 +56,8 @@ export default function ReportsPage() {
     return (
         <div className="max-w-6xl mx-auto space-y-6">
             <PageHeader
-                title="Monthly Reports"
-                description="Analyze your portfolio performance month over month."
+                title="Business Summary"
+                description="See how your business is performing."
                 action={
                     <Button variant="outline" onClick={exportPDF} disabled={!data?.data?.length}>
                         <HugeiconsIcon icon={Download04Icon} className="w-4 h-4 mr-2" />
@@ -71,10 +71,10 @@ export default function ReportsPage() {
                     <TableHeader>
                         <TableRow>
                             <TableHead>Month</TableHead>
-                            <TableHead className="text-right">Loans Issued</TableHead>
-                            <TableHead className="text-right">Principal Issued</TableHead>
+                            <TableHead className="text-right">Loans Given</TableHead>
+                            <TableHead className="text-right">Amount Given</TableHead>
                             <TableHead className="text-right">Total Collected</TableHead>
-                            <TableHead className="text-right">Interest Scheduled</TableHead>
+                            <TableHead className="text-right">Interest Expected</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>

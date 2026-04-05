@@ -72,11 +72,11 @@ export function CollateralList({ loanId, items = [] }: { loanId: string; items: 
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold tracking-tight">Collateral</h3>
+                <h3 className="text-lg font-semibold tracking-tight">Security Items</h3>
                 {!isAdding && (
                     <Button size="sm" onClick={() => setIsAdding(true)}>
                         <HugeiconsIcon icon={PlusSignIcon} className="w-4 h-4 mr-2" />
-                        Add Item
+                        Add Security Item
                     </Button>
                 )}
             </div>
@@ -92,7 +92,7 @@ export function CollateralList({ loanId, items = [] }: { loanId: string; items: 
 
             {items.length === 0 && !isAdding ? (
                 <div className="text-center py-8 border border-dashed border-zinc-200 rounded-xl bg-zinc-50">
-                    <p className="text-sm text-zinc-500">No collateral recorded for this loan.</p>
+                    <p className="text-sm text-zinc-500">No security items for this loan.</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

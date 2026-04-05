@@ -100,7 +100,7 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
                             </Button>
                             <Link href={`/loans/new?customer=${customer.id}`}>
                                 <Button>
-                                    Issue New Loan
+                                    Give a Loan
                                 </Button>
                             </Link>
                         </div>
@@ -152,7 +152,7 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
                         <TabsContent value="loans" className="space-y-4">
                             {customer.loans?.length === 0 ? (
                                 <div className="text-center p-12 border border-dashed rounded-xl bg-zinc-50/50">
-                                    <p className="text-zinc-500 text-sm">No loans issued for this customer yet.</p>
+                                    <p className="text-zinc-500 text-sm">No loans for this customer yet.</p>
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

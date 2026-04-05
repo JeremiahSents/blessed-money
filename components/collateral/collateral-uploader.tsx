@@ -66,7 +66,7 @@ export function CollateralUploader({
 
     return (
         <form onSubmit={handleSubmit} className="p-4 border border-zinc-200 dark:border-zinc-800 rounded-xl space-y-4 bg-zinc-50/50 dark:bg-zinc-900/50">
-            <h3 className="font-medium">Add Collateral Item</h3>
+            <h3 className="font-medium">Add Security Item</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                     <Label>Description *</Label>

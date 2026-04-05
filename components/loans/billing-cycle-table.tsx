@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency, formatDate, displayStatus } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import type { BillingCycle } from "@/lib/types";
@@ -27,12 +27,12 @@ function BillingCycleCard({ cycle }: { cycle: BillingCycle }) {
             {/* Header row — always visible */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <span className="font-semibold text-sm">Cycle #{cycle.cycleNumber}</span>
+                    <span className="font-semibold text-sm">Round #{cycle.cycleNumber}</span>
                     <Badge
                         variant={cycle.status === 'closed' ? "secondary" : cycle.status === 'overdue' ? "destructive" : "default"}
                         className="text-[10px] px-1.5 py-0"
                     >
-                        {cycle.status}
+                        {displayStatus(cycle.status)}
                     </Badge>
                 </div>
                 <span className={cn("font-bold text-sm", balance <= 0 ? "text-emerald-600" : "text-foreground")}>
@@ -45,11 +45,11 @@ function BillingCycleCard({ cycle }: { cycle: BillingCycle }) {
             {expanded && (
                 <div className="mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-800 grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
                     <div>
-                        <p className="text-zinc-400">Opening</p>
+                        <p className="text-zinc-400">Amount Owed</p>
                         <p className="font-medium">{formatCurrency(parseFloat(cycle.openingPrincipal))}</p>
                     </div>
                     <div>
-                        <p className="text-zinc-400">Interest</p>
+                        <p className="text-zinc-400">Interest Added</p>
                         <p className="font-medium text-red-500">+{formatCurrency(parseFloat(cycle.interestCharged))}</p>
                     </div>
                     <div>
@@ -70,7 +70,7 @@ export function BillingCycleTable({ cycles = [] }: { cycles: BillingCycle[] }) {
     const isMobile = useIsMobile();
 
     if (cycles.length === 0) {
-        return <div className="text-zinc-500 text-sm p-4 border rounded-md bg-zinc-50">No billing cycles defined.</div>;
+        return <div className="text-zinc-500 text-sm p-4 border rounded-md bg-zinc-50">No payment rounds yet.</div>;
     }
 
     if (isMobile) {
@@ -86,10 +86,10 @@ export function BillingCycleTable({ cycles = [] }: { cycles: BillingCycle[] }) {
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>Cycle</TableHead>
+                        <TableHead>Round</TableHead>
                         <TableHead>Period</TableHead>
-                        <TableHead className="text-right">Opening</TableHead>
-                        <TableHead className="text-right">Interest</TableHead>
+                        <TableHead className="text-right">Owed</TableHead>
+                        <TableHead className="text-right">Interest Added</TableHead>
                         <TableHead className="text-right">Due</TableHead>
                         <TableHead className="text-right">Paid</TableHead>
                         <TableHead className="text-right">Balance</TableHead>
@@ -112,7 +112,7 @@ export function BillingCycleTable({ cycles = [] }: { cycles: BillingCycle[] }) {
                                 <Badge
                                     variant={cycle.status === 'closed' ? "secondary" : cycle.status === 'overdue' ? "destructive" : "default"}
                                 >
-                                    {cycle.status}
+                                    {displayStatus(cycle.status)}
                                 </Badge>
                             </TableCell>
                         </TableRow>

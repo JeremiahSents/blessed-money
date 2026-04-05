@@ -19,6 +19,15 @@ export function formatDate(date: Date | string): string {
   return format(new Date(date), 'MMM d, yyyy');
 }
 
+export const friendlyStatus: Record<string, string> = {
+  active: "Running",
+  overdue: "Late",
+  settled: "Cleared",
+  open: "Waiting",
+  closed: "Paid",
+};
+export const displayStatus = (s: string) => friendlyStatus[s] ?? s;
+
 export function parseCurrency(displayAmount: string): bigint {
   // strip non-numeric except dot
   const cleanStr = displayAmount.replace(/[^0-9.]/g, '');

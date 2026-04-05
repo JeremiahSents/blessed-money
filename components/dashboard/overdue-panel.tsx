@@ -41,10 +41,10 @@ export function OverduePanel({ overdueLoans = [] }: { overdueLoans: OverdueLoan[
                 <CardTitle className="text-red-800 dark:text-red-300 flex items-center justify-between text-base">
                     <span className="flex items-center">
                         <HugeiconsIcon icon={Alert02Icon} className="w-5 h-5 mr-2" />
-                        Immediate Attention Required
+                        Needs Attention
                     </span>
                     <span className="text-xs font-medium bg-red-200 dark:bg-red-900 text-red-800 dark:text-red-300 rounded-full px-2 py-0.5">
-                        {overdueLoans.length} overdue
+                        {overdueLoans.length} late
                     </span>
                 </CardTitle>
             </CardHeader>
@@ -62,7 +62,7 @@ export function OverduePanel({ overdueLoans = [] }: { overdueLoans: OverdueLoan[
                                 </p>
                                 {overdueCycle && (
                                     <p className="text-xs text-red-600 dark:text-red-400 font-medium mt-1">
-                                        Cycle #{overdueCycle.cycleNumber} unpaid since {formatDate(overdueCycle.cycleEndDate)}
+                                        Round #{overdueCycle.cycleNumber} — not paid since {formatDate(overdueCycle.cycleEndDate)}
                                     </p>
                                 )}
                             </div>

@@ -29,9 +29,10 @@ interface CustomerFormProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     defaultValues?: Partial<CustomerFormValues> & { id?: string };
+    onSuccess?: (data: any) => void;
 }
 
-export function CustomerForm({ open, onOpenChange, defaultValues }: CustomerFormProps) {
+export function CustomerForm({ open, onOpenChange, defaultValues, onSuccess }: CustomerFormProps) {
     const queryClient = useQueryClient();
     const isEditing = !!defaultValues?.id;
 
@@ -78,12 +79,15 @@ export function CustomerForm({ open, onOpenChange, defaultValues }: CustomerForm
             }
             return res.json();
         },
-        onSuccess: () => {
+        onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ['customers'] });
             if (isEditing) {
                 queryClient.invalidateQueries({ queryKey: ['customer', defaultValues.id] });
             }
             toast.success(isEditing ? "Customer updated" : "Customer created");
+            if (onSuccess) {
+                onSuccess(data);
+            }
             onOpenChange(false);
             if (!isEditing) form.reset();
         },

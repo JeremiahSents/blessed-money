@@ -113,8 +113,8 @@ function RecordPaymentDialog({ open, onOpenChange }: { open: boolean; onOpenChan
         <ResponsiveModal
             open={open}
             onOpenChange={(v) => { onOpenChange(v); if (!v) form.reset(); }}
-            title="Record Payment"
-            description="Select a loan and enter the payment amount. Partial payments are supported and the remaining balance will be recalculated automatically."
+            title="Collect Payment"
+            description="Select a loan and enter the amount received. Partial payments are supported."
         >
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-4 mt-2">
@@ -143,7 +143,7 @@ function RecordPaymentDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                                                 <div className="py-4 text-center text-sm text-zinc-400">No active loans found</div>
                                             ) : (
                                                 <SelectGroup>
-                                                    <SelectLabel className="px-3 py-1.5 text-xs font-medium text-zinc-400 uppercase tracking-wide">Active / Overdue Loans</SelectLabel>
+                                                    <SelectLabel className="px-3 py-1.5 text-xs font-medium text-zinc-400 uppercase tracking-wide">Running / Late Loans</SelectLabel>
                                                     {activeLoans.map(loan => {
                                                         const cycle = loan.billingCycles?.find(c => c.status === "open" || c.status === "overdue");
                                                         const balance = cycle ? parseFloat(cycle.balance) : 0;
@@ -279,7 +279,7 @@ function RecordPaymentDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                         <div className="flex justify-end gap-2 pt-1">
                             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={mutation.isPending}>Cancel</Button>
                             <Button type="submit" disabled={mutation.isPending || !selectedLoanId}>
-                                {mutation.isPending ? "Saving…" : "Record Payment"}
+                                {mutation.isPending ? "Saving…" : "Save Payment"}
                             </Button>
                         </div>
                     </form>
@@ -324,8 +324,8 @@ export default function PaymentsPage() {
     return (
         <div className="max-w-6xl mx-auto space-y-6 pb-28 md:pb-6">
             <PageHeader
-                title="Payment History"
-                description="A complete chronological ledger of all payments received."
+                title="Payments"
+                description="All payments you've received."
                 action={
                     <div className="flex gap-2">
                         <Button variant="outline" onClick={exportCSV} disabled={!data?.data?.length} className={isMobile ? "hidden" : ""}>
@@ -337,7 +337,7 @@ export default function PaymentsPage() {
                         </Button>
                         <Button onClick={() => setDialogOpen(true)} className="hidden md:flex">
                             <HugeiconsIcon icon={PlusSignIcon} className="w-4 h-4 mr-2" />
-                            Record Payment
+                            Collect Payment
                         </Button>
                     </div>
                 }
@@ -420,7 +420,7 @@ export default function PaymentsPage() {
             <div className="md:hidden fixed bottom-16 left-0 right-0 z-40 px-4 pb-3 pt-2 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-sm border-t border-zinc-200 dark:border-zinc-800">
                 <Button className="w-full" onClick={() => setDialogOpen(true)}>
                     <HugeiconsIcon icon={PlusSignIcon} className="w-4 h-4 mr-2" />
-                    Record Payment
+                    Collect Payment
                 </Button>
             </div>
         </div>

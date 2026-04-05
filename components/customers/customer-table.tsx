@@ -13,6 +13,7 @@ import { CustomerCard } from "@/components/customers/customer-card";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Search01Icon } from "@hugeicons/core-free-icons";
 import type { Customer } from "@/lib/types";
+import { formatCurrency } from "@/lib/utils";
 
 export function CustomerTable() {
     const router = useRouter();
@@ -88,8 +89,9 @@ export function CustomerTable() {
                                 <TableRow>
                                     <TableHead>Name</TableHead>
                                     <TableHead>Phone</TableHead>
-                                    <TableHead>ID Number</TableHead>
-                                    <TableHead>Status</TableHead>
+                                    <TableHead>Active Loans</TableHead>
+                                    <TableHead>Total Lent</TableHead>
+                                    <TableHead>Balance Owed</TableHead>
                                     <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -99,18 +101,19 @@ export function CustomerTable() {
                                         <TableRow key={i}>
                                             <TableCell><Skeleton className="h-4 w-32" /></TableCell>
                                             <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                                            <TableCell><Skeleton className="h-4 w-12" /></TableCell>
                                             <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                                            <TableCell><Skeleton className="h-5 w-16 rounded-full" /></TableCell>
+                                            <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                                             <TableCell className="text-right"><Skeleton className="h-8 w-16 inline-block" /></TableCell>
                                         </TableRow>
                                     ))
                                 ) : isError ? (
                                     <TableRow>
-                                        <TableCell colSpan={5} className="text-center text-red-500 py-8">Failed to load customers.</TableCell>
+                                        <TableCell colSpan={6} className="text-center text-red-500 py-8">Failed to load customers.</TableCell>
                                     </TableRow>
                                 ) : data?.data?.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={5} className="text-center text-zinc-500 py-8">No customers found.</TableCell>
+                                        <TableCell colSpan={6} className="text-center text-zinc-500 py-8">No customers found.</TableCell>
                                     </TableRow>
                                 ) : (
                                     data?.data?.map((customer) => (
@@ -118,14 +121,19 @@ export function CustomerTable() {
                                             <TableCell className="font-medium">{customer.name}</TableCell>
                                             <TableCell>{customer.phone || "-"}</TableCell>
                                             <TableCell>
-                                                {customer.nationalIdNumber ? (
-                                                    <span className="text-xs text-zinc-500">{customer.nationalIdType}: {customer.nationalIdNumber}</span>
-                                                ) : "-"}
+                                                {(customer.activeLoanCount ?? 0) > 0 ? (
+                                                    <Badge variant="default">{customer.activeLoanCount}</Badge>
+                                                ) : (
+                                                    <span className="text-zinc-400 text-sm">0</span>
+                                                )}
                                             </TableCell>
-                                            <TableCell>
-                                                <Badge variant={customer.isActive ? "default" : "secondary"}>
-                                                    {customer.isActive ? "Active" : "Inactive"}
-                                                </Badge>
+                                            <TableCell className="text-sm">{formatCurrency(customer.totalLent ?? "0")}</TableCell>
+                                            <TableCell className="text-sm">
+                                                {Number(customer.outstandingBalance ?? 0) > 0 ? (
+                                                    <span className="text-red-500 font-medium">{formatCurrency(customer.outstandingBalance ?? "0")}</span>
+                                                ) : (
+                                                    <span className="text-emerald-600 font-medium">Cleared</span>
+                                                )}
                                             </TableCell>
                                             <TableCell className="text-right">
                                                 <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); router.push(`/customers/${customer.id}`); }}>
