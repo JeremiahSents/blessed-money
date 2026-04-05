@@ -6,14 +6,12 @@ import { eq } from "drizzle-orm";
 export type CustomerCreateInput = {
     name: string;
     phone?: string | null;
-    email?: string | null;
     notes?: string | null;
 };
 
 export type CustomerUpdateInput = {
     name?: string;
     phone?: string | null;
-    email?: string | null;
     notes?: string | null;
 };
 
@@ -82,14 +80,48 @@ export async function findManyCustomers(opts: {
 }
 
 export async function findCustomerById(id: string) {
-    return db.query.customers.findFirst({
+    const customerData = await db.query.customers.findFirst({
         where: eq(customers.id, id),
         with: {
             loans: {
                 orderBy: (loansTable, { desc: d }) => [d(loansTable.createdAt)],
+                with: {
+                    billingCycles: {
+                        orderBy: (bc, { asc: a }) => [a(bc.cycleNumber)],
+                    },
+                    payments: {
+                        orderBy: (p, { desc: d }) => [d(p.paidAt)],
+                    },
+                },
             },
         },
     });
+
+    if (!customerData) return null;
+
+    // Calculate aggregates for this specific customer
+    const aggregates = await db
+        .select({
+            activeLoanCount: sql<number>`count(case when ${loans.status} != 'settled' then 1 end)`,
+            totalLent: sql<string>`coalesce(sum(${loans.principalAmount}), 0)`,
+        })
+        .from(loans)
+        .where(eq(loans.customerId, id));
+
+    const balances = await db
+        .select({
+            outstandingBalance: sql<string>`coalesce(sum(${billingCycles.balance}), 0)`,
+        })
+        .from(billingCycles)
+        .innerJoin(loans, eq(billingCycles.loanId, loans.id))
+        .where(and(eq(loans.customerId, id), ne(billingCycles.status, 'closed')));
+
+    return {
+        ...customerData,
+        activeLoanCount: Number(aggregates[0]?.activeLoanCount ?? 0),
+        totalLent: aggregates[0]?.totalLent ?? "0",
+        outstandingBalance: balances[0]?.outstandingBalance ?? "0",
+    };
 }
 
 export async function createCustomer(
@@ -100,7 +132,6 @@ export async function createCustomer(
     const [record] = await runner.insert(customers).values({
         name: input.name,
         phone: input.phone,
-        email: input.email,
         notes: input.notes,
     }).returning();
     return record;
@@ -124,7 +155,6 @@ export async function updateCustomer(
         .set({
             name: input.name,
             phone: input.phone,
-            email: input.email,
             notes: input.notes,
         })
         .where(eq(customers.id, id))

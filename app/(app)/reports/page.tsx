@@ -4,10 +4,11 @@ import { useQuery } from "@tanstack/react-query";
 import { PageHeader } from "@/components/shared/page-header";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency } from "@/lib/utils";
 import { MonthlyReportRow } from "@/lib/types";
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Loading02Icon, Download04Icon } from '@hugeicons/core-free-icons';
+import { Download04Icon } from '@hugeicons/core-free-icons';
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -79,11 +80,15 @@ export default function ReportsPage() {
                     </TableHeader>
                     <TableBody>
                         {isLoading ? (
-                            <TableRow>
-                                <TableCell colSpan={5} className="py-12 text-center text-zinc-500">
-                                    <HugeiconsIcon icon={Loading02Icon} className="w-6 h-6 animate-spin mx-auto" />
-                                </TableCell>
-                            </TableRow>
+                            Array.from({ length: 6 }).map((_, i) => (
+                                <TableRow key={i}>
+                                    <TableCell><Skeleton className="h-4 w-24 rounded-md" /></TableCell>
+                                    <TableCell className="text-right"><Skeleton className="h-4 w-10 rounded-md ml-auto" /></TableCell>
+                                    <TableCell className="text-right"><Skeleton className="h-4 w-20 rounded-md ml-auto" /></TableCell>
+                                    <TableCell className="text-right"><Skeleton className="h-4 w-20 rounded-md ml-auto" /></TableCell>
+                                    <TableCell className="text-right"><Skeleton className="h-4 w-20 rounded-md ml-auto" /></TableCell>
+                                </TableRow>
+                            ))
                         ) : data?.data?.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={5} className="py-12 text-center text-zinc-500">

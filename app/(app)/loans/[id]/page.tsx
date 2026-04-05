@@ -3,7 +3,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
-    Loading02Icon,
     ArrowLeft01Icon,
     Alert02Icon,
     Coins01Icon,
@@ -16,6 +15,7 @@ import {
 } from '@hugeicons/core-free-icons';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { DetailPageSkeleton } from "@/components/shared/page-skeletons";
 import { CollateralList } from "@/components/collateral/collateral-list";
 import { BillingCycleTable } from "@/components/loans/billing-cycle-table";
 import { PaymentForm } from "@/components/loans/payment-form";
@@ -38,7 +38,7 @@ export default function LoanDetailPage(props: { params: Promise<{ id: string }> 
     });
 
     if (isLoading) {
-        return <div className="flex justify-center p-12"><HugeiconsIcon icon={Loading02Icon} className="w-8 h-8 animate-spin text-zinc-400" /></div>;
+        return <DetailPageSkeleton />;
     }
 
     const loan = data?.data;

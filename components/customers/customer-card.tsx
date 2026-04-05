@@ -2,15 +2,25 @@
 
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
 import type { Customer } from "@/lib/types";
-import { formatCurrency } from "@/lib/utils";
 
-function getInitials(name: string) {
-    const parts = name.trim().split(/\s+/);
-    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+const customerAvatarUrls = [
+    "https://nyc.cloud.appwrite.io/v1/storage/buckets/694f8728000d9f558482/files/694f89470031cae2d8a0/view?project=694f86f8000af20e3525",
+    "https://nyc.cloud.appwrite.io/v1/storage/buckets/694f8728000d9f558482/files/694f88f40038fe6fa4f1/view?project=694f86f8000af20e3525",
+    "https://nyc.cloud.appwrite.io/v1/storage/buckets/694f8728000d9f558482/files/694f88f20012413729ee/view?project=694f86f8000af20e3525",
+    "https://nyc.cloud.appwrite.io/v1/storage/buckets/694f8728000d9f558482/files/694f88f7001cdd345d10/view?project=694f86f8000af20e3525",
+    "https://nyc.cloud.appwrite.io/v1/storage/buckets/694f8728000d9f558482/files/694f894100313e47a10a/view?project=694f86f8000af20e3525",
+];
+
+function getAvatarIndex(seed: string) {
+    let hash = 0;
+    for (let i = 0; i < seed.length; i++) {
+        hash = seed.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return Math.abs(hash) % customerAvatarUrls.length;
 }
 
 function getAvatarColor(name: string) {
@@ -33,9 +43,9 @@ interface CustomerCardProps {
 
 export function CustomerCard({ customer }: CustomerCardProps) {
     const router = useRouter();
-    const initials = getInitials(customer.name);
     const avatarColor = getAvatarColor(customer.name);
     const activeLoans = customer.activeLoanCount ?? customer.loans?.filter(l => l.status === "active" || l.status === "overdue").length ?? 0;
+    const avatarUrl = customerAvatarUrls[getAvatarIndex(customer.id || customer.name)];
 
     return (
         <button
@@ -43,9 +53,12 @@ export function CustomerCard({ customer }: CustomerCardProps) {
             className="w-full flex items-center gap-3 p-4 bg-white dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 active:scale-[0.99] transition-transform text-left"
         >
             {/* Avatar */}
-            <div className={`w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${avatarColor}`}>
-                {initials}
-            </div>
+            <Avatar className="w-11 h-11 shrink-0">
+                <AvatarImage src={avatarUrl} alt={customer.name} />
+                <AvatarFallback className={`text-sm font-bold ${avatarColor}`}>
+                    {customer.name.split(/\s+/).map((part) => part.charAt(0)).slice(0, 2).join("")}
+                </AvatarFallback>
+            </Avatar>
 
             {/* Content */}
             <div className="flex-1 min-w-0">

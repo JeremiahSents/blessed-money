@@ -11,7 +11,6 @@ import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
-import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AdminPanel } from "@/components/admin/admin-panel";
@@ -170,9 +169,7 @@ export default function SettingsPage() {
                     </CardHeader>
                     <CardContent>
                         <Button variant="destructive" onClick={handleSignOut}>
-                            {isSigningOut ? (
-                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            ) : (
+                            {!isSigningOut && (
                                 <HugeiconsIcon icon={Logout03Icon} className="w-4 h-4 mr-2" />
                             )}
                             {isSigningOut ? "Signing out..." : "Sign Out"}

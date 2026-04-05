@@ -50,6 +50,13 @@
       "when": 1775376081127,
       "tag": "0006_new_overlord",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1775381374564,
+      "tag": "0007_adorable_goblin_queen",
+      "breakpoints": true
     }
   ]
 }

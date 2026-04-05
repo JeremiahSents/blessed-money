@@ -1,6 +1,10 @@
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
 import { HorizontalStats } from "@/components/dashboard/horizontal-stats";
 import { OverduePanel } from "@/components/dashboard/overdue-panel";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
+import { DashboardPageSkeleton } from "@/components/shared/page-skeletons";
 import { formatCurrency } from "@/lib/utils";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -13,18 +17,57 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { PlusIcon } from "lucide-react";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-import { getDashboardData } from "@/core/services/dashboard-service";
+import type { ActivityItem, BillingCycle, Customer, LoanSummary } from "@/lib/types";
 
-export default async function DashboardPage() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session?.user) {
-    redirect("/signin");
+type OverdueLoan = LoanSummary & {
+  customer: Pick<Customer, "name">;
+  billingCycles?: BillingCycle[];
+};
+
+type DashboardResponse = {
+  data: {
+    stats: {
+      workingCapitalCurrent?: string | number;
+      workingCapitalBase?: string | number;
+      capitalOutstanding?: string | number;
+      activeLoans?: number;
+      expectedThisCycle?: string | number;
+      collectedThisMonth?: string | number;
+    };
+    activity: ActivityItem[];
+    overdueLoansList: OverdueLoan[];
+  };
+};
+
+export default function DashboardPage() {
+  const { data, isLoading, isError } = useQuery<DashboardResponse>({
+    queryKey: ["dashboard"],
+    queryFn: async () => {
+      const res = await fetch("/api/dashboard");
+      if (res.status === 401) {
+        if (typeof window !== "undefined") {
+          window.location.href = "/signin";
+        }
+        throw new Error("Unauthorized");
+      }
+      if (!res.ok) throw new Error("Failed to fetch dashboard");
+      return res.json();
+    },
+  });
+
+  if (isLoading) {
+    return <DashboardPageSkeleton />;
   }
 
-  const { stats, activity, overdueLoansList } = await getDashboardData();
+  if (isError || !data?.data) {
+    return (
+      <div className="max-w-5xl mx-auto px-2 py-12 text-sm text-zinc-500">
+        Failed to load dashboard.
+      </div>
+    );
+  }
+
+  const { stats, activity, overdueLoansList } = data.data;
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-20 md:pb-0">

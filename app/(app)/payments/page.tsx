@@ -13,18 +13,17 @@ import { PaymentCard } from "@/components/payments/payment-card";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { getErrorMessage } from "@/lib/errors";
 import type { Payment } from "@/lib/types";
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Loading02Icon, Download04Icon, PlusSignIcon, MoneyReceive01Icon, UserIcon } from '@hugeicons/core-free-icons';
+import { Download04Icon, PlusSignIcon, UserIcon } from '@hugeicons/core-free-icons';
 import Link from "next/link";
 import { toast } from "sonner";
 
-// ── Types ──────────────────────────────────────────────────────────────────
 interface ActiveLoan {
     id: string;
     principalAmount: string;
@@ -40,7 +39,6 @@ interface ActiveLoan {
     }>;
 }
 
-// ── Payment schema ─────────────────────────────────────────────────────────
 const paymentSchema = z.object({
     loanId: z.string().min(1, "Select a loan"),
     amount: z.string().min(1, "Amount is required"),
@@ -49,7 +47,6 @@ const paymentSchema = z.object({
 });
 type PaymentFormValues = z.infer<typeof paymentSchema>;
 
-// ── Record Payment Dialog ──────────────────────────────────────────────────
 function RecordPaymentDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
     const queryClient = useQueryClient();
 
@@ -349,9 +346,16 @@ export default function PaymentsPage() {
             {isMobile ? (
                 <div className="space-y-2">
                     {isLoading ? (
-                        <div className="py-12 text-center text-zinc-500">
-                            <HugeiconsIcon icon={Loading02Icon} className="w-6 h-6 animate-spin mx-auto" />
-                        </div>
+                        Array.from({ length: 5 }).map((_, i) => (
+                            <div key={i} className="flex items-center gap-3 p-4 bg-white dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800">
+                                <Skeleton className="w-10 h-10 rounded-full shrink-0" />
+                                <div className="flex-1 space-y-2">
+                                    <Skeleton className="h-4 w-28 rounded-md" />
+                                    <Skeleton className="h-3 w-20 rounded-full" />
+                                </div>
+                                <Skeleton className="h-4 w-20 rounded-md" />
+                            </div>
+                        ))
                     ) : data?.data?.length === 0 ? (
                         <p className="py-12 text-center text-zinc-500">No payments recorded yet.</p>
                     ) : (
@@ -375,11 +379,15 @@ export default function PaymentsPage() {
                         </TableHeader>
                         <TableBody>
                             {isLoading ? (
-                                <TableRow>
-                                    <TableCell colSpan={5} className="py-12 text-center text-zinc-500">
-                                        <HugeiconsIcon icon={Loading02Icon} className="w-6 h-6 animate-spin mx-auto" />
-                                    </TableCell>
-                                </TableRow>
+                                Array.from({ length: 5 }).map((_, i) => (
+                                    <TableRow key={i}>
+                                        <TableCell><Skeleton className="h-4 w-20 rounded-md" /></TableCell>
+                                        <TableCell><Skeleton className="h-4 w-28 rounded-md" /></TableCell>
+                                        <TableCell><Skeleton className="h-4 w-16 rounded-md" /></TableCell>
+                                        <TableCell><Skeleton className="h-4 w-36 rounded-md" /></TableCell>
+                                        <TableCell className="text-right"><Skeleton className="h-8 w-20 rounded-md inline-block" /></TableCell>
+                                    </TableRow>
+                                ))
                             ) : data?.data?.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={5} className="py-12 text-center text-zinc-500">

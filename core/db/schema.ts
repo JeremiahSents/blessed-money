@@ -86,7 +86,6 @@ export const customers = pgTable("customers", {
         .notNull(),
     name: text("name").notNull(),
     phone: text("phone"),
-    email: text("email"),
     notes: text("notes"),
     isActive: boolean("is_active").default(true).notNull(),
 });

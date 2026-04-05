@@ -36,7 +36,6 @@ export async function POST(req: NextRequest) {
             userId: session.user.id,
             name: body.name,
             phone: body.phone,
-            email: body.email,
             notes: body.notes,
         });
 

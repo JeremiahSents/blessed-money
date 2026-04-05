@@ -4,7 +4,6 @@ export interface Customer {
   id: Id;
   name: string;
   phone: string | null;
-  email: string | null;
   notes: string | null;
   isActive?: boolean;
   createdAt?: string | Date;

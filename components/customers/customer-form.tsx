@@ -16,7 +16,6 @@ import { getErrorMessage } from "@/lib/errors";
 const customerSchema = z.object({
     name: z.string().min(2, "Name is required"),
     phone: z.string().optional(),
-    email: z.string().email("Invalid email").optional().or(z.literal("")),
     notes: z.string().optional(),
 });
 
@@ -38,7 +37,6 @@ export function CustomerForm({ open, onOpenChange, defaultValues, onSuccess }: C
         defaultValues: {
             name: "",
             phone: "",
-            email: "",
             notes: "",
             ...defaultValues,
         },
@@ -49,7 +47,6 @@ export function CustomerForm({ open, onOpenChange, defaultValues, onSuccess }: C
             form.reset({
                 name: defaultValues?.name || "",
                 phone: defaultValues?.phone || "",
-                email: defaultValues?.email || "",
                 notes: defaultValues?.notes || "",
             });
         }
@@ -122,19 +119,6 @@ export function CustomerForm({ open, onOpenChange, defaultValues, onSuccess }: C
                                         <FormLabel>Phone</FormLabel>
                                         <FormControl>
                                             <Input placeholder="+1 234 567 890" {...field} value={field.value || ""} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="email"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Email</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="john@example.com" type="email" {...field} value={field.value || ""} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

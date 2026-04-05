@@ -31,7 +31,6 @@ export async function PUT(req: NextRequest, props: { params: Promise<{ id: strin
             {
                 name: body.name,
                 phone: body.phone,
-                email: body.email,
                 notes: body.notes,
             },
             session.user.id
