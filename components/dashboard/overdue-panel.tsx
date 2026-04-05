@@ -68,8 +68,8 @@ export function OverduePanel({ overdueLoans = [] }: { overdueLoans: OverdueLoan[
                             </div>
                             <div className="flex items-center gap-4 sm:ml-auto">
                                 <div className="text-right">
-                                    <p className="font-bold text-red-600 dark:text-red-400">{formatCurrency(amountDue)}</p>
-                                    <p className="text-[10px] text-zinc-400 uppercase tracking-wider">Due</p>
+                                    <p className="font-semibold text-red-600 dark:text-red-400">{formatCurrency(amountDue)}</p>
+                                    <p className="text-[10px] text-zinc-400 uppercase">Due</p>
                                 </div>
                                 <Link href={`/loans/${loan.id}`}>
                                     <Button size="sm" variant="outline" className="border-red-200 hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-900">

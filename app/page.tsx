@@ -1,9 +1,15 @@
-import { StatCard } from "@/components/dashboard/stat-card";
+import { HorizontalStats } from "@/components/dashboard/horizontal-stats";
 import { OverduePanel } from "@/components/dashboard/overdue-panel";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { formatCurrency } from "@/lib/utils";
-import { HugeiconsIcon } from '@hugeicons/react';
-import { UserMultipleIcon, Wallet01Icon, Activity01Icon, PropertyEditIcon, Book02Icon } from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  UserMultipleIcon,
+  Wallet01Icon,
+  Activity01Icon,
+  PropertyEditIcon,
+  Book02Icon,
+} from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { PlusIcon } from "lucide-react";
@@ -13,105 +19,90 @@ import { redirect } from "next/navigation";
 import { getDashboardData } from "@/core/services/dashboard-service";
 
 export default async function DashboardPage() {
-    const session = await auth.api.getSession({ headers: await headers() });
-    if (!session?.user) {
-        redirect("/signin");
-    }
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user) {
+    redirect("/signin");
+  }
 
-    const { stats, activity, overdueLoansList } = await getDashboardData();
+  const { stats, activity, overdueLoansList } = await getDashboardData();
 
-    return (
-        <div className="space-y-8 max-w-5xl mx-auto">
+  return (
+    <div className="space-y-6 max-w-5xl mx-auto pb-20 md:pb-0">
+      <HorizontalStats
+        stats={[
+          {
+            title: "Working Capital",
+            value: formatCurrency(parseFloat(String(stats?.workingCapitalCurrent || 0))),
+            icon: <HugeiconsIcon icon={Wallet01Icon} className="w-4 h-4" />,
+            description: `Base: ${formatCurrency(parseFloat(String(stats?.workingCapitalBase || 0)))}`,
+          },
+          {
+            title: "Outstanding",
+            value: formatCurrency(parseFloat(String(stats?.capitalOutstanding || 0))),
+            icon: <HugeiconsIcon icon={PropertyEditIcon} className="w-4 h-4" />,
+            description: `${stats?.activeLoans || 0} active loans`,
+          },
+          {
+            title: "Due This Cycle",
+            value: formatCurrency(parseFloat(String(stats?.expectedThisCycle || 0))),
+            icon: <HugeiconsIcon icon={Activity01Icon} className="w-4 h-4" />,
+            description: "Total projected intake",
+          },
+          {
+            title: "Progress",
+            value: formatCurrency(parseFloat(String(stats?.collectedThisMonth || 0))),
+            icon: <HugeiconsIcon icon={UserMultipleIcon} className="w-4 h-4" />,
+            description: "Earned this month",
+          },
+        ]}
+      />
 
-            {/* Page title + primary action */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-                    <p className="text-sm text-zinc-500 mt-0.5">Overview of your lending portfolio</p>
-                </div>
-                <Link href="/loans/new">
-                    <Button>
-                        <PlusIcon className="w-4 h-4 mr-2" />
-                        New Loan
-                    </Button>
-                </Link>
-            </div>
+      <div className="grid grid-cols-4 gap-2 px-2 py-1">
+        <Link href="/loans/new" className="flex flex-col items-center gap-1.5 group min-w-0">
+          <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20 ring-4 ring-primary/10 group-active:scale-90 transition-all duration-200">
+            <PlusIcon className="w-6 h-6 md:w-7 md:h-7" />
+          </div>
+          <span className="text-[9px] font-semibold uppercase text-zinc-400 group-hover:text-primary transition-colors text-center truncate w-full">New Loan</span>
+        </Link>
+        <Link href="/payments" className="flex flex-col items-center gap-1.5 group min-w-0">
+          <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center shadow-sm group-active:scale-90 transition-all duration-200">
+            <HugeiconsIcon icon={PropertyEditIcon} className="w-5 h-5 md:w-6 md:h-6 text-zinc-600 dark:text-zinc-400" />
+          </div>
+          <span className="text-[9px] font-semibold uppercase text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors text-center truncate w-full">Payment</span>
+        </Link>
+        <Link href="/customers" className="flex flex-col items-center gap-1.5 group min-w-0">
+          <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center shadow-sm group-active:scale-90 transition-all duration-200">
+            <HugeiconsIcon icon={UserMultipleIcon} className="w-5 h-5 md:w-6 md:h-6 text-zinc-600 dark:text-zinc-400" />
+          </div>
+          <span className="text-[9px] font-semibold uppercase text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors text-center truncate w-full">Clients</span>
+        </Link>
+        <Link href="/reports" className="flex flex-col items-center gap-1.5 group min-w-0">
+          <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center shadow-sm group-active:scale-90 transition-all duration-200">
+            <HugeiconsIcon icon={Book02Icon} className="w-5 h-5 md:w-6 md:h-6 text-zinc-600 dark:text-zinc-400" />
+          </div>
+          <span className="text-[9px] font-semibold uppercase text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors text-center truncate w-full">Reports</span>
+        </Link>
+      </div>
 
-            {/* Mobile quick-action pills */}
-            <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 md:hidden scrollbar-hide">
-                <Link href="/payments" className="shrink-0">
-                    <Button size="sm" variant="outline" className="rounded-full whitespace-nowrap">
-                        <HugeiconsIcon icon={PropertyEditIcon} className="w-4 h-4 mr-1.5" />
-                        Record Payment
-                    </Button>
-                </Link>
-                <Link href="/customers" className="shrink-0">
-                    <Button size="sm" variant="outline" className="rounded-full whitespace-nowrap">
-                        <HugeiconsIcon icon={UserMultipleIcon} className="w-4 h-4 mr-1.5" />
-                        Customers
-                    </Button>
-                </Link>
-                <Link href="/reports" className="shrink-0">
-                    <Button size="sm" variant="outline" className="rounded-full whitespace-nowrap">
-                        <HugeiconsIcon icon={Book02Icon} className="w-4 h-4 mr-1.5" />
-                        Reports
-                    </Button>
-                </Link>
-            </div>
 
-            {/* Stat cards — 2-col on tablet, 4-col on desktop, scroll on mobile */}
-            <div className="flex gap-3 overflow-x-auto pb-1 -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-5 scrollbar-hide">
-                <div className="shrink-0 w-48 md:w-auto">
-                    <StatCard
-                        title="Working Capital"
-                        value={formatCurrency(parseFloat(String(stats?.workingCapitalCurrent || 0)))}
-                        icon={<HugeiconsIcon icon={Wallet01Icon} className="w-4 h-4" />}
-                        description={`Base: ${formatCurrency(parseFloat(String(stats?.workingCapitalBase || 0)))}`}
-                    />
-                </div>
-                <div className="shrink-0 w-48 md:w-auto">
-                    <StatCard
-                        title="Active Loans"
-                        value={stats?.activeLoans || 0}
-                        icon={<HugeiconsIcon icon={PropertyEditIcon} className="w-4 h-4" />}
-                        description={`${stats?.overdueLoans || 0} overdue`}
-                    />
-                </div>
-                <div className="shrink-0 w-48 md:w-auto">
-                    <StatCard
-                        title="Expected This Cycle"
-                        value={formatCurrency(parseFloat(String(stats?.expectedThisCycle || 0)))}
-                        icon={<HugeiconsIcon icon={Activity01Icon} className="w-4 h-4" />}
-                        description="Total due across open cycles"
-                    />
-                </div>
-                <div className="shrink-0 w-48 md:w-auto">
-                    <StatCard
-                        title="Collected This Month"
-                        value={formatCurrency(parseFloat(String(stats?.collectedThisMonth || 0)))}
-                        icon={<HugeiconsIcon icon={UserMultipleIcon} className="w-4 h-4" />}
-                        description="Since start of month"
-                    />
-                </div>
-            </div>
+      {/* Overdue panel — full width, only shown when there are overdues */}
+      {overdueLoansList.length > 0 && (
+        <OverduePanel overdueLoans={overdueLoansList} />
+      )}
 
-            {/* Overdue panel — full width, only shown when there are overdues */}
-            {overdueLoansList.length > 0 && (
-                <OverduePanel overdueLoans={overdueLoansList} />
-            )}
-
-            {/* Recent Activity — full width, clean */}
-            <div className="bg-white dark:bg-zinc-950 rounded-2xl border border-zinc-200 dark:border-zinc-800">
-                <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
-                    <h2 className="font-semibold">Recent Activity</h2>
-                    <Link href="/reports">
-                        <Button variant="ghost" size="sm" className="text-zinc-500">View Reports</Button>
-                    </Link>
-                </div>
-                <div className="p-6">
-                    <ActivityFeed activity={activity} />
-                </div>
-            </div>
+      <div className="bg-transparent rounded-2xl overflow-hidden">
+        <div className="flex items-center justify-between px-2 py-4">
+          <h2 className="text-xs font-semibold uppercase text-zinc-400 dark:text-zinc-600">Recent Activity</h2>
+          <Link href="/reports">
+            <Button variant="ghost" size="sm" className="text-[10px] font-semibold uppercase text-primary hover:bg-primary/5">
+              Full Report
+            </Button>
+          </Link>
         </div>
-    );
+        <div className="px-2 md:px-6 pb-2">
+          <ActivityFeed activity={activity} />
+        </div>
+      </div>
+    </div>
+  );
 }
