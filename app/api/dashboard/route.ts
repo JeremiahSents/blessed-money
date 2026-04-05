@@ -4,7 +4,6 @@ import { headers } from "next/headers";
 import { getErrorMessage } from "@/lib/errors";
 import { getDashboardData } from "@/core/services/dashboard-service";
 import { resolveBusinessForUser } from "@/core/services/business-service";
-
 export async function GET() {
     const session = await auth.api.getSession({ headers: await headers() });
     if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatCurrency, formatDate } from "@/lib/utils";
@@ -11,7 +14,13 @@ type OverdueLoan = LoanSummary & {
     billingCycles?: BillingCycle[];
 };
 
+const INITIAL_SHOW = 3;
+
 export function OverduePanel({ overdueLoans = [] }: { overdueLoans: OverdueLoan[] }) {
+    const [showAll, setShowAll] = useState(false);
+    const visibleLoans = showAll ? overdueLoans : overdueLoans.slice(0, INITIAL_SHOW);
+    const hiddenCount = overdueLoans.length - INITIAL_SHOW;
+
     if (overdueLoans.length === 0) {
         return (
             <Card className="border-emerald-200 bg-emerald-50/50 dark:border-emerald-900 dark:bg-emerald-900/10">
@@ -29,13 +38,18 @@ export function OverduePanel({ overdueLoans = [] }: { overdueLoans: OverdueLoan[
     return (
         <Card className="border-red-200 bg-red-50/50 dark:border-red-900/50 dark:bg-red-950/20">
             <CardHeader className="pb-3 border-b border-red-100 dark:border-red-900/50">
-                <CardTitle className="text-red-800 dark:text-red-300 flex items-center text-base">
-                    <HugeiconsIcon icon={Alert02Icon} className="w-5 h-5 mr-2" />
-                    Immediate Attention Required
+                <CardTitle className="text-red-800 dark:text-red-300 flex items-center justify-between text-base">
+                    <span className="flex items-center">
+                        <HugeiconsIcon icon={Alert02Icon} className="w-5 h-5 mr-2" />
+                        Immediate Attention Required
+                    </span>
+                    <span className="text-xs font-medium bg-red-200 dark:bg-red-900 text-red-800 dark:text-red-300 rounded-full px-2 py-0.5">
+                        {overdueLoans.length} overdue
+                    </span>
                 </CardTitle>
             </CardHeader>
             <CardContent className="pt-4 space-y-3">
-                {overdueLoans.map((loan) => {
+                {visibleLoans.map((loan) => {
                     const overdueCycle = loan.billingCycles?.[0]; // API returns 1 cycle where status = overdue
                     const amountDue = overdueCycle ? parseFloat(overdueCycle.balance) : parseFloat(loan.principalAmount);
 
@@ -66,6 +80,14 @@ export function OverduePanel({ overdueLoans = [] }: { overdueLoans: OverdueLoan[
                         </div>
                     );
                 })}
+                {hiddenCount > 0 && !showAll && (
+                    <button
+                        onClick={() => setShowAll(true)}
+                        className="w-full text-center text-sm text-red-600 dark:text-red-400 font-medium py-1 hover:underline"
+                    >
+                        Show {hiddenCount} more overdue loan{hiddenCount > 1 ? "s" : ""}
+                    </button>
+                )}
             </CardContent>
         </Card>
     );

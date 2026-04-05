@@ -8,7 +8,9 @@ import * as z from "zod";
 import { PageHeader } from "@/components/shared/page-header";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { ResponsiveModal } from "@/components/shared/responsive-modal";
+import { PaymentCard } from "@/components/payments/payment-card";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -108,20 +110,12 @@ function RecordPaymentDialog({ open, onOpenChange }: { open: boolean; onOpenChan
     });
 
     return (
-        <Dialog open={open} onOpenChange={(v) => { onOpenChange(v); if (!v) form.reset(); }}>
-            <DialogContent className="max-w-2xl">
-                <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2">
-                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900">
-                            <HugeiconsIcon icon={MoneyReceive01Icon} className="w-4 h-4 text-emerald-600" />
-                        </span>
-                        Record Payment
-                    </DialogTitle>
-                    <DialogDescription>
-                        Select a loan and enter the payment amount. Partial payments are supported and the remaining balance will be recalculated automatically.
-                    </DialogDescription>
-                </DialogHeader>
-
+        <ResponsiveModal
+            open={open}
+            onOpenChange={(v) => { onOpenChange(v); if (!v) form.reset(); }}
+            title="Record Payment"
+            description="Select a loan and enter the payment amount. Partial payments are supported and the remaining balance will be recalculated automatically."
+        >
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-4 mt-2">
 
@@ -290,14 +284,14 @@ function RecordPaymentDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                         </div>
                     </form>
                 </Form>
-            </DialogContent>
-        </Dialog>
+        </ResponsiveModal>
     );
 }
 
 // ── Page ───────────────────────────────────────────────────────────────────
 export default function PaymentsPage() {
     const [dialogOpen, setDialogOpen] = useState(false);
+    const isMobile = useIsMobile();
 
     const { data, isLoading } = useQuery<{ data: Payment[] }>({
         queryKey: ["payments"],
@@ -328,17 +322,20 @@ export default function PaymentsPage() {
     };
 
     return (
-        <div className="max-w-6xl mx-auto space-y-6">
+        <div className="max-w-6xl mx-auto space-y-6 pb-28 md:pb-6">
             <PageHeader
                 title="Payment History"
                 description="A complete chronological ledger of all payments received."
                 action={
                     <div className="flex gap-2">
-                        <Button variant="outline" onClick={exportCSV} disabled={!data?.data?.length}>
+                        <Button variant="outline" onClick={exportCSV} disabled={!data?.data?.length} className={isMobile ? "hidden" : ""}>
                             <HugeiconsIcon icon={Download04Icon} className="w-4 h-4 mr-2" />
                             Export CSV
                         </Button>
-                        <Button onClick={() => setDialogOpen(true)}>
+                        <Button variant="outline" size="icon" onClick={exportCSV} disabled={!data?.data?.length} className={isMobile ? "" : "hidden"} title="Export CSV">
+                            <HugeiconsIcon icon={Download04Icon} className="w-4 h-4" />
+                        </Button>
+                        <Button onClick={() => setDialogOpen(true)} className="hidden md:flex">
                             <HugeiconsIcon icon={PlusSignIcon} className="w-4 h-4 mr-2" />
                             Record Payment
                         </Button>
@@ -348,57 +345,83 @@ export default function PaymentsPage() {
 
             <RecordPaymentDialog open={dialogOpen} onOpenChange={setDialogOpen} />
 
-            <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 overflow-hidden">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Date Paid</TableHead>
-                            <TableHead>Customer</TableHead>
-                            <TableHead>Amount</TableHead>
-                            <TableHead>Notes</TableHead>
-                            <TableHead className="text-right">Action</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {isLoading ? (
+            {/* Mobile: card list */}
+            {isMobile ? (
+                <div className="space-y-2">
+                    {isLoading ? (
+                        <div className="py-12 text-center text-zinc-500">
+                            <HugeiconsIcon icon={Loading02Icon} className="w-6 h-6 animate-spin mx-auto" />
+                        </div>
+                    ) : data?.data?.length === 0 ? (
+                        <p className="py-12 text-center text-zinc-500">No payments recorded yet.</p>
+                    ) : (
+                        data?.data?.map((payment) => (
+                            <PaymentCard key={payment.id} payment={payment} />
+                        ))
+                    )}
+                </div>
+            ) : (
+                /* Desktop: table */
+                <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 overflow-hidden">
+                    <Table>
+                        <TableHeader>
                             <TableRow>
-                                <TableCell colSpan={5} className="py-12 text-center text-zinc-500">
-                                    <HugeiconsIcon icon={Loading02Icon} className="w-6 h-6 animate-spin mx-auto" />
-                                </TableCell>
+                                <TableHead>Date Paid</TableHead>
+                                <TableHead>Customer</TableHead>
+                                <TableHead>Amount</TableHead>
+                                <TableHead>Notes</TableHead>
+                                <TableHead className="text-right">Action</TableHead>
                             </TableRow>
-                        ) : data?.data?.length === 0 ? (
-                            <TableRow>
-                                <TableCell colSpan={5} className="py-12 text-center text-zinc-500">
-                                    No payments recorded yet.
-                                </TableCell>
-                            </TableRow>
-                        ) : (
-                            data?.data?.map((payment) => (
-                                <TableRow key={payment.id}>
-                                    <TableCell className="font-medium">{formatDate(payment.paidAt)}</TableCell>
-                                    <TableCell>
-                                        {payment.loan?.customer?.id ? (
-                                            <Link href={`/customers/${payment.loan.customer.id}`} className="hover:underline font-medium">
-                                                {payment.loan.customer.name}
-                                            </Link>
-                                        ) : <span className="font-medium">-</span>}
-                                    </TableCell>
-                                    <TableCell className="font-bold text-emerald-600 dark:text-emerald-400">
-                                        +{formatCurrency(parseFloat(payment.amount))}
-                                    </TableCell>
-                                    <TableCell className="text-zinc-500 text-sm max-w-[250px] truncate">
-                                        {payment.note || "-"}
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        <Link href={`/loans/${payment.loanId}`}>
-                                            <Button variant="ghost" size="sm">View Loan</Button>
-                                        </Link>
+                        </TableHeader>
+                        <TableBody>
+                            {isLoading ? (
+                                <TableRow>
+                                    <TableCell colSpan={5} className="py-12 text-center text-zinc-500">
+                                        <HugeiconsIcon icon={Loading02Icon} className="w-6 h-6 animate-spin mx-auto" />
                                     </TableCell>
                                 </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                </Table>
+                            ) : data?.data?.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={5} className="py-12 text-center text-zinc-500">
+                                        No payments recorded yet.
+                                    </TableCell>
+                                </TableRow>
+                            ) : (
+                                data?.data?.map((payment) => (
+                                    <TableRow key={payment.id}>
+                                        <TableCell className="font-medium">{formatDate(payment.paidAt)}</TableCell>
+                                        <TableCell>
+                                            {payment.loan?.customer?.id ? (
+                                                <Link href={`/customers/${payment.loan.customer.id}`} className="hover:underline font-medium">
+                                                    {payment.loan.customer.name}
+                                                </Link>
+                                            ) : <span className="font-medium">-</span>}
+                                        </TableCell>
+                                        <TableCell className="font-bold text-emerald-600 dark:text-emerald-400">
+                                            +{formatCurrency(parseFloat(payment.amount))}
+                                        </TableCell>
+                                        <TableCell className="text-zinc-500 text-sm max-w-[250px] truncate">
+                                            {payment.note || "-"}
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <Link href={`/loans/${payment.loanId}`}>
+                                                <Button variant="ghost" size="sm">View Loan</Button>
+                                            </Link>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+            )}
+
+            {/* Mobile sticky record payment bar */}
+            <div className="md:hidden fixed bottom-16 left-0 right-0 z-40 px-4 pb-3 pt-2 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-sm border-t border-zinc-200 dark:border-zinc-800">
+                <Button className="w-full" onClick={() => setDialogOpen(true)}>
+                    <HugeiconsIcon icon={PlusSignIcon} className="w-4 h-4 mr-2" />
+                    Record Payment
+                </Button>
             </div>
         </div>
     );

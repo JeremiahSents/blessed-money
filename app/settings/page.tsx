@@ -6,13 +6,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Logout03Icon } from '@hugeicons/core-free-icons';
+import { Logout03Icon, Book02Icon } from '@hugeicons/core-free-icons';
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import { AdminPanel } from "@/components/admin/admin-panel";
 
 export default function SettingsPage() {
     const router = useRouter();
@@ -21,6 +23,7 @@ export default function SettingsPage() {
 
     const [businessName, setBusinessName] = useState("");
     const [workingCapital, setWorkingCapital] = useState("");
+    const [isAdmin, setIsAdmin] = useState(false);
 
     const formatNumber = (val: string) => {
         if (!val) return "";
@@ -34,11 +37,19 @@ export default function SettingsPage() {
     useEffect(() => {
         (async () => {
             try {
-                const res = await fetch("/api/settings");
-                if (!res.ok) return;
-                const json = await res.json();
-                setBusinessName(json?.data?.businessName || "");
-                setWorkingCapital(formatNumber(String(json?.data?.workingCapital ?? "0")));
+                const [settingsRes, adminRes] = await Promise.all([
+                    fetch("/api/settings"),
+                    fetch("/api/admin/me"),
+                ]);
+                if (settingsRes.ok) {
+                    const json = await settingsRes.json();
+                    setBusinessName(json?.data?.businessName || "");
+                    setWorkingCapital(formatNumber(String(json?.data?.workingCapital ?? "0")));
+                }
+                if (adminRes.ok) {
+                    const adminJson = await adminRes.json();
+                    setIsAdmin(adminJson?.isAdmin ?? false);
+                }
             } catch {
                 return;
             }
@@ -141,6 +152,25 @@ export default function SettingsPage() {
                             </div>
                             <Switch checked={false} />
                         </div>
+                    </CardContent>
+                </Card>
+
+                {/* Admin Panel — only visible to admins */}
+                {isAdmin && <AdminPanel />}
+
+                {/* Reports — visible on mobile (not in bottom nav) */}
+                <Card className="md:hidden">
+                    <CardHeader>
+                        <CardTitle>Reports</CardTitle>
+                        <CardDescription>View monthly portfolio performance reports.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Link href="/reports">
+                            <Button variant="outline">
+                                <HugeiconsIcon icon={Book02Icon} className="w-4 h-4 mr-2" />
+                                View Reports
+                            </Button>
+                        </Link>
                     </CardContent>
                 </Card>
 

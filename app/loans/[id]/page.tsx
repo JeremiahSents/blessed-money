@@ -38,7 +38,7 @@ export default function LoanDetailPage(props: { params: Promise<{ id: string }> 
     const isOverdue = loan.status === 'overdue';
 
     return (
-        <div className="max-w-6xl mx-auto space-y-8 pb-12">
+        <div className="max-w-6xl mx-auto space-y-8 pb-32 md:pb-12">
             <div>
                 <Link href={`/customers/${loan.customer.id}`} className="text-sm font-medium text-zinc-500 hover:text-black dark:hover:text-white flex items-center mb-4 transition-colors">
                     <HugeiconsIcon icon={ArrowLeft01Icon} className="w-4 h-4 mr-1" /> Back to Customer
@@ -115,6 +115,15 @@ export default function LoanDetailPage(props: { params: Promise<{ id: string }> 
                 onOpenChange={setIsPaymentOpen}
                 balance={loan.billingCycles.find(c => c.status === 'open' || c.status === 'overdue') ? parseFloat(loan.billingCycles.find(c => c.status === 'open' || c.status === 'overdue')!.balance) : 0}
             />
+
+            {/* Mobile sticky payment bar */}
+            {loan.status !== 'settled' && (
+                <div className="md:hidden fixed bottom-16 left-0 right-0 z-40 px-4 pb-3 pt-2 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-sm border-t border-zinc-200 dark:border-zinc-800">
+                    <Button className="w-full" onClick={() => setIsPaymentOpen(true)}>
+                        Record Payment
+                    </Button>
+                </div>
+            )}
         </div>
     );
 }

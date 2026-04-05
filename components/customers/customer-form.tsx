@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ResponsiveModal } from "@/components/shared/responsive-modal";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -97,17 +97,14 @@ export function CustomerForm({ open, onOpenChange, defaultValues }: CustomerForm
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-2xl">
-                <DialogHeader>
-                    <DialogTitle>{isEditing ? "Edit Customer" : "New Customer"}</DialogTitle>
-                    <DialogDescription>
-                        {isEditing ? "Update customer details below." : "Enter the details for the new customer."}
-                    </DialogDescription>
-                </DialogHeader>
-
+        <ResponsiveModal
+            open={open}
+            onOpenChange={onOpenChange}
+            title={isEditing ? "Edit Customer" : "New Customer"}
+            description={isEditing ? "Update customer details below." : "Enter the details for the new customer."}
+        >
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-2">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormField
                                 control={form.control}
@@ -211,7 +208,6 @@ export function CustomerForm({ open, onOpenChange, defaultValues }: CustomerForm
                         </div>
                     </form>
                 </Form>
-            </DialogContent>
-        </Dialog>
+        </ResponsiveModal>
     );
 }

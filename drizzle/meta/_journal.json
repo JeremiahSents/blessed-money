@@ -22,6 +22,13 @@
       "when": 1772360400528,
       "tag": "0002_yielding_guardsmen",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1775334841406,
+      "tag": "0003_abandoned_winter_soldier",
+      "breakpoints": true
     }
   ]
 }
