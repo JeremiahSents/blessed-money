@@ -3,8 +3,6 @@ import { Geist, Geist_Mono, Roboto } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/sonner";
-import { Navigation } from "@/components/shared/navigation";
-import { MainContent } from "@/components/shared/main-content";
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
 import { ourFileRouter } from "@/app/api/uploadthing/core";
@@ -39,10 +37,7 @@ export default function RootLayout({
       >
         <Providers>
           <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
-          <div className="min-h-screen bg-zinc-50/50 dark:bg-zinc-950">
-            <Navigation />
-            <MainContent>{children}</MainContent>
-          </div>
+          {children}
         </Providers>
         <Toaster position="bottom-right" richColors />
       </body>

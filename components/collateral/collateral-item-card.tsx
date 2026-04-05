@@ -4,13 +4,20 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { SignedImage } from "@/components/shared/signed-image";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { toast } from "sonner";
 import { HugeiconsIcon } from '@hugeicons/react';
-import { CheckmarkCircle02Icon, Delete02Icon, PropertyEditIcon } from '@hugeicons/core-free-icons';
+import { 
+    CheckmarkCircle02Icon, 
+    Delete02Icon, 
+    PropertyEditIcon, 
+    File01Icon, 
+    Link01Icon, 
+    ViewIcon, 
+    InformationCircleIcon
+} from '@hugeicons/core-free-icons';
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
-import { formatDate, formatCurrency } from "@/lib/utils";
+import { formatDate, formatCurrency, cn } from "@/lib/utils";
 import type { CollateralItem } from "@/lib/types";
 import { getErrorMessage } from "@/lib/errors";
 
@@ -56,91 +63,122 @@ export function CollateralItemCard({ item, loanId }: { item: CollateralItem; loa
         }
     });
 
+    const isReturned = !!item.returnedAt;
+
     return (
         <>
-            <Card className="overflow-hidden">
-                <CardHeader className="pb-3 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50">
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <CardTitle className="text-base font-semibold">{item.description}</CardTitle>
+            <div className="group relative bg-white dark:bg-zinc-950 rounded-2xl border border-zinc-200 dark:border-zinc-800 transition-all duration-200 overflow-hidden">
+                <div className="p-5">
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="flex-1 min-w-0 pr-4">
+                            <h4 className="text-sm font-semibold text-zinc-900 dark:text-white truncate uppercase">
+                                {item.description}
+                            </h4>
                             {item.serialNumber && (
-                                <p className="text-xs text-zinc-500 mt-1">SN: {item.serialNumber}</p>
+                                <p className="text-[10px] font-semibold text-zinc-400 mt-1 uppercase bg-zinc-100 dark:bg-zinc-900 w-fit px-1.5 py-0.5 rounded-md">
+                                    SN: {item.serialNumber}
+                                </p>
                             )}
                         </div>
-                        {item.returnedAt ? (
-                            <Badge variant="secondary" className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300">
-                                Returned
-                            </Badge>
-                        ) : (
-                            <Badge variant="outline">Held</Badge>
-                        )}
+                        <Badge 
+                            variant={isReturned ? "secondary" : "outline"}
+                            className={cn(
+                                "text-[9px] px-2 py-0 h-4 font-semibold uppercase border-none",
+                                isReturned 
+                                    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400" 
+                                    : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
+                            )}
+                        >
+                            {isReturned ? "Returned" : "Held"}
+                        </Badge>
                     </div>
-                </CardHeader>
-                <CardContent className="pt-4 space-y-4">
-                    <div className="grid grid-cols-2 gap-y-2 text-sm">
-                        <div className="text-zinc-500">Value</div>
-                        <div className="font-medium text-right">{item.estimatedValue ? formatCurrency(parseFloat(item.estimatedValue)) : "-"}</div>
 
-                        {item.returnedAt && (
-                            <>
-                                <div className="text-zinc-500">Returned On</div>
-                                <div className="font-medium text-right text-emerald-600">{formatDate(item.returnedAt)}</div>
-                            </>
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between text-xs font-medium">
+                            <span className="text-zinc-400 uppercase text-[9px] font-semibold">Estimated Value</span>
+                            <span className="text-zinc-900 dark:text-white font-semibold tabular-nums">
+                                {item.estimatedValue ? formatCurrency(parseFloat(item.estimatedValue)) : "Unknown"}
+                            </span>
+                        </div>
+
+                        {isReturned && (
+                            <div className="flex items-center justify-between text-xs font-medium px-2 py-1.5 rounded-lg bg-emerald-50/50 dark:bg-emerald-500/5 border border-emerald-100/50 dark:border-emerald-500/10">
+                                <span className="text-emerald-600/70 uppercase text-[9px] font-semibold">Returned On</span>
+                                <span className="text-emerald-600 font-semibold tabular-nums">{formatDate(item.returnedAt!)}</span>
+                            </div>
                         )}
 
                         {item.notes && (
-                            <div className="col-span-2 mt-2 p-3 bg-zinc-50 dark:bg-zinc-900 rounded-lg text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">
-                                {item.notes}
+                            <div className="p-3 bg-zinc-50 dark:bg-zinc-900/50 rounded-xl border border-zinc-100 dark:border-zinc-800/50">
+                                <div className="flex items-center gap-1.5 mb-1.5">
+                                    <HugeiconsIcon icon={InformationCircleIcon} className="w-3 h-3 text-zinc-400" />
+                                    <span className="text-[9px] font-semibold uppercase text-zinc-400">Notes</span>
+                                </div>
+                                <p className="text-[11px] leading-relaxed text-zinc-500 dark:text-zinc-400 font-medium italic">
+                                    "{item.notes}"
+                                </p>
+                            </div>
+                        )}
+
+                        {item.imagePaths && item.imagePaths.length > 0 && (
+                            <div className="pt-2">
+                                <div className="flex items-center gap-1.5 mb-2">
+                                    <HugeiconsIcon icon={File01Icon} className="w-3 h-3 text-zinc-400" />
+                                    <span className="text-[9px] font-semibold uppercase text-zinc-400">Files ({item.imagePaths.length})</span>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    {item.imagePaths.map((path: string, i: number) => {
+                                        const isPdf = path.toLowerCase().endsWith(".pdf");
+                                        return (
+                                            <a 
+                                                key={path} 
+                                                href={`/api/storage/download?path=${encodeURIComponent(path)}`}
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="group/file relative flex shrink-0 w-10 h-10 rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 items-center justify-center hover:border-primary transition-all shadow-sm"
+                                            >
+                                                {isPdf ? (
+                                                    <div className="flex flex-col items-center">
+                                                        <HugeiconsIcon icon={PropertyEditIcon} className="w-4 h-4 text-red-500" />
+                                                        <span className="text-[6px] font-semibold uppercase text-red-600">PDF</span>
+                                                    </div>
+                                                ) : (
+                                                    <SignedImage bucket="collateral-docs" path={path} className="w-full h-full object-cover opacity-80 group-hover/file:opacity-100 transition-opacity" alt={`Doc ${i+1}`} />
+                                                )}
+                                                <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover/file:opacity-100 flex items-center justify-center transition-all">
+                                                    <HugeiconsIcon icon={ViewIcon} className="w-3.5 h-3.5 text-white" />
+                                                </div>
+                                            </a>
+                                        );
+                                    })}
+                                </div>
                             </div>
                         )}
                     </div>
 
-                    {item.imagePaths && item.imagePaths.length > 0 && (
-                        <div className="space-y-2 mt-4">
-                            <h4 className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Documents</h4>
-                            <div className="flex flex-wrap gap-2">
-                                {item.imagePaths.map((path: string) => {
-                                    const isPdf = path.toLowerCase().endsWith(".pdf");
-                                    return (
-                                        <div key={path} className="w-16 h-16 rounded-md overflow-hidden border border-zinc-200 dark:border-zinc-800 relative bg-zinc-50 flex items-center justify-center cursor-pointer group hover:border-black transition-colors">
-                                            {isPdf ? (
-                                                <HugeiconsIcon icon={PropertyEditIcon} className="w-6 h-6 text-zinc-400 group-hover:text-black transition-colors" />
-                                            ) : (
-                                                <SignedImage bucket="collateral-docs" path={path} className="w-full h-full object-cover" alt="Collateral Document" />
-                                            )}
-                                            <a href={`/api/storage/download?path=${encodeURIComponent(path)}`} className="absolute inset-0" target="_blank" rel="noopener noreferrer">
-                                                <span className="sr-only">View</span>
-                                            </a>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    )}
-                </CardContent>
-                <CardFooter className="bg-zinc-50/50 dark:bg-zinc-900/50 border-t border-zinc-100 dark:border-zinc-800 px-4 py-3 flex justify-between">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        onClick={() => setIsDeleting(true)}
-                    >
-                        <HugeiconsIcon icon={Delete02Icon} className="w-4 h-4 mr-2" />
-                        Delete
-                    </Button>
-
-                    {!item.returnedAt && (
+                    <div className="mt-5 pt-4 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between gap-3">
                         <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => setIsReturning(true)}
+                            variant="ghost"
+                            className="h-8 rounded-lg px-2 text-[10px] font-semibold uppercase text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                            onClick={() => setIsDeleting(true)}
                         >
-                            <HugeiconsIcon icon={CheckmarkCircle02Icon} className="w-4 h-4 mr-2" />
-                            Mark Returned
+                            <HugeiconsIcon icon={Delete02Icon} className="w-3 h-3 mr-1.5" />
+                            Delete
                         </Button>
-                    )}
-                </CardFooter>
-            </Card>
+
+                        {!isReturned && (
+                            <Button
+                                variant="secondary"
+                                className="h-8 rounded-xl px-4 text-[10px] font-semibold uppercase flex-1 max-w-[120px] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-600 transition-all"
+                                onClick={() => setIsReturning(true)}
+                            >
+                                <HugeiconsIcon icon={CheckmarkCircle02Icon} className="w-3 h-3 mr-1.5" />
+                                Return
+                            </Button>
+                        )}
+                    </div>
+                </div>
+            </div>
 
             <ConfirmDialog
                 open={isDeleting}

@@ -54,7 +54,17 @@ export async function findLoanById(id: string) {
     return db.query.loans.findFirst({
         where: eq(loans.id, id),
         with: {
-            customer: true,
+            customer: {
+                with: {
+                    loans: {
+                        orderBy: (loans, { desc: d }) => [d(loans.startDate)],
+                        with: {
+                            billingCycles: true,
+                            payments: true,
+                        },
+                    },
+                },
+            },
             collateral: true,
             billingCycles: {
                 orderBy: (cycles, { asc }) => [asc(cycles.cycleNumber)],

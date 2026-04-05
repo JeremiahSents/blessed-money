@@ -1,6 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
@@ -24,20 +26,37 @@ export default function SignIn() {
     };
 
     return (
-        <Card className="w-full max-w-sm rounded-2xl border-zinc-200 dark:border-zinc-800 shadow-sm mx-auto">
-            <CardHeader className="text-center pb-6">
-                <div className="mx-auto bg-primary/10 w-12 h-12 rounded-xl flex items-center justify-center mb-4">
-                    <Image src="/blessed.png" alt="Blessed" width={28} height={28} priority />
+        <Card className="w-full max-w-sm border-0 ring-0 bg-transparent shadow-none mx-auto">
+            <CardHeader className="text-center px-0 pb-6">
+                <div className="mx-auto bg-primary/10 w-10 h-10 rounded-xl flex items-center justify-center mb-4">
+                    <Image src="/blessed.png" alt="Blessed" width={20} height={20} priority />
                 </div>
-                <CardTitle className="text-2xl font-bold tracking-tight">Blessed</CardTitle>
-                <CardDescription className="text-sm text-zinc-500">
-                    Your lending business, organized.
+                <CardTitle className="text-4xl sm:text-3xl font-bold tracking-tight">Welcome back</CardTitle>
+                <CardDescription className="text-sm text-zinc-500 mt-2">
+                    Sign in to manage your classes and bookings.
                 </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-0">
+                <form className="space-y-3" onSubmit={(event) => event.preventDefault()}>
+                    <div className="space-y-2 text-left">
+                        <Label htmlFor="email">Email</Label>
+                        <Input id="email" type="email" placeholder="m@example.com" className="h-11 rounded-xl" />
+                    </div>
+
+                    <Button type="submit" className="w-full h-11 rounded-xl text-sm font-semibold">
+                        Login with Email
+                    </Button>
+                </form>
+
+                <div className="my-4 flex items-center gap-3 text-xs text-zinc-500">
+                    <span className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
+                    <span>Or</span>
+                    <span className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
+                </div>
+
                 <Button
                     variant="outline"
-                    className="w-full rounded-xl py-6 border-zinc-200 dark:border-zinc-800"
+                    className="w-full h-11 rounded-xl border-zinc-200 dark:border-zinc-800"
                     onClick={handleSignIn}
                     disabled={isLoading}
                 >

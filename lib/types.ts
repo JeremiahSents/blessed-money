@@ -23,6 +23,8 @@ export interface LoanSummary {
   dueDate: string;
   status: "active" | "overdue" | "settled";
   notes?: string | null;
+  billingCycles?: BillingCycle[];
+  payments?: Payment[];
 }
 
 export interface CollateralItem {

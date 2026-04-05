@@ -84,8 +84,6 @@ export default async function DashboardPage() {
         </Link>
       </div>
 
-
-      {/* Overdue panel — full width, only shown when there are overdues */}
       {overdueLoansList.length > 0 && (
         <OverduePanel overdueLoans={overdueLoansList} />
       )}
