@@ -21,9 +21,6 @@ const customerSchema = z.object({
     name: z.string().min(2, "Name is required"),
     phone: z.string().optional(),
     email: z.string().email("Invalid email").optional().or(z.literal("")),
-    nationalIdType: z.string().optional(),
-    nationalIdNumber: z.string().optional(),
-    nationalIdExpiry: z.string().optional(),
     notes: z.string().optional(),
 });
 
@@ -41,9 +38,6 @@ function NewCustomerForm() {
             name: "",
             phone: "",
             email: "",
-            nationalIdType: "",
-            nationalIdNumber: "",
-            nationalIdExpiry: "",
             notes: "",
         },
     });
@@ -127,45 +121,6 @@ function NewCustomerForm() {
                                     <FormLabel>Email</FormLabel>
                                     <FormControl>
                                         <Input placeholder="john@example.com" type="email" {...field} value={field.value || ""} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="nationalIdType"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>ID Type</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="National ID, Passport…" {...field} value={field.value || ""} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="nationalIdNumber"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>ID Number</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="CF123456789" {...field} value={field.value || ""} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="nationalIdExpiry"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>ID Expiry</FormLabel>
-                                    <FormControl>
-                                        <Input type="date" {...field} value={field.value || ""} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

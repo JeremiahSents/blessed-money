@@ -32,11 +32,6 @@ export async function PUT(req: NextRequest, props: { params: Promise<{ id: strin
                 name: body.name,
                 phone: body.phone,
                 email: body.email,
-                nationalIdType: body.nationalIdType,
-                nationalIdNumber: body.nationalIdNumber,
-                nationalIdExpiry: body.nationalIdExpiry
-                    ? new Date(body.nationalIdExpiry).toISOString().split("T")[0]
-                    : null,
                 notes: body.notes,
             },
             session.user.id

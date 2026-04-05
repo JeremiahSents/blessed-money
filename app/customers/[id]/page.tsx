@@ -8,8 +8,6 @@ import { Loading02Icon, PencilEdit01Icon, ArrowLeft01Icon, Mail01Icon, Telephone
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CustomerForm } from "@/components/customers/customer-form";
-import { IdDocumentUploader } from "@/components/customers/id-document-uploader";
-import { IdImageGallery } from "@/components/customers/id-image-gallery";
 import { LoanCard } from "@/components/loans/loan-card";
 import type { Customer, LoanSummary } from "@/lib/types";
 
@@ -76,9 +74,6 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
         name: customer.name,
         phone: customer.phone ?? undefined,
         email: customer.email ?? undefined,
-        nationalIdType: customer.nationalIdType ?? undefined,
-        nationalIdNumber: customer.nationalIdNumber ?? undefined,
-        nationalIdExpiry: customer.nationalIdExpiry ?? undefined,
         notes: customer.notes ?? undefined,
     };
 
@@ -146,7 +141,6 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
                     <Tabs defaultValue="loans" className="w-full">
                         <TabsList className="mb-4">
                             <TabsTrigger value="loans">Loans ({customer.loans?.length || 0})</TabsTrigger>
-                            <TabsTrigger value="documents">ID Documents</TabsTrigger>
                         </TabsList>
 
                         <TabsContent value="loans" className="space-y-4">
@@ -161,24 +155,6 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
                                     ))}
                                 </div>
                             )}
-                        </TabsContent>
-
-                        <TabsContent value="documents" className="space-y-8">
-                            <div className="bg-white p-6 border rounded-xl shadow-sm">
-                                <div className="mb-4">
-                                    <h3 className="font-semibold text-lg">National Identity</h3>
-                                    <p className="text-sm text-zinc-500">
-                                        {customer.nationalIdType ? `${customer.nationalIdType}: ${customer.nationalIdNumber}` : 'No ID typed recorded.'}
-                                        {customer.nationalIdExpiry && ` • Expires: ${new Date(customer.nationalIdExpiry).toLocaleDateString()}`}
-                                    </p>
-                                </div>
-                                <IdImageGallery customerId={customer.id} paths={customer.nationalIdImagePaths || []} />
-                            </div>
-
-                            <div>
-                                <h4 className="font-medium mb-3 text-sm text-zinc-500 uppercase tracking-wider">Upload New Document</h4>
-                                <IdDocumentUploader customerId={customer.id} />
-                            </div>
                         </TabsContent>
                     </Tabs>
                 </div>

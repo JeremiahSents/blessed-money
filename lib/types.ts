@@ -5,10 +5,6 @@ export interface Customer {
   name: string;
   phone: string | null;
   email: string | null;
-  nationalIdType: string | null;
-  nationalIdNumber: string | null;
-  nationalIdExpiry: string | null;
-  nationalIdImagePaths?: string[] | null;
   notes: string | null;
   isActive?: boolean;
   createdAt?: string | Date;

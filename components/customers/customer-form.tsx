@@ -17,9 +17,6 @@ const customerSchema = z.object({
     name: z.string().min(2, "Name is required"),
     phone: z.string().optional(),
     email: z.string().email("Invalid email").optional().or(z.literal("")),
-    nationalIdType: z.string().optional(),
-    nationalIdNumber: z.string().optional(),
-    nationalIdExpiry: z.string().optional(), // YYYY-MM-DD
     notes: z.string().optional(),
 });
 
@@ -42,9 +39,6 @@ export function CustomerForm({ open, onOpenChange, defaultValues, onSuccess }: C
             name: "",
             phone: "",
             email: "",
-            nationalIdType: "",
-            nationalIdNumber: "",
-            nationalIdExpiry: "",
             notes: "",
             ...defaultValues,
         },
@@ -56,9 +50,6 @@ export function CustomerForm({ open, onOpenChange, defaultValues, onSuccess }: C
                 name: defaultValues?.name || "",
                 phone: defaultValues?.phone || "",
                 email: defaultValues?.email || "",
-                nationalIdType: defaultValues?.nationalIdType || "",
-                nationalIdNumber: defaultValues?.nationalIdNumber || "",
-                nationalIdExpiry: defaultValues?.nationalIdExpiry ? new Date(defaultValues.nationalIdExpiry).toISOString().split('T')[0] : "",
                 notes: defaultValues?.notes || "",
             });
         }
@@ -144,45 +135,6 @@ export function CustomerForm({ open, onOpenChange, defaultValues, onSuccess }: C
                                         <FormLabel>Email</FormLabel>
                                         <FormControl>
                                             <Input placeholder="john@example.com" type="email" {...field} value={field.value || ""} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="nationalIdType"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>ID Type</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="Passport, Driver's License, etc." {...field} value={field.value || ""} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="nationalIdNumber"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>ID Number</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="AB1234567" {...field} value={field.value || ""} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="nationalIdExpiry"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>ID Expiry</FormLabel>
-                                        <FormControl>
-                                            <Input type="date" {...field} value={field.value || ""} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

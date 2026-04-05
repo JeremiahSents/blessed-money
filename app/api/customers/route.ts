@@ -37,13 +37,7 @@ export async function POST(req: NextRequest) {
             name: body.name,
             phone: body.phone,
             email: body.email,
-            nationalIdType: body.nationalIdType,
-            nationalIdNumber: body.nationalIdNumber,
-            nationalIdExpiry: body.nationalIdExpiry
-                ? new Date(body.nationalIdExpiry).toISOString().split("T")[0]
-                : null,
             notes: body.notes,
-            nationalIdImagePaths: body.nationalIdImagePaths || [],
         });
 
         return NextResponse.json({ data: newCustomer });

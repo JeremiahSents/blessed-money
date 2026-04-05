@@ -76,7 +76,6 @@ export const verification = pgTable(
     (table) => [index("verification_identifier_idx").on(table.identifier)],
 );
 
-// --- LendTrack Tables ---
 
 export const customers = pgTable("customers", {
     id: uuid("id").primaryKey().defaultRandom(),
@@ -88,15 +87,10 @@ export const customers = pgTable("customers", {
     name: text("name").notNull(),
     phone: text("phone"),
     email: text("email"),
-    nationalIdNumber: text("national_id_number"),
-    nationalIdType: text("national_id_type"),
-    nationalIdExpiry: date("national_id_expiry"),
-    nationalIdImagePaths: text("national_id_image_paths").array(),
     notes: text("notes"),
     isActive: boolean("is_active").default(true).notNull(),
 });
 
-// Singleton settings row — always id = 'singleton'
 export const appSettings = pgTable("app_settings", {
     id: text("id").primaryKey().default("singleton"),
     workingCapital: numeric("working_capital", { precision: 14, scale: 2 })
@@ -179,8 +173,6 @@ export const auditLogs = pgTable("audit_logs", {
     entityId: uuid("entity_id").notNull(),
     metadata: jsonb("metadata"),
 });
-
-// --- Relations ---
 
 export const userRelations = relations(user, ({ many }) => ({
     sessions: many(session),

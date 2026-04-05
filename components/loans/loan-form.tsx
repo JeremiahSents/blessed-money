@@ -173,7 +173,7 @@ export function LoanForm() {
                                 <HugeiconsIcon icon={UserIcon} className="w-5 h-5" />
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold bg-gradient-to-br from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent">Borrower Information</h2>
+                                <h2 className="text-xl font-bold bg-linear-to-br from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent">Borrower Information</h2>
                                 <p className="text-sm text-zinc-500 dark:text-zinc-400">Select an existing customer or create a new one.</p>
                             </div>
                         </div>
@@ -255,7 +255,7 @@ export function LoanForm() {
                                 <HugeiconsIcon icon={MoneyBag01Icon} className="w-5 h-5" />
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold bg-gradient-to-br from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent">Loan Structure</h2>
+                                <h2 className="text-xl font-bold bg-linear-to-br from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent">Loan Structure</h2>
                                 <p className="text-sm text-zinc-500 dark:text-zinc-400">Define the core terms of the loan.</p>
                             </div>
                         </div>
@@ -323,7 +323,7 @@ export function LoanForm() {
                                         <FormControl>
                                             <Input 
                                                 type="date" 
-                                                className="h-12 rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 transition-all transition-colors"
+                                                className="h-12 rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 transition-colors"
                                                 {...field} 
                                                 onChange={(e) => {
                                                     field.onChange(e);
@@ -389,7 +389,7 @@ export function LoanForm() {
                                     <HugeiconsIcon icon={Shield01Icon} className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <h2 className="text-xl font-bold bg-gradient-to-br from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent">Collateral Items</h2>
+                                    <h2 className="text-xl font-bold bg-linear-to-br from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent">Collateral Items</h2>
                                     <p className="text-sm text-zinc-500 dark:text-zinc-400">Record items secured against this loan.</p>
                                 </div>
                             </div>

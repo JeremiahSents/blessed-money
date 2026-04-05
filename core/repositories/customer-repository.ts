@@ -7,20 +7,13 @@ export type CustomerCreateInput = {
     name: string;
     phone?: string | null;
     email?: string | null;
-    nationalIdType?: string | null;
-    nationalIdNumber?: string | null;
-    nationalIdExpiry?: string | null;
     notes?: string | null;
-    nationalIdImagePaths?: string[];
 };
 
 export type CustomerUpdateInput = {
     name?: string;
     phone?: string | null;
     email?: string | null;
-    nationalIdType?: string | null;
-    nationalIdNumber?: string | null;
-    nationalIdExpiry?: string | null;
     notes?: string | null;
 };
 
@@ -37,8 +30,7 @@ export async function findManyCustomers(opts: {
     const whereClause = search
         ? or(
             ilike(customers.name, `%${search}%`),
-            ilike(customers.phone, `%${search}%`),
-            ilike(customers.nationalIdNumber, `%${search}%`)
+            ilike(customers.phone, `%${search}%`)
         )
         : undefined;
 
@@ -109,11 +101,7 @@ export async function createCustomer(
         name: input.name,
         phone: input.phone,
         email: input.email,
-        nationalIdType: input.nationalIdType,
-        nationalIdNumber: input.nationalIdNumber,
-        nationalIdExpiry: input.nationalIdExpiry ?? null,
         notes: input.notes,
-        nationalIdImagePaths: input.nationalIdImagePaths ?? [],
     }).returning();
     return record;
 }
@@ -137,9 +125,6 @@ export async function updateCustomer(
             name: input.name,
             phone: input.phone,
             email: input.email,
-            nationalIdType: input.nationalIdType,
-            nationalIdNumber: input.nationalIdNumber,
-            nationalIdExpiry: input.nationalIdExpiry ?? null,
             notes: input.notes,
         })
         .where(eq(customers.id, id))
