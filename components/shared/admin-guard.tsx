@@ -1,8 +1,8 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 export function AdminGuard({ children }: { children: React.ReactNode }) {
     const router = useRouter();
@@ -10,10 +10,17 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
     const { data: adminData, isLoading } = useQuery({
         queryKey: ["admin-me"],
         queryFn: async () => {
-            const res = await fetch("/api/admin/me");
+            const res = await fetch("/api/admin/me", {
+                credentials: "include",
+            });
             if (!res.ok) return { isAdmin: false };
             return res.json();
         },
+        staleTime: 1 * 60 * 1000, // Cache for 1 minute
+        gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
+        refetchOnWindowFocus: false,
+        refetchOnMount: "always", // Always refetch on mount to catch role changes
+        retry: false, // Don't retry failed requests
     });
 
     useEffect(() => {
@@ -25,7 +32,7 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
     // Show loading state while checking
     if (isLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
+            <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-950">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
             </div>
         );

@@ -48,6 +48,7 @@ export function AdminPanel() {
         },
         onSuccess: (_, { isAdmin }) => {
             queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+            queryClient.invalidateQueries({ queryKey: ["admin-me"] });
             toast.success(isAdmin ? "Admin access granted" : "Admin access removed");
         },
         onError: (err) => toast.error(getErrorMessage(err)),
