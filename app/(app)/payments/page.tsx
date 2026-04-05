@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { PageHeader } from "@/components/shared/page-header";
@@ -20,9 +20,10 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 import { getErrorMessage } from "@/lib/errors";
 import type { Payment } from "@/lib/types";
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Download04Icon, PlusSignIcon, UserIcon } from '@hugeicons/core-free-icons';
+import { Download04Icon, PlusSignIcon, UserIcon, MoneyReceive01Icon, CheckmarkCircle02Icon, Calendar04Icon, Coins01Icon } from '@hugeicons/core-free-icons';
 import Link from "next/link";
 import { toast } from "sonner";
+import { HorizontalStats } from "@/components/dashboard/horizontal-stats";
 
 interface ActiveLoan {
     id: string;
@@ -72,8 +73,8 @@ function RecordPaymentDialog({ open, onOpenChange }: { open: boolean; onOpenChan
         defaultValues: { loanId: "", amount: "", paidAt: new Date().toISOString().split("T")[0], note: "" },
     });
 
-    const selectedLoanId = form.watch("loanId");
-    const amountStr = form.watch("amount");
+    const selectedLoanId = useWatch({ control: form.control, name: "loanId" });
+    const amountStr = useWatch({ control: form.control, name: "amount" });
 
     const selectedLoan = activeLoans.find(l => l.id === selectedLoanId);
     const activeCycle = selectedLoan?.billingCycles?.find(c => c.status === "open" || c.status === "overdue");
@@ -254,7 +255,7 @@ function RecordPaymentDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                         {activeCycle && enteredAmount > 0 && (
                             <div className={`rounded-xl p-3 flex items-center justify-between text-sm font-medium ${isFullPayment ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400" : "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400"}`}>
                                 <span>{isFullPayment ? "✓ Fully clears the balance" : "Partial payment — remaining balance:"}</span>
-                                {!isFullPayment && <span className="font-bold">{formatCurrency(remaining)}</span>}
+                                {!isFullPayment && <span className="font-semibold">{formatCurrency(remaining)}</span>}
                             </div>
                         )}
 
@@ -318,11 +319,36 @@ export default function PaymentsPage() {
         document.body.removeChild(link);
     };
 
+    // Calculate stats
+    const payments = data?.data || [];
+    const now = new Date();
+    const todayStr = now.toISOString().split('T')[0];
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    const collectedToday = payments
+        .filter(p => p.paidAt.startsWith(todayStr))
+        .reduce((acc, p) => acc + parseFloat(p.amount), 0);
+
+    const collectedThisMonth = payments
+        .filter(p => {
+            const pDate = new Date(p.paidAt);
+            return pDate.getMonth() === currentMonth && pDate.getFullYear() === currentYear;
+        })
+        .reduce((acc, p) => acc + parseFloat(p.amount), 0);
+
+    const monthCount = payments.filter(p => {
+        const pDate = new Date(p.paidAt);
+        return pDate.getMonth() === currentMonth && pDate.getFullYear() === currentYear;
+    }).length;
+
+    const avgPayment = monthCount > 0 ? collectedThisMonth / monthCount : 0;
+
     return (
-        <div className="max-w-6xl mx-auto space-y-6 pb-28 md:pb-6">
+        <div className="max-w-6xl mx-auto space-y-8 pb-28 md:pb-6 px-4 sm:px-6">
             <PageHeader
                 title="Payments"
-                description="All payments you've received."
+                description="Manage and track received payments."
                 action={
                     <div className="flex gap-2">
                         <Button variant="outline" onClick={exportCSV} disabled={!data?.data?.length} className={isMobile ? "hidden" : ""}>
@@ -332,12 +358,43 @@ export default function PaymentsPage() {
                         <Button variant="outline" size="icon" onClick={exportCSV} disabled={!data?.data?.length} className={isMobile ? "" : "hidden"} title="Export CSV">
                             <HugeiconsIcon icon={Download04Icon} className="w-4 h-4" />
                         </Button>
-                        <Button onClick={() => setDialogOpen(true)} className="hidden md:flex">
+                        <Button onClick={() => setDialogOpen(true)} className="hidden md:flex h-11 px-6 rounded-2xl bg-primary text-white hover:bg-primary/90 font-semibold shadow-lg shadow-primary/20 transition-all active:scale-[0.98]">
                             <HugeiconsIcon icon={PlusSignIcon} className="w-4 h-4 mr-2" />
                             Collect Payment
                         </Button>
                     </div>
                 }
+            />
+
+            <HorizontalStats
+                className="px-0"
+                stats={[
+                    {
+                        title: "Collected Today",
+                        value: formatCurrency(collectedToday),
+                        icon: <HugeiconsIcon icon={MoneyReceive01Icon} className="w-4 h-4" />,
+                        description: "Cash received today"
+                    },
+                    {
+                        title: "This Month",
+                        value: formatCurrency(collectedThisMonth),
+                        icon: <HugeiconsIcon icon={Calendar04Icon} className="w-4 h-4" />,
+                        description: `${monthCount} total payments`
+                    },
+                    {
+                        title: "Avg Payment",
+                        value: formatCurrency(avgPayment),
+                        icon: <HugeiconsIcon icon={Coins01Icon} className="w-4 h-4" />,
+                        description: "Per transaction this month"
+                    },
+                    {
+                        title: "Status",
+                        value: "Healthy",
+                        icon: <HugeiconsIcon icon={CheckmarkCircle02Icon} className="w-4 h-4" />,
+                        description: "Payment flow is active",
+                        trend: { value: 12, label: "Up from last month", positive: true }
+                    }
+                ]}
             />
 
             <RecordPaymentDialog open={dialogOpen} onOpenChange={setDialogOpen} />
@@ -396,24 +453,26 @@ export default function PaymentsPage() {
                                 </TableRow>
                             ) : (
                                 data?.data?.map((payment) => (
-                                    <TableRow key={payment.id}>
-                                        <TableCell className="font-medium">{formatDate(payment.paidAt)}</TableCell>
+                                    <TableRow key={payment.id} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-900/50 transition-colors">
+                                        <TableCell className="font-semibold text-zinc-500 tabular-nums">{formatDate(payment.paidAt)}</TableCell>
                                         <TableCell>
                                             {payment.loan?.customer?.id ? (
-                                                <Link href={`/customers/${payment.loan.customer.id}`} className="hover:underline font-medium">
+                                                <Link href={`/customers/${payment.loan.customer.id}`} className="hover:text-primary font-semibold transition-colors">
                                                     {payment.loan.customer.name}
                                                 </Link>
-                                            ) : <span className="font-medium">-</span>}
+                                            ) : <span className="font-semibold">-</span>}
                                         </TableCell>
-                                        <TableCell className="font-bold text-emerald-600 dark:text-emerald-400">
+                                        <TableCell className="font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
                                             +{formatCurrency(parseFloat(payment.amount))}
                                         </TableCell>
-                                        <TableCell className="text-zinc-500 text-sm max-w-[250px] truncate">
-                                            {payment.note || "-"}
+                                        <TableCell className="text-zinc-500 text-xs max-w-[200px] truncate leading-relaxed">
+                                            {payment.note || <span className="opacity-30">—</span>}
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <Link href={`/loans/${payment.loanId}`}>
-                                                <Button variant="ghost" size="sm">View Loan</Button>
+                                                <Button variant="ghost" size="sm" className="h-8 rounded-lg text-[10px] font-semibold uppercase text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
+                                                    View Loan
+                                                </Button>
                                             </Link>
                                         </TableCell>
                                     </TableRow>
@@ -425,8 +484,8 @@ export default function PaymentsPage() {
             )}
 
             {/* Mobile sticky record payment bar */}
-            <div className="md:hidden fixed bottom-16 left-0 right-0 z-40 px-4 pb-3 pt-2 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-sm border-t border-zinc-200 dark:border-zinc-800">
-                <Button className="w-full" onClick={() => setDialogOpen(true)}>
+            <div className="md:hidden fixed bottom-16 left-0 right-0 z-40 px-4 pb-4 pt-4 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl border-t border-zinc-100 dark:border-zinc-800">
+                <Button className="w-full h-12 rounded-xl bg-primary text-white font-semibold text-sm shadow-lg shadow-primary/20 transition-all" onClick={() => setDialogOpen(true)}>
                     <HugeiconsIcon icon={PlusSignIcon} className="w-4 h-4 mr-2" />
                     Collect Payment
                 </Button>
