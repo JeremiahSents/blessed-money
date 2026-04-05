@@ -1,5 +1,6 @@
 import { Navigation } from "@/components/shared/navigation";
 import { MainContent } from "@/components/shared/main-content";
+import { AdminGuard } from "@/components/shared/admin-guard";
 
 export default function AppLayout({
   children,
@@ -7,9 +8,11 @@ export default function AppLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="min-h-screen bg-zinc-50/50 dark:bg-zinc-950">
-      <Navigation />
-      <MainContent>{children}</MainContent>
-    </div>
+    <AdminGuard>
+      <div className="min-h-screen bg-zinc-50/50 dark:bg-zinc-950">
+        <Navigation />
+        <MainContent>{children}</MainContent>
+      </div>
+    </AdminGuard>
   );
 }
