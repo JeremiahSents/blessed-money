@@ -155,7 +155,8 @@ async function seed() {
         billing_cycles,
         collateral,
         loans,
-        customers
+        customers,
+        app_settings
       CASCADE
     `;
     console.log("✅ Tables cleared.");
@@ -167,21 +168,8 @@ async function seed() {
   console.log("🌱 Seeding database with UGX fixtures...");
 
   try {
-    console.log("Ensuring seed user...");
-    const seedUserId = "DPP7Eva9thOBdVLwEUoMz1MApvK8U9se";
-
-    console.log("Creating default business...");
-    const [seedBusiness] = await db
-      .insert(schema.businesses)
-      .values({
-        userId: seedUserId,
-        name: "Blessed Money Seed Business",
-      })
-      .returning();
-
     console.log("Initializing settings...");
     await db.insert(schema.appSettings).values({
-      businessId: seedBusiness.id,
       workingCapital: "50000000.00", // 50M base for seed
     });
 
@@ -189,7 +177,6 @@ async function seed() {
       const [customer] = await db
         .insert(schema.customers)
         .values({
-          businessId: seedBusiness.id,
           name: customerData.name,
           email: customerData.email,
           phone: customerData.phone,

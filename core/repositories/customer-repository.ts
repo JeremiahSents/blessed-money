@@ -4,7 +4,6 @@ import { ilike, or, desc, sql, and } from "drizzle-orm";
 import { eq } from "drizzle-orm";
 
 export type CustomerCreateInput = {
-    businessId: string;
     name: string;
     phone?: string | null;
     email?: string | null;
@@ -28,12 +27,11 @@ export type CustomerUpdateInput = {
 export type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 export async function findManyCustomers(opts: {
-    businessId: string;
     search: string;
     page: number;
     limit: number;
 }) {
-    const { businessId, search, page, limit } = opts;
+    const { search, page, limit } = opts;
     const offset = (page - 1) * limit;
 
     const whereClause = search
@@ -44,12 +42,8 @@ export async function findManyCustomers(opts: {
         )
         : undefined;
 
-    const finalWhere = whereClause
-        ? and(eq(customers.businessId, businessId), whereClause)
-        : eq(customers.businessId, businessId);
-
     const data = await db.query.customers.findMany({
-        where: finalWhere,
+        where: whereClause,
         limit,
         offset,
         orderBy: [desc(customers.createdAt)],
@@ -58,7 +52,7 @@ export async function findManyCustomers(opts: {
     const totalCountRes = await db
         .select({ count: sql<number>`count(*)` })
         .from(customers)
-        .where(finalWhere);
+        .where(whereClause);
 
     const total = totalCountRes[0].count;
 
@@ -82,7 +76,6 @@ export async function createCustomer(
 ) {
     const runner = tx ?? db;
     const [record] = await runner.insert(customers).values({
-        businessId: input.businessId,
         name: input.name,
         phone: input.phone,
         email: input.email,

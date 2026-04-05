@@ -3,7 +3,6 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { getErrorMessage } from "@/lib/errors";
 import { listCustomers, createCustomerWithAudit } from "@/core/services/customer-service";
-import { resolveBusinessForUser } from "@/core/services/business-service";
 
 export async function GET(req: NextRequest) {
     const session = await auth.api.getSession({ headers: await headers() });
@@ -15,9 +14,7 @@ export async function GET(req: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "10");
 
     try {
-        const business = await resolveBusinessForUser(session.user.id);
-        if (!business) return NextResponse.json({ error: "Business not found" }, { status: 404 });
-        const { data, total } = await listCustomers({ businessId: business.id, search, page, limit });
+        const { data, total } = await listCustomers({ search, page, limit });
 
         return NextResponse.json({
             data,
@@ -34,11 +31,8 @@ export async function POST(req: NextRequest) {
 
     try {
         const body = await req.json();
-        const business = await resolveBusinessForUser(session.user.id);
-        if (!business) return NextResponse.json({ error: "Business not found" }, { status: 404 });
 
         const newCustomer = await createCustomerWithAudit({
-            businessId: business.id,
             userId: session.user.id,
             name: body.name,
             phone: body.phone,

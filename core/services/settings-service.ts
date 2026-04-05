@@ -1,24 +1,19 @@
 import db from "@/core/db";
-import { getSettingsByBusinessId, upsertSettings } from "@/core/repositories/settings-repository";
+import { getSettings, upsertSettings } from "@/core/repositories/settings-repository";
 
-export async function getAppSettings(businessId: string) {
-  const settings = await getSettingsByBusinessId(businessId);
+export async function getAppSettings() {
+  const settings = await getSettings();
 
   if (!settings) {
-    const created = await db.transaction(async (tx) => {
-      return upsertSettings(businessId, { workingCapital: "0" }, tx);
+    return db.transaction(async (tx) => {
+      return upsertSettings({ workingCapital: "0" }, tx);
     });
-    return created;
   }
 
   return settings;
 }
 
-export async function updateAppSettings(
-  businessId: string,
-  data: { workingCapital: string | number }
-) {
-  // Sanitize the input - remove commas and characters, just keep numbers and decimals
+export async function updateAppSettings(data: { workingCapital: string | number }) {
   let rawStr = typeof data.workingCapital === "number"
     ? data.workingCapital.toFixed(2)
     : String(data.workingCapital || "0");
@@ -28,6 +23,6 @@ export async function updateAppSettings(
   const workingCapital = isNaN(parsed) ? "0" : parsed.toFixed(2);
 
   return db.transaction(async (tx) => {
-    return upsertSettings(businessId, { workingCapital }, tx);
+    return upsertSettings({ workingCapital }, tx);
   });
 }

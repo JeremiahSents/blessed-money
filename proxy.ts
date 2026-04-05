@@ -1,7 +1,6 @@
 import { betterFetch } from "@better-fetch/fetch";
 import type { Session, User } from "better-auth/types";
 import { NextResponse, type NextRequest } from "next/server";
-import { resolveBusinessForUser } from "@/core/services/business-service";
 
 export async function proxy(request: NextRequest) {
     const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || request.nextUrl.host;
@@ -31,7 +30,6 @@ export async function proxy(request: NextRequest) {
     }
 
     const session = authData?.session;
-    const user = authData?.user;
 
     const isHomeRoute = request.nextUrl.pathname === '/';
     const isAuthRoute = request.nextUrl.pathname.startsWith('/signin');
@@ -49,22 +47,6 @@ export async function proxy(request: NextRequest) {
 
     if (isAuthRoute && session) {
         return NextResponse.redirect(new URL("/", request.url));
-    }
-
-    // Business Onboarding Check
-    if (session) {
-        const business = await resolveBusinessForUser(user!.id);
-        const isOnboardingPage = request.nextUrl.pathname.startsWith('/onboarding');
-
-        if (!business) {
-            if (!isOnboardingPage && !request.nextUrl.pathname.startsWith('/api')) {
-                return NextResponse.redirect(new URL("/onboarding", request.url));
-            }
-        } else {
-            if (isOnboardingPage) {
-                return NextResponse.redirect(new URL("/", request.url));
-            }
-        }
     }
 
     return NextResponse.next();

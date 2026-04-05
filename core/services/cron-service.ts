@@ -98,63 +98,31 @@ export async function sendDailyReminders() {
         with: {
             loan: {
                 with: {
-                    customer: {
-                        with: {
-                            business: {
-                                with: {
-                                    user: true
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+                    customer: true,
+                },
+            },
         },
     });
 
-    // Group due payments by business/admin
-    const businessesToNotify = new Map<string, {
-        businessName: string;
-        adminName: string;
-        adminEmail: string;
-        duePayments: {
-            customerName: string;
-            amountDue: string;
-            loanId: string;
-        }[];
-    }>();
-
-    for (const cycle of cyclesDueToday) {
-        const loan = cycle.loan;
-        const customer = loan?.customer;
-        const business = customer?.business;
-        const admin = business?.user;
-
-        if (!admin || !admin.email) continue;
-
-        if (!businessesToNotify.has(business.id)) {
-            businessesToNotify.set(business.id, {
-                businessName: business.name,
-                adminName: admin.name,
-                adminEmail: admin.email,
-                duePayments: [],
-            });
-        }
-
-        businessesToNotify.get(business.id)!.duePayments.push({
-            customerName: customer.name,
+    const duePayments = cyclesDueToday
+        .filter((cycle) => cycle.loan?.customer)
+        .map((cycle) => ({
+            customerName: cycle.loan.customer.name,
             amountDue: cycle.balance,
-            loanId: loan.id,
-        });
+            loanId: cycle.loan.id,
+        }));
+
+    if (duePayments.length === 0) {
+        return { emailsSent: 0, totalAdminNotified: 0 };
     }
 
-    let emailsSent = 0;
-    for (const data of businessesToNotify.values()) {
-        const { error } = await sendDailyRemindersEmail(data);
-        if (!error) {
-            emailsSent++;
-        }
-    }
+    const { error } = await sendDailyRemindersEmail({
+        businessName: "Blessed Money",
+        adminName: "Admin",
+        adminEmail: process.env.ADMIN_EMAIL ?? "",
+        duePayments,
+    });
 
-    return { emailsSent, totalAdminNotified: businessesToNotify.size };
+    const emailsSent = error ? 0 : 1;
+    return { emailsSent, totalAdminNotified: emailsSent };
 }

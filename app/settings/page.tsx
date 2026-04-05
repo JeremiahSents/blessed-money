@@ -21,7 +21,6 @@ export default function SettingsPage() {
     const [isSigningOut, setIsSigningOut] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
-    const [businessName, setBusinessName] = useState("");
     const [workingCapital, setWorkingCapital] = useState("");
     const [isAdmin, setIsAdmin] = useState(false);
 
@@ -43,7 +42,6 @@ export default function SettingsPage() {
                 ]);
                 if (settingsRes.ok) {
                     const json = await settingsRes.json();
-                    setBusinessName(json?.data?.businessName || "");
                     setWorkingCapital(formatNumber(String(json?.data?.workingCapital ?? "0")));
                 }
                 if (adminRes.ok) {
@@ -78,7 +76,6 @@ export default function SettingsPage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     workingCapital: workingCapital.replace(/,/g, ''),
-                    businessName
                 }),
             });
 
@@ -105,17 +102,10 @@ export default function SettingsPage() {
             <div className="grid grid-cols-1 gap-8">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Business Information</CardTitle>
-                        <CardDescription>Details displayed on customer statements.</CardDescription>
+                        <CardTitle>Preferences</CardTitle>
+                        <CardDescription>Configure your lending defaults.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                            <Label>Business Name</Label>
-                            <Input
-                                value={businessName}
-                                onChange={(e) => setBusinessName(e.target.value)}
-                            />
-                        </div>
                         <div className="space-y-2">
                             <Label>Default Monthly Interest Rate (%)</Label>
                             <Input type="number" defaultValue="20" />

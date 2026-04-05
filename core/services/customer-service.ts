@@ -10,7 +10,6 @@ import {
 } from "@/core/repositories/customer-repository";
 
 export async function listCustomers(opts: {
-    businessId: string;
     search: string;
     page: number;
     limit: number;
@@ -23,7 +22,7 @@ export async function getCustomer(id: string) {
 }
 
 export async function createCustomerWithAudit(
-    data: Omit<CustomerCreateInput, "userId"> & { userId: string, businessId: string }
+    data: CustomerCreateInput & { userId: string }
 ) {
     return db.transaction(async (tx) => {
         const customer = await createCustomer(data, tx);

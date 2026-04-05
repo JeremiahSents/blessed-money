@@ -29,6 +29,20 @@
       "when": 1775334841406,
       "tag": "0003_abandoned_winter_soldier",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1775420000000,
+      "tag": "0004_remove_businesses",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1775372015474,
+      "tag": "0005_uneven_red_wolf",
+      "breakpoints": true
     }
   ]
 }

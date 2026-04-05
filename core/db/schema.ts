@@ -78,19 +78,6 @@ export const verification = pgTable(
 
 // --- LendTrack Tables ---
 
-export const businesses = pgTable("businesses", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-        .defaultNow()
-        .$onUpdate(() => /* @__PURE__ */ new Date())
-        .notNull(),
-    userId: text("user_id")
-        .notNull()
-        .references(() => user.id, { onDelete: "cascade" }),
-    name: text("name").notNull(),
-});
-
 export const customers = pgTable("customers", {
     id: uuid("id").primaryKey().defaultRandom(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -98,9 +85,6 @@ export const customers = pgTable("customers", {
         .defaultNow()
         .$onUpdate(() => /* @__PURE__ */ new Date())
         .notNull(),
-    businessId: uuid("business_id")
-        .notNull()
-        .references(() => businesses.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
     phone: text("phone"),
     email: text("email"),
@@ -112,23 +96,18 @@ export const customers = pgTable("customers", {
     isActive: boolean("is_active").default(true).notNull(),
 });
 
-export const appSettings = pgTable(
-    "app_settings",
-    {
-        businessId: uuid("business_id")
-            .primaryKey()
-            .references(() => businesses.id, { onDelete: "cascade" }),
-        workingCapital: numeric("working_capital", { precision: 14, scale: 2 })
-            .default("0")
-            .notNull(),
-        createdAt: timestamp("created_at").defaultNow().notNull(),
-        updatedAt: timestamp("updated_at")
-            .defaultNow()
-            .$onUpdate(() => /* @__PURE__ */ new Date())
-            .notNull(),
-    },
-    (table) => [index("app_settings_businessId_idx").on(table.businessId)],
-);
+// Singleton settings row — always id = 'singleton'
+export const appSettings = pgTable("app_settings", {
+    id: text("id").primaryKey().default("singleton"),
+    workingCapital: numeric("working_capital", { precision: 14, scale: 2 })
+        .default("0")
+        .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => /* @__PURE__ */ new Date())
+        .notNull(),
+});
 
 export const loans = pgTable("loans", {
     id: uuid("id").primaryKey().defaultRandom(),
@@ -140,7 +119,6 @@ export const loans = pgTable("loans", {
     customerId: uuid("customer_id")
         .notNull()
         .references(() => customers.id, { onDelete: "cascade" }),
-    // Use cents internally, but schema says numeric(12,2) for direct DB querying visibility
     principalAmount: numeric("principal_amount", { precision: 12, scale: 2 }).notNull(),
     interestRate: numeric("interest_rate", { precision: 5, scale: 4 }).default('0.2000').notNull(),
     startDate: date("start_date").notNull(),
@@ -186,7 +164,7 @@ export const payments = pgTable("payments", {
         .notNull()
         .references(() => loans.id, { onDelete: "cascade" }),
     cycleId: uuid("cycle_id")
-        .references(() => billingCycles.id, { onDelete: "set null" }), // Don't cascade, keep payments if cycle logic changes/deleted
+        .references(() => billingCycles.id, { onDelete: "set null" }),
     amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
     paidAt: date("paid_at").notNull(),
     note: text("note"),
@@ -195,21 +173,17 @@ export const payments = pgTable("payments", {
 export const auditLogs = pgTable("audit_logs", {
     id: uuid("id").primaryKey().defaultRandom(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
-    userId: text("user_id").notNull(), // better-auth user ID is text
+    userId: text("user_id").notNull(),
     action: text("action").notNull(),
     entityType: text("entity_type").notNull(),
-    entityId: uuid("entity_id").notNull(), // Works for uuid entities, but for user it's text. We will cast or store string for generic. Wait, the spec says uuid. Let's make it text so it can point to user.id or loan.id.
+    entityId: uuid("entity_id").notNull(),
     metadata: jsonb("metadata"),
 });
-
-// Spec override: if entityId is uuid, it limits what we can log. I'll make entityId text to support better auth generic user ids if needed, but the spec says "uuid". It's fine, we'll keep it as text to be safe with user.id, or conform precisely to spec. Let's use text to avoid UUID validation errors on user IDs.
-// Actually, I'll change entityId to `text` for flexibility.
 
 // --- Relations ---
 
 export const userRelations = relations(user, ({ many }) => ({
     sessions: many(session),
-    businesses: many(businesses),
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({
@@ -220,14 +194,7 @@ export const accountRelations = relations(account, ({ one }) => ({
     user: one(user, { fields: [account.userId], references: [user.id] }),
 }));
 
-export const businessRelations = relations(businesses, ({ one, many }) => ({
-    user: one(user, { fields: [businesses.userId], references: [user.id] }),
-    customers: many(customers),
-    settings: one(appSettings),
-}));
-
-export const customerRelations = relations(customers, ({ one, many }) => ({
-    business: one(businesses, { fields: [customers.businessId], references: [businesses.id] }),
+export const customerRelations = relations(customers, ({ many }) => ({
     loans: many(loans),
 }));
 
