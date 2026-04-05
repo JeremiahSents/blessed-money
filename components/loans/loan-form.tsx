@@ -13,22 +13,25 @@ import { CollateralUploader, CollateralFormData } from "../collateral/collateral
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Delete02Icon, UserIcon, PlusSignIcon, Coins01Icon, Calendar01Icon, MoneyBag01Icon, Shield01Icon } from '@hugeicons/core-free-icons';
+import { Delete02Icon, UserIcon, PlusSignIcon, Coins01Icon, Calendar01Icon, MoneyBag01Icon, Shield01Icon, UnfoldMoreIcon } from '@hugeicons/core-free-icons';
 import { useRouter } from "next/navigation";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuGroup } from "@/components/ui/dropdown-menu";
 import { useQuery } from "@tanstack/react-query";
-import { addMonths } from "date-fns";
+import { addMonths, format } from "date-fns";
 import type { Customer } from "@/lib/types";
 import { getErrorMessage } from "@/lib/errors";
 import { CustomerForm } from "@/components/customers/customer-form";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 
 const loanSchema = z.object({
     customerId: z.string().min(1, "Customer is required"),
     principalAmount: z.string().min(1, "Principal is required"),
     interestRate: z.string().min(1, "Interest rate is required"),
-    startDate: z.string().min(1, "Start date is required"),
-    dueDate: z.string().min(1, "Due date is required"),
-    notes: z.string().optional(),
+    startDate: z.date({ error: "Start date is required" }),
+    dueDate: z.date({ error: "Due date is required" }),
+    notes: z.string().min(1, "Notes are required"),
 });
 
 type LoanFormValues = z.infer<typeof loanSchema>;
@@ -51,14 +54,12 @@ export function LoanForm() {
         }
     });
 
-    const generateDefaultDueDate = (startDate: string) => {
-        if (!startDate) return "";
-        try {
-            return addMonths(new Date(startDate), 1).toISOString().split('T')[0];
-        } catch {
-            return "";
-        }
-    }
+    const formatWithCommas = (val: string) => {
+        if (!val) return "";
+        const parts = val.toString().split(".");
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        return parts.join(".");
+    };
 
     const form = useForm<LoanFormValues>({
         resolver: zodResolver(loanSchema),
@@ -66,8 +67,8 @@ export function LoanForm() {
             customerId: "",
             principalAmount: "",
             interestRate: "20",
-            startDate: new Date().toISOString().split('T')[0],
-            dueDate: generateDefaultDueDate(new Date().toISOString().split('T')[0]),
+            startDate: new Date(),
+            dueDate: addMonths(new Date(), 1),
             notes: "",
         },
     });
@@ -86,7 +87,13 @@ export function LoanForm() {
             const res1 = await fetch(`/api/loans`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...values, interestRate: interestRateDecimal, collateralItems: [] }),
+                body: JSON.stringify({
+                    ...values,
+                    interestRate: interestRateDecimal,
+                    startDate: values.startDate.toISOString().split('T')[0],
+                    dueDate: values.dueDate.toISOString().split('T')[0],
+                    collateralItems: []
+                }),
             });
 
             if (!res1.ok) {
@@ -155,21 +162,21 @@ export function LoanForm() {
 
     return (
         <div className="max-w-3xl mx-auto pb-12">
-            <CustomerForm 
-                open={isCustomerModalOpen} 
-                onOpenChange={setCustomerModalOpen} 
-                onSuccess={handleCustomerSuccess} 
+            <CustomerForm
+                open={isCustomerModalOpen}
+                onOpenChange={setCustomerModalOpen}
+                onSuccess={handleCustomerSuccess}
             />
 
             <Form {...form}>
                 <form id="loan-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    
+
                     {/* Card 1: Borrower Information */}
                     <div className="bg-white dark:bg-zinc-950/80 p-6 sm:p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-sm relative overflow-hidden group transition-all duration-300 hover:shadow-md">
                         <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/5 blur-[80px] rounded-full pointer-events-none transition-all duration-500 group-hover:bg-primary/10"></div>
-                        
+
                         <div className="flex items-center gap-3 mb-6 relative z-10">
-                            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 text-primary">
+                            <div className="flex items-center justify-center w-10 h-10 rounded-xl text-primary">
                                 <HugeiconsIcon icon={UserIcon} className="w-5 h-5" />
                             </div>
                             <div>
@@ -185,59 +192,91 @@ export function LoanForm() {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
-                                            <Select
-                                                onValueChange={(val) => {
-                                                    if (val === "__new__") {
-                                                        setCustomerModalOpen(true);
-                                                        return;
-                                                    }
-                                                    field.onChange(val);
-                                                }}
-                                                value={field.value}
-                                            >
-                                                <SelectTrigger className="w-full h-14 px-4 gap-3 text-base border-2 border-zinc-200 dark:border-zinc-800 rounded-2xl bg-zinc-50/50 dark:bg-zinc-900/50 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:border-zinc-300 dark:hover:border-zinc-700 focus-visible:ring-4 focus-visible:ring-primary/10 focus-visible:border-primary transition-all shadow-sm">
-                                                    <span className="flex-1 text-left truncate font-medium">
-                                                        {field.value
-                                                            ? (customersData?.data?.find(c => c.id === field.value)?.name ?? field.value)
-                                                            : <span className="text-zinc-400 dark:text-zinc-500 font-normal">Choose a borrower...</span>
-                                                        }
-                                                    </span>
-                                                </SelectTrigger>
-                                                <SelectContent className="rounded-2xl shadow-xl border-zinc-200 dark:border-zinc-800 max-h-[300px]">
-                                                    <div className="p-2 sticky top-0 bg-white/70 dark:bg-zinc-950/70 backdrop-blur-md z-10 border-b border-zinc-100 dark:border-zinc-800/50">
-                                                        <Button 
-                                                            variant="default" 
-                                                            className="w-full justify-start h-10 px-3 bg-zinc-900 dark:bg-zinc-100 text-zinc-50 dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-xl"
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger
+                                                    render={(props) => (
+                                                        <Button
+                                                            {...props}
+                                                            variant="outline"
+                                                            className="w-full h-14 px-5 justify-between text-base font-medium border-2 border-zinc-200 dark:border-zinc-800 rounded-2xl bg-zinc-50/50 dark:bg-zinc-900/50 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:border-zinc-300 dark:hover:border-zinc-700 focus-visible:ring-4 focus-visible:ring-primary/10 focus-visible:border-primary transition-all shadow-sm group"
+                                                        >
+                                                            <div className="flex items-center gap-3 truncate">
+                                                                {field.value ? (
+                                                                    <div className="flex items-center gap-2">
+                                                                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary/20 transition-colors">
+                                                                            <HugeiconsIcon icon={UserIcon} className="size-4" />
+                                                                        </div>
+                                                                        <span className="truncate">{customersData?.data?.find(c => c.id === field.value)?.name ?? field.value}</span>
+                                                                    </div>
+                                                                ) : (
+                                                                    <span className="text-zinc-400 dark:text-zinc-500 font-normal">Choose a borrower...</span>
+                                                                )}
+                                                            </div>
+                                                            <HugeiconsIcon icon={UnfoldMoreIcon} className="size-5 text-zinc-400 shrink-0" />
+                                                        </Button>
+                                                    )}
+                                                />
+                                                <DropdownMenuContent
+                                                    className="w-full rounded-3xl p-3 shadow-2xl border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl z-50 overflow-hidden"
+                                                    align="start"
+                                                    side="bottom"
+                                                    sideOffset={8}
+                                                >
+                                                    {customersData?.data && customersData.data.length > 0 && (
+                                                        <DropdownMenuGroup className="flex flex-col">
+                                                            <DropdownMenuLabel className="px-4 py-2 text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em]">Existing Customers</DropdownMenuLabel>
+                                                            <div className="max-h-[300px] overflow-y-auto px-1 space-y-1 scrollbar-none">
+                                                                <DropdownMenuRadioGroup
+                                                                    value={field.value}
+                                                                    onValueChange={(val) => {
+                                                                        field.onChange(val);
+                                                                        setTimeout(() => form.setFocus("principalAmount"), 0);
+                                                                    }}
+                                                                >
+                                                                    {customersData.data.map((c) => (
+                                                                        <DropdownMenuRadioItem
+                                                                            key={c.id}
+                                                                            value={c.id}
+                                                                            className="rounded-2xl px-4 py-3 cursor-pointer transition-all hover:bg-zinc-50 dark:hover:bg-zinc-900 focus:bg-primary/5 data-[state=checked]:bg-primary/10 data-[state=checked]:text-primary border border-transparent data-[state=checked]:border-primary/20"
+                                                                        >
+                                                                            <div className="flex flex-col gap-0.5">
+                                                                                <span className="font-bold text-base leading-tight text-zinc-900 dark:text-zinc-100">
+                                                                                    {c.name}
+                                                                                </span>
+                                                                                {c.phone && (
+                                                                                    <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                                                                                        {c.phone}
+                                                                                    </span>
+                                                                                )}
+                                                                            </div>
+                                                                        </DropdownMenuRadioItem>
+                                                                    ))}
+                                                                </DropdownMenuRadioGroup>
+                                                            </div>
+                                                        </DropdownMenuGroup>
+                                                    )}
+
+                                                    <DropdownMenuSeparator className="mx-2 my-2 bg-zinc-100 dark:bg-zinc-800/50" />
+
+                                                    <div className="p-1 mt-1">
+                                                        <Button
+                                                            variant="default"
+                                                            className="w-full justify-start h-12 px-4 bg-primary text-primary-foreground hover:bg-primary/90 rounded-2xl shadow-lg shadow-primary/20 transition-all active:scale-[0.98]"
                                                             onClick={(e) => {
                                                                 e.preventDefault();
                                                                 setCustomerModalOpen(true);
-                                                                // Close the select dropdown by clicking body or managing state, but selecting __new__ handles it gracefully via onValueChange
                                                             }}
                                                         >
-                                                            <div className="flex items-center gap-2">
-                                                                <div className="flex items-center justify-center w-6 h-6 rounded-md bg-white/20 dark:bg-black/20 shrink-0">
-                                                                    <HugeiconsIcon icon={PlusSignIcon} className="size-4" />
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-white/20 shrink-0">
+                                                                    <HugeiconsIcon icon={PlusSignIcon} className="size-5" />
                                                                 </div>
-                                                                <span className="font-semibold text-sm">Add New Customer</span>
+                                                                <span className="font-bold text-sm tracking-tight">Add New Customer</span>
                                                             </div>
                                                         </Button>
                                                     </div>
-                                                    
-                                                    {customersData?.data && customersData.data.length > 0 && (
-                                                        <SelectGroup className="p-1">
-                                                            <SelectLabel className="px-3 py-2 text-xs font-semibold text-zinc-400 uppercase tracking-wider">Existing Customers</SelectLabel>
-                                                            {customersData.data.map((c) => (
-                                                                <SelectItem key={c.id} value={c.id} className="mx-1 my-0.5 rounded-xl cursor-pointer">
-                                                                    <div className="flex flex-col py-0.5">
-                                                                        <span className="font-medium text-zinc-900 dark:text-zinc-100">{c.name}</span>
-                                                                        {c.phone && <span className="text-xs text-zinc-500">{c.phone}</span>}
-                                                                    </div>
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectGroup>
-                                                    )}
-                                                </SelectContent>
-                                            </Select>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
                                         </FormControl>
                                         <FormMessage className="ml-1 mt-2" />
                                     </FormItem>
@@ -248,10 +287,10 @@ export function LoanForm() {
 
                     {/* Card 2: Loan Configuration */}
                     <div className="bg-white dark:bg-zinc-950/80 p-6 sm:p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-sm relative overflow-hidden group transition-all duration-300 hover:shadow-md">
-                        <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-blue-500/5 blur-[100px] rounded-full pointer-events-none transition-all duration-500 group-hover:bg-blue-500/10"></div>
-                        
+                        <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-primary/5 blur-[100px] rounded-full pointer-events-none transition-all duration-500 group-hover:bg-primary/10"></div>
+
                         <div className="flex items-center gap-3 mb-6 relative z-10">
-                            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                            <div className="flex items-center justify-center w-10 h-10 rounded-xl text-primary">
                                 <HugeiconsIcon icon={MoneyBag01Icon} className="w-5 h-5" />
                             </div>
                             <div>
@@ -272,12 +311,19 @@ export function LoanForm() {
                                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                     <span className="text-zinc-500 sm:text-sm font-medium">UGX</span>
                                                 </div>
-                                                <Input 
-                                                    type="number" 
-                                                    step="1" 
-                                                    placeholder="50,000" 
-                                                    className="pl-12 h-12 text-lg font-medium rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 transition-all"
-                                                    {...field} 
+                                                <Input
+                                                    type="text"
+                                                    inputMode="decimal"
+                                                    placeholder="50,000"
+                                                    className="pl-12 h-12 text-base font-medium rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 focus-visible:ring-primary/20 focus-visible:border-primary transition-all"
+                                                    value={formatWithCommas(field.value)}
+                                                    onChange={(e) => {
+                                                        const rawValue = e.target.value.replace(/,/g, "");
+                                                        // Allow only digits and a single decimal point
+                                                        if (/^\d*\.?\d*$/.test(rawValue)) {
+                                                            field.onChange(rawValue);
+                                                        }
+                                                    }}
                                                 />
                                             </div>
                                         </FormControl>
@@ -285,7 +331,7 @@ export function LoanForm() {
                                     </FormItem>
                                 )}
                             />
-                            
+
                             <FormField
                                 control={form.control}
                                 name="interestRate"
@@ -294,12 +340,12 @@ export function LoanForm() {
                                         <FormLabel className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Interest Rate / Month <span className="text-red-500">*</span></FormLabel>
                                         <FormControl>
                                             <div className="relative">
-                                                <Input 
-                                                    type="number" 
-                                                    step="1" 
-                                                    placeholder="20" 
-                                                    className="pr-10 h-12 text-lg font-medium rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 transition-all"
-                                                    {...field} 
+                                                <Input
+                                                    type="text"
+                                                    inputMode="numeric"
+                                                    placeholder="20"
+                                                    className="pr-10 h-12 text-base font-medium rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 focus-visible:ring-primary/20 focus-visible:border-primary transition-all"
+                                                    {...field}
                                                 />
                                                 <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
                                                     <span className="text-zinc-500 sm:text-sm font-semibold">%</span>
@@ -321,15 +367,46 @@ export function LoanForm() {
                                             Start Date <span className="text-red-500">*</span>
                                         </FormLabel>
                                         <FormControl>
-                                            <Input 
-                                                type="date" 
-                                                className="h-12 rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 transition-colors"
-                                                {...field} 
-                                                onChange={(e) => {
-                                                    field.onChange(e);
-                                                    form.setValue("dueDate", generateDefaultDueDate(e.target.value));
-                                                }} 
-                                            />
+                                            <Popover>
+                                                <PopoverTrigger
+                                                    render={(props) => (
+                                                        <Button
+                                                            {...props}
+                                                            variant="outline"
+                                                            className={cn(
+                                                                "w-full h-12 pl-3 text-left font-medium rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 focus-visible:ring-primary/20 focus-visible:border-primary transition-colors",
+                                                                !field.value && "text-muted-foreground"
+                                                            )}
+                                                        >
+                                                            {field.value ? (
+                                                                format(field.value, "PPP")
+                                                            ) : (
+                                                                <span>Pick a date</span>
+                                                            )}
+                                                            <HugeiconsIcon icon={Calendar01Icon} className="ml-auto h-4 w-4 opacity-50" />
+                                                        </Button>
+                                                    )}
+                                                />
+                                                <PopoverContent className="w-auto p-0" align="start">
+                                                    <Calendar
+                                                        mode="single"
+                                                        selected={field.value}
+                                                        onSelect={(date) => {
+                                                            field.onChange(date);
+                                                            if (date) {
+                                                                form.setValue("dueDate", addMonths(date, 1));
+                                                            }
+                                                        }}
+                                                        disabled={(date) =>
+                                                            date < new Date("1900-01-01")
+                                                        }
+                                                        captionLayout="dropdown"
+                                                        fromYear={2024}
+                                                        toYear={2045}
+                                                        initialFocus
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -346,11 +423,41 @@ export function LoanForm() {
                                             First Payment Due <span className="text-red-500">*</span>
                                         </FormLabel>
                                         <FormControl>
-                                            <Input 
-                                                type="date" 
-                                                className="h-12 rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 transition-all"
-                                                {...field} 
-                                            />
+                                            <Popover>
+                                                <PopoverTrigger
+                                                    render={(props) => (
+                                                        <Button
+                                                            {...props}
+                                                            variant="outline"
+                                                            className={cn(
+                                                                "w-full h-12 pl-3 text-left font-medium rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 focus-visible:ring-primary/20 focus-visible:border-primary transition-all",
+                                                                !field.value && "text-muted-foreground"
+                                                            )}
+                                                        >
+                                                            {field.value ? (
+                                                                format(field.value, "PPP")
+                                                            ) : (
+                                                                <span>Pick a date</span>
+                                                            )}
+                                                            <HugeiconsIcon icon={Calendar01Icon} className="ml-auto h-4 w-4 opacity-50" />
+                                                        </Button>
+                                                    )}
+                                                />
+                                                <PopoverContent className="w-auto p-0" align="start">
+                                                    <Calendar
+                                                        mode="single"
+                                                        selected={field.value}
+                                                        onSelect={field.onChange}
+                                                        disabled={(date) =>
+                                                            date < (form.getValues("startDate") || new Date())
+                                                        }
+                                                        captionLayout="dropdown"
+                                                        fromYear={2024}
+                                                        toYear={2045}
+                                                        initialFocus
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -363,12 +470,12 @@ export function LoanForm() {
                                     name="notes"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Additional Notes</FormLabel>
+                                            <FormLabel className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Additional Notes <span className="text-red-500">*</span></FormLabel>
                                             <FormControl>
-                                                <Textarea 
-                                                    placeholder="Specify loan purpose, agreements, or special conditions..." 
-                                                    className="resize-none min-h-[100px] rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 transition-all"
-                                                    {...field} 
+                                                <Textarea
+                                                    placeholder="Specify loan purpose, agreements, or special conditions..."
+                                                    className="resize-none min-h-[100px] rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 focus-visible:ring-primary/20 focus-visible:border-primary transition-all"
+                                                    {...field}
                                                 />
                                             </FormControl>
                                             <FormMessage />
@@ -381,11 +488,11 @@ export function LoanForm() {
 
                     {/* Card 3: Security & Collateral */}
                     <div className="bg-white dark:bg-zinc-950/80 p-6 sm:p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-sm relative overflow-hidden group transition-all duration-300 hover:shadow-md">
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-orange-500/5 blur-[120px] rounded-full pointer-events-none transition-all duration-500 group-hover:bg-orange-500/10"></div>
-                        
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-primary/5 blur-[120px] rounded-full pointer-events-none transition-all duration-500 group-hover:bg-primary/10"></div>
+
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 relative z-10">
                             <div className="flex items-center gap-3">
-                                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400">
+                                <div className="flex items-center justify-center w-10 h-10 rounded-xl text-primary">
                                     <HugeiconsIcon icon={Shield01Icon} className="w-5 h-5" />
                                 </div>
                                 <div>
@@ -393,12 +500,12 @@ export function LoanForm() {
                                     <p className="text-sm text-zinc-500 dark:text-zinc-400">Record items secured against this loan.</p>
                                 </div>
                             </div>
-                            
+
                             {!isAddingCollateral && (
-                                <Button 
-                                    type="button" 
-                                    size="sm" 
-                                    variant="outline" 
+                                <Button
+                                    type="button"
+                                    size="sm"
+                                    variant="outline"
                                     className="rounded-xl border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 shrink-0"
                                     onClick={() => setIsAddingCollateral(true)}
                                 >
@@ -427,7 +534,7 @@ export function LoanForm() {
                             ) : (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     {collateralItems.map((item, idx) => (
-                                        <div key={idx} className="p-4 border border-zinc-200 dark:border-zinc-800 rounded-2xl bg-zinc-50 dark:bg-zinc-900/50 relative group transition-all hover:border-orange-500/30 hover:bg-orange-50 dark:hover:bg-orange-500/5">
+                                        <div key={idx} className="p-4 border border-zinc-200 dark:border-zinc-800 rounded-2xl bg-zinc-50 dark:bg-zinc-900/50 relative group transition-all hover:border-primary/30 hover:bg-primary/5 dark:hover:bg-primary/5">
                                             <h4 className="font-semibold text-zinc-900 dark:text-zinc-100 leading-tight">{item.description}</h4>
                                             <div className="mt-2 space-y-1">
                                                 <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400 flex items-center gap-1.5">
@@ -456,10 +563,10 @@ export function LoanForm() {
                     </div>
 
                     <div className="pt-4 flex items-center justify-end">
-                        <Button 
-                            type="submit" 
+                        <Button
+                            type="submit"
                             disabled={mutation.isPending}
-                            className="w-full sm:w-auto h-14 px-8 text-base font-semibold rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white shadow-xl shadow-black/10 dark:shadow-white/10 transition-all active:scale-[0.98]"
+                            className="w-full sm:w-auto h-14 px-8 text-base font-semibold rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white shadow-xl shadow-primary/10 dark:shadow-white/10 transition-all active:scale-[0.98]"
                         >
                             {mutation.isPending ? (
                                 <span className="flex items-center gap-2">
