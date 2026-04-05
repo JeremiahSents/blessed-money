@@ -2,10 +2,10 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { HugeiconsIcon } from '@hugeicons/react';
-import { 
-    PencilEdit01Icon, 
-    ArrowLeft01Icon, 
-    TelephoneIcon, 
+import {
+    PencilEdit01Icon,
+    ArrowLeft01Icon,
+    TelephoneIcon,
     Coins01Icon,
     Task01Icon,
     StarIcon,
@@ -101,11 +101,11 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
     const totalPaid = loans.reduce((acc: number, l: LoanSummary) => acc + (l.billingCycles || []).reduce((lAcc: number, c: BillingCycle) => lAcc + parseFloat(c.totalPaid), 0), 0);
     const totalLent = parseFloat(customer.totalLent || "0");
     const balance = parseFloat(customer.outstandingBalance || "0");
-    
+
     // Debtor Rating Logic
     const overdueCyclesCount = loans.reduce((acc: number, l: LoanSummary) => acc + (l.billingCycles || []).filter((c: BillingCycle) => c.status === 'overdue').length, 0);
     const settledRatio = loans.length > 0 ? loans.filter((l: LoanSummary) => l.status === 'settled').length / loans.length : 1;
-    
+
     let rating = 5;
     if (overdueCyclesCount > 0) rating -= 1.5;
     if (settledRatio < 0.5 && loans.length > 2) rating -= 1;
@@ -151,8 +151,8 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <Button 
-                            variant="secondary" 
+                        <Button
+                            variant="secondary"
                             size="sm"
                             className="h-10 rounded-xl px-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-all"
                             onClick={() => setIsEditOpen(true)}
@@ -160,7 +160,7 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
                             <HugeiconsIcon icon={PencilEdit01Icon} className="w-4 h-4 mr-2" />
                             Edit
                         </Button>
-                        <Button 
+                        <Button
                             variant="default"
                             size="sm"
                             className="h-10 rounded-xl px-4 bg-primary text-white hover:bg-primary/90 font-semibold border-none shadow-none"
@@ -185,10 +185,10 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
                         </div>
                         <div className="flex items-center gap-0.5 pt-1">
                             {[1, 2, 3, 4, 5].map((star) => (
-                                <HugeiconsIcon 
-                                    key={star} 
-                                    icon={StarIcon} 
-                                    className={cn("w-5 h-5", star <= rating ? "text-yellow-400 fill-yellow-400" : "text-zinc-200 dark:text-zinc-800")} 
+                                <HugeiconsIcon
+                                    key={star}
+                                    icon={StarIcon}
+                                    className={cn("w-5 h-5", star <= rating ? "text-yellow-400 fill-yellow-400" : "text-zinc-200 dark:text-zinc-800")}
                                 />
                             ))}
                         </div>
@@ -241,16 +241,16 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
                                 const isSettled = loan.status === 'settled';
 
                                 return (
-                                    <Link 
+                                    <Link
                                         key={loan.id}
                                         href={`/loans/${loan.id}`}
                                         className={cn(
                                             "group block p-[22px] rounded-[32px] border transition-all active:scale-[0.99]",
-                                            isSettled 
-                                                ? "bg-emerald-50/30 border-emerald-100/50 dark:bg-emerald-500/5 dark:border-emerald-500/10 hover:border-emerald-200" 
+                                            isSettled
+                                                ? "bg-emerald-50/30 border-emerald-100/50 dark:bg-emerald-500/5 dark:border-emerald-500/10 hover:border-emerald-200"
                                                 : loan.status === 'overdue'
-                                                ? "bg-rose-50/30 border-rose-100/50 dark:bg-rose-500/5 dark:border-rose-500/10 hover:border-rose-200"
-                                                : "bg-white dark:bg-zinc-950 border-zinc-100 dark:border-zinc-800 hover:border-primary/20 hover:bg-zinc-50/50 dark:hover:bg-zinc-900/10"
+                                                    ? "bg-rose-50/30 border-rose-100/50 dark:bg-rose-500/5 dark:border-rose-500/10 hover:border-rose-200"
+                                                    : "bg-white dark:bg-zinc-950 border-zinc-100 dark:border-zinc-800 hover:border-primary/20 hover:bg-zinc-50/50 dark:hover:bg-zinc-900/10"
                                         )}
                                     >
                                         <div className="flex items-center justify-between gap-6">
@@ -258,10 +258,10 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
                                                 <div className="flex items-center gap-3">
                                                     <span className="text-sm font-semibold text-zinc-900 dark:text-white uppercase tracking-tight">#{loan.id.slice(0, 8)}</span>
                                                     <Badge className={cn(
-                                                        "text-[9px] px-2 py-0.5 h-4 font-bold uppercase border-none shadow-none",
-                                                        isSettled ? "bg-emerald-500 text-white" : 
-                                                        loan.status === 'overdue' ? "bg-rose-500 text-white" : 
-                                                        "bg-zinc-900 text-white dark:bg-white dark:text-black"
+                                                        "text-[9px] px-2 py-0.5 h-4 font-semibold uppercase border-none shadow-none",
+                                                        isSettled ? "bg-emerald-500 text-white" :
+                                                            loan.status === 'overdue' ? "bg-rose-500 text-white" :
+                                                                "bg-zinc-900 text-white dark:bg-white dark:text-black"
                                                     )}>
                                                         {loan.status}
                                                     </Badge>
@@ -288,8 +288,8 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
                                                 <div className="text-right min-w-[80px]">
                                                     <p className={cn(
                                                         "text-lg font-semibold tabular-nums leading-none mb-1.5",
-                                                        repaymentRate >= 100 ? "text-emerald-500" : 
-                                                        repaymentRate > 0 ? "text-primary" : "text-zinc-400"
+                                                        repaymentRate >= 100 ? "text-emerald-500" :
+                                                            repaymentRate > 0 ? "text-primary" : "text-zinc-400"
                                                     )}>
                                                         {repaymentRate.toFixed(0)}%
                                                     </p>
@@ -298,8 +298,8 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
                                                 <div className={cn(
                                                     "w-8 h-8 rounded-full flex items-center justify-center transition-all",
                                                     isSettled ? "bg-emerald-100/50 text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white" :
-                                                    loan.status === 'overdue' ? "bg-rose-100/50 text-rose-600 group-hover:bg-rose-500 group-hover:text-white" :
-                                                    "bg-zinc-100 dark:bg-zinc-900 text-zinc-400 group-hover:bg-primary group-hover:text-white"
+                                                        loan.status === 'overdue' ? "bg-rose-100/50 text-rose-600 group-hover:bg-rose-500 group-hover:text-white" :
+                                                            "bg-zinc-100 dark:bg-zinc-900 text-zinc-400 group-hover:bg-primary group-hover:text-white"
                                                 )}>
                                                     <HugeiconsIcon icon={ArrowLeft01Icon} className="w-4 h-4 rotate-180" />
                                                 </div>
@@ -312,8 +312,8 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
                             <div className="flex flex-col items-center justify-center py-20 text-center bg-zinc-50/50 dark:bg-zinc-950/20 rounded-[40px] border border-dashed border-zinc-200 dark:border-zinc-800">
                                 <HugeiconsIcon icon={Task01Icon} className="w-12 h-12 text-zinc-200 dark:text-zinc-800 mb-4" />
                                 <p className="text-sm font-semibold text-zinc-400 uppercase">No active or previous loans</p>
-                                <Button 
-                                    variant="link" 
+                                <Button
+                                    variant="link"
                                     className="text-primary font-semibold mt-2"
                                     onClick={() => window.location.href = `/loans/new?customer=${customer.id}`}
                                 >
@@ -326,7 +326,7 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
 
                 {customer.notes && (
                     <section className="space-y-6">
-                         <div className="flex items-center gap-3 border-b border-zinc-100 dark:border-zinc-800 pb-4 text-zinc-900 dark:text-white">
+                        <div className="flex items-center gap-3 border-b border-zinc-100 dark:border-zinc-800 pb-4 text-zinc-900 dark:text-white">
                             <HugeiconsIcon icon={InformationCircleIcon} className="w-5 h-5" />
                             <h2 className="text-xl font-semibold">Internal Notes</h2>
                         </div>
@@ -337,8 +337,8 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
                 )}
 
                 <div className="pt-8 flex justify-center">
-                    <Button 
-                        variant="ghost" 
+                    <Button
+                        variant="ghost"
                         size="sm"
                         className="text-zinc-400 hover:text-zinc-600 font-semibold uppercase text-[10px] tracking-wide"
                         onClick={generateStatement}

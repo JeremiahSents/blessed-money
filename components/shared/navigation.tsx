@@ -21,7 +21,7 @@ import { useSidebar } from "@/components/shared/sidebar-context";
 const allNavItems = [
     { title: "Dashboard", url: "/", icon: DashboardSquare01Icon },
     { title: "Customers", url: "/customers", icon: UserMultipleIcon },
-    { title: "Loans", url: "/loans/new", icon: Wallet01Icon },
+    { title: "Loans", url: "/loans", icon: Wallet01Icon },
     { title: "Payments", url: "/payments", icon: PropertyEditIcon },
     { title: "Reports", url: "/reports", icon: Book02Icon },
     { title: "Settings", url: "/settings", icon: Settings01Icon },

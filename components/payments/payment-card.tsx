@@ -30,7 +30,7 @@ export function PaymentCard({ payment }: PaymentCardProps) {
             </div>
 
             {/* Amount */}
-            <p className="font-bold text-emerald-600 dark:text-emerald-400 text-sm shrink-0">
+            <p className="font-semibold text-emerald-600 dark:text-emerald-400 text-sm shrink-0">
                 +{formatCurrency(parseFloat(payment.amount))}
             </p>
         </Link>

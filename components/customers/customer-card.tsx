@@ -55,7 +55,7 @@ export function CustomerCard({ customer }: CustomerCardProps) {
             {/* Avatar */}
             <Avatar className="w-11 h-11 shrink-0">
                 <AvatarImage src={avatarUrl} alt={customer.name} />
-                <AvatarFallback className={`text-sm font-bold ${avatarColor}`}>
+                <AvatarFallback className={`text-sm font-semibold ${avatarColor}`}>
                     {customer.name.split(/\s+/).map((part) => part.charAt(0)).slice(0, 2).join("")}
                 </AvatarFallback>
             </Avatar>

@@ -91,9 +91,9 @@ export default function LoanDetailPage(props: { params: Promise<{ id: string }> 
                     </div>
 
                     {loan.status !== 'settled' && (
-                        <Button
+                        <Button 
                             onClick={() => setIsPaymentOpen(true)}
-                            className="h-11 px-5 rounded-xl bg-primary text-white hover:bg-primary/90 font-semibold"
+                            className="hidden md:inline-flex h-11 px-5 rounded-xl bg-primary text-white hover:bg-primary/90 font-semibold"
                         >
                             <HugeiconsIcon icon={MoneyReceive01Icon} className="w-4 h-4 mr-2" />
                             Collect Payment

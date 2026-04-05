@@ -26,7 +26,7 @@ export function LoanCard({ loan }: { loan: LoanSummary }) {
                 <CardContent>
                     <div className="flex justify-between items-end mt-2">
                         <div>
-                            <div className="text-2xl font-bold tracking-tight">
+                            <div className="text-2xl font-semibold tracking-tight">
                                 {(parseFloat(loan.interestRate) * 100).toFixed(1)}% / mo
                             </div>
                             <p className="text-xs text-zinc-500 mt-1">

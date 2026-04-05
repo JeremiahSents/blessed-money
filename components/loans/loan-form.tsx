@@ -180,7 +180,7 @@ export function LoanForm() {
                                 <HugeiconsIcon icon={UserIcon} className="w-5 h-5" />
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold bg-linear-to-br from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent">Borrower Information</h2>
+                                <h2 className="text-xl font-semibold bg-linear-to-br from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent">Borrower Information</h2>
                                 <p className="text-sm text-zinc-500 dark:text-zinc-400">Select an existing customer or create a new one.</p>
                             </div>
                         </div>
@@ -240,7 +240,7 @@ export function LoanForm() {
                                                                             className="rounded-2xl px-4 py-3 cursor-pointer transition-all hover:bg-zinc-50 dark:hover:bg-zinc-900 focus:bg-primary/5 data-[state=checked]:bg-primary/10 data-[state=checked]:text-primary border border-transparent data-[state=checked]:border-primary/20"
                                                                         >
                                                                             <div className="flex flex-col gap-0.5">
-                                                                                <span className="font-bold text-base leading-tight text-zinc-900 dark:text-zinc-100">
+                                                                                <span className="font-semibold text-base leading-tight text-zinc-900 dark:text-zinc-100">
                                                                                     {c.name}
                                                                                 </span>
                                                                                 {c.phone && (
@@ -271,7 +271,7 @@ export function LoanForm() {
                                                                 <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-white/20 shrink-0">
                                                                     <HugeiconsIcon icon={PlusSignIcon} className="size-5" />
                                                                 </div>
-                                                                <span className="font-bold text-sm tracking-tight">Add New Customer</span>
+                                                                <span className="font-semibold text-sm tracking-tight">Add New Customer</span>
                                                             </div>
                                                         </Button>
                                                     </div>
@@ -294,7 +294,7 @@ export function LoanForm() {
                                 <HugeiconsIcon icon={MoneyBag01Icon} className="w-5 h-5" />
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold bg-linear-to-br from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent">Loan Structure</h2>
+                                <h2 className="text-xl font-semibold bg-linear-to-br from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent">Loan Structure</h2>
                                 <p className="text-sm text-zinc-500 dark:text-zinc-400">Define the core terms of the loan.</p>
                             </div>
                         </div>
@@ -496,7 +496,7 @@ export function LoanForm() {
                                     <HugeiconsIcon icon={Shield01Icon} className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <h2 className="text-xl font-bold bg-linear-to-br from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent">Collateral Items</h2>
+                                    <h2 className="text-xl font-semibold bg-linear-to-br from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent">Collateral Items</h2>
                                     <p className="text-sm text-zinc-500 dark:text-zinc-400">Record items secured against this loan.</p>
                                 </div>
                             </div>
