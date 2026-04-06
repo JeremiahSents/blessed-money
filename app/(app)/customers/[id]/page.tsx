@@ -8,7 +8,6 @@ import {
     TelephoneIcon,
     Coins01Icon,
     Task01Icon,
-    StarIcon,
     InformationCircleIcon,
     Calendar04Icon,
     Download01Icon,
@@ -102,17 +101,7 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
     const totalLent = parseFloat(customer.totalLent || "0");
     const balance = parseFloat(customer.outstandingBalance || "0");
 
-    // Debtor Rating Logic
-    const overdueCyclesCount = loans.reduce((acc: number, l: LoanSummary) => acc + (l.billingCycles || []).filter((c: BillingCycle) => c.status === 'overdue').length, 0);
-    const settledRatio = loans.length > 0 ? loans.filter((l: LoanSummary) => l.status === 'settled').length / loans.length : 1;
 
-    let rating = 5;
-    if (overdueCyclesCount > 0) rating -= 1.5;
-    if (settledRatio < 0.5 && loans.length > 2) rating -= 1;
-    if (balance > totalLent * 1.5) rating -= 1;
-    rating = Math.max(1, Math.min(5, rating));
-
-    const ratingLabel = rating >= 4.5 ? "A+ Excellent" : rating >= 3.5 ? "B+ Good" : rating >= 2.5 ? "C Fair" : "D Poor";
     const customerFormDefaults = {
         id: customer.id,
         name: customer.name,
@@ -173,28 +162,10 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
                 </div>
             </div>
 
-            {/* Debtor Health & GMV */}
+            {/* Financial Summary */}
             <div className="grid grid-cols-1 gap-4">
                 <div className="bg-white dark:bg-zinc-950 p-7 rounded-[32px] border border-zinc-200 dark:border-zinc-800 shadow-sm shadow-zinc-100/50 dark:shadow-none">
-                    <div className="flex items-start justify-between mb-8">
-                        <div>
-                            <p className="text-[10px] font-semibold uppercase text-zinc-400 mb-1 leading-none">Debtor Rating</p>
-                            <h3 className={cn("text-2xl font-semibold tracking-tight", rating >= 3.5 ? "text-primary" : "text-zinc-900 dark:text-white")}>
-                                {ratingLabel}
-                            </h3>
-                        </div>
-                        <div className="flex items-center gap-0.5 pt-1">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                                <HugeiconsIcon
-                                    key={star}
-                                    icon={StarIcon}
-                                    className={cn("w-5 h-5", star <= rating ? "text-yellow-400 fill-yellow-400" : "text-zinc-200 dark:text-zinc-800")}
-                                />
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-6 pt-7 border-t border-zinc-100 dark:border-zinc-800">
+                    <div className="grid grid-cols-3 gap-6">
                         <div>
                             <p className="text-[9px] font-semibold uppercase text-zinc-400 mb-2">Total Lent</p>
                             <p className="text-sm font-semibold text-zinc-900 dark:text-white tabular-nums tracking-tight">{formatCurrency(totalLent)}</p>
