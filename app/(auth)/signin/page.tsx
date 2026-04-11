@@ -36,7 +36,7 @@ export default function SignIn() {
                     Sign in to manage your classes and bookings.
                 </CardDescription>
             </CardHeader>
-            <CardContent className="px-0">
+            <CardContent className="px-6">
                 <form className="space-y-3" onSubmit={(event) => event.preventDefault()}>
                     <div className="space-y-2 text-left">
                         <Label htmlFor="email">Email</Label>

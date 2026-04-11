@@ -7,7 +7,8 @@
       "Bash(grep -l \"resolveBusinessForUser\" \"c:/Users/Jeremiah Sentomero/Desktop/Projects/blessed-money/app/api/loans/\"*.ts)",
       "Read(//c/Users/Jeremiah/ Sentomero/Desktop/Projects/blessed-money/app/**)",
       "Read(//c/Users/Jeremiah/ Sentomero/Desktop/Projects/blessed-money/app/\\(auth\\)/signin/**)",
-      "Read(//c/Users/Jeremiah/ Sentomero/Desktop/Projects/blessed-money/components/shared/**)"
+      "Read(//c/Users/Jeremiah/ Sentomero/Desktop/Projects/blessed-money/components/shared/**)",
+      "Bash(npx next:*)"
     ]
   }
 }

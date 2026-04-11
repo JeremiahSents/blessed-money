@@ -19,13 +19,13 @@ export function ResponsiveModal({ open, onOpenChange, title, description, childr
     if (isMobile) {
         return (
             <Sheet open={open} onOpenChange={onOpenChange}>
-                <SheetContent side="bottom" className="rounded-t-2xl max-h-[92vh] overflow-y-auto pb-safe">
+                <SheetContent side="bottom" className="rounded-t-2xl max-h-[92vh] overflow-y-auto overflow-x-hidden pb-safe">
                     <div className="w-10 h-1 bg-zinc-200 dark:bg-zinc-700 rounded-full mx-auto mb-4" />
                     <SheetHeader className="px-0 pt-0">
                         <SheetTitle>{title}</SheetTitle>
                         {description && <SheetDescription>{description}</SheetDescription>}
                     </SheetHeader>
-                    <div className={className}>
+                    <div className={`pb-6 ${className ?? ""}`}>
                         {children}
                     </div>
                 </SheetContent>
