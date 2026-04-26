@@ -1,26 +1,33 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { HorizontalStats } from "@/components/dashboard/horizontal-stats";
 import { OverduePanel } from "@/components/dashboard/overdue-panel";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { DashboardPageSkeleton } from "@/components/shared/page-skeletons";
-import { formatCurrency } from "@/lib/utils";
+import {
+  cn,
+  formatCompactCurrency,
+  getAvatarColor,
+  getGreeting,
+  getInitials,
+} from "@/lib/utils";
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   UserMultipleIcon,
-  Wallet01Icon,
-  Activity01Icon,
-  PropertyEditIcon,
-  Book02Icon,
+  Coins01Icon,
+  Alert02Icon,
+  PlusSignIcon,
+  ArrowRight01Icon,
 } from "@hugeicons/core-free-icons";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { PlusIcon } from "lucide-react";
+import { format } from "date-fns";
+import { authClient } from "@/lib/auth-client";
 import type { ActivityItem, BillingCycle, Customer, LoanSummary } from "@/lib/types";
 
 type OverdueLoan = LoanSummary & {
-  customer: Pick<Customer, "name">;
+  customer: Pick<Customer, "name" | "phone">;
   billingCycles?: BillingCycle[];
 };
 
@@ -31,6 +38,7 @@ type DashboardResponse = {
       workingCapitalBase?: string | number;
       capitalOutstanding?: string | number;
       activeLoans?: number;
+      overdueLoans?: number;
       expectedThisCycle?: string | number;
       collectedThisMonth?: string | number;
     };
@@ -55,13 +63,25 @@ export default function DashboardPage() {
     },
   });
 
+  const { data: session } = useQuery({
+    queryKey: ["session"],
+    queryFn: async () => {
+      const { data } = await authClient.getSession();
+      return data;
+    },
+  });
+
+  const fullName = session?.user?.name?.trim() || "";
+  const firstName = fullName.split(/\s+/)[0] || "";
+  const initials = fullName ? getInitials(fullName) : "";
+
   if (isLoading) {
     return <DashboardPageSkeleton />;
   }
 
   if (isError || !data?.data) {
     return (
-      <div className="max-w-5xl mx-auto px-2 py-12 text-sm text-zinc-500">
+      <div className="max-w-5xl mx-auto px-2 py-12 text-sm text-muted-foreground">
         Failed to load dashboard.
       </div>
     );
@@ -69,78 +89,194 @@ export default function DashboardPage() {
 
   const { stats, activity, overdueLoansList } = data.data;
 
-  return (
-    <div className="space-y-6 max-w-5xl mx-auto pb-20 md:pb-0">
-      <HorizontalStats
-        stats={[
-          {
-            title: "Your Money",
-            value: formatCurrency(parseFloat(String(stats?.workingCapitalCurrent || 0))),
-            icon: <HugeiconsIcon icon={Wallet01Icon} className="w-4 h-4" />,
-            description: `Starting capital: ${formatCurrency(parseFloat(String(stats?.workingCapitalBase || 0)))}`,
-          },
-          {
-            title: "Lent Out",
-            value: formatCurrency(parseFloat(String(stats?.capitalOutstanding || 0))),
-            icon: <HugeiconsIcon icon={PropertyEditIcon} className="w-4 h-4" />,
-            description: `${stats?.activeLoans || 0} running loans`,
-          },
-          {
-            title: "Coming Back",
-            value: formatCurrency(parseFloat(String(stats?.expectedThisCycle || 0))),
-            icon: <HugeiconsIcon icon={Activity01Icon} className="w-4 h-4" />,
-            description: "Expected this month",
-          },
-          {
-            title: "Collected",
-            value: formatCurrency(parseFloat(String(stats?.collectedThisMonth || 0))),
-            icon: <HugeiconsIcon icon={UserMultipleIcon} className="w-4 h-4" />,
-            description: "Received this month",
-          },
-        ]}
-      />
+  const activeLoans = stats?.activeLoans || 0;
+  const overdueLoans = stats?.overdueLoans || 0;
+  const totalLent = parseFloat(String(stats?.capitalOutstanding || 0));
+  const yourCapital = parseFloat(String(stats?.workingCapitalCurrent || 0));
+  const collected = parseFloat(String(stats?.collectedThisMonth || 0));
 
-      <div className="grid grid-cols-4 gap-2 px-2 py-1">
-        <Link href="/loans/new" className="flex flex-col items-center gap-1.5 group min-w-0">
-          <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20 ring-4 ring-primary/10 group-active:scale-90 transition-all duration-200">
-            <PlusIcon className="w-6 h-6 md:w-7 md:h-7" />
-          </div>
-          <span className="text-[9px] font-semibold uppercase text-zinc-400 group-hover:text-primary transition-colors text-center truncate w-full">Give Loan</span>
-        </Link>
-        <Link href="/payments" className="flex flex-col items-center gap-1.5 group min-w-0">
-          <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center shadow-sm group-active:scale-90 transition-all duration-200">
-            <HugeiconsIcon icon={PropertyEditIcon} className="w-5 h-5 md:w-6 md:h-6 text-zinc-600 dark:text-zinc-400" />
-          </div>
-          <span className="text-[9px] font-semibold uppercase text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors text-center truncate w-full">Collect Payment</span>
-        </Link>
-        <Link href="/customers" className="flex flex-col items-center gap-1.5 group min-w-0">
-          <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center shadow-sm group-active:scale-90 transition-all duration-200">
-            <HugeiconsIcon icon={UserMultipleIcon} className="w-5 h-5 md:w-6 md:h-6 text-zinc-600 dark:text-zinc-400" />
-          </div>
-          <span className="text-[9px] font-semibold uppercase text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors text-center truncate w-full">Customers</span>
-        </Link>
-        <Link href="/reports" className="flex flex-col items-center gap-1.5 group min-w-0">
-          <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center shadow-sm group-active:scale-90 transition-all duration-200">
-            <HugeiconsIcon icon={Book02Icon} className="w-5 h-5 md:w-6 md:h-6 text-zinc-600 dark:text-zinc-400" />
-          </div>
-          <span className="text-[9px] font-semibold uppercase text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors text-center truncate w-full">Reports</span>
+  const quickActions = [
+    {
+      href: "/loans/new",
+      label: "Give Loan",
+      icon: PlusSignIcon,
+      primary: true,
+    },
+    {
+      href: "/payments",
+      label: "Collect",
+      icon: Coins01Icon,
+      primary: false,
+    },
+    {
+      href: "/customers",
+      label: "Customers",
+      icon: UserMultipleIcon,
+      primary: false,
+    },
+    {
+      href: "/loans?status=overdue",
+      label: "Follow Up",
+      icon: Alert02Icon,
+      primary: false,
+      badge: overdueLoans > 0 ? overdueLoans : undefined,
+    },
+  ];
+
+  return (
+    <div className="max-w-6xl mx-auto pb-24 md:pb-8 px-2 md:px-0 space-y-6 md:space-y-8">
+      {/* Header */}
+      <div className="flex items-center justify-between pt-2 md:pt-4">
+        <div className="min-w-0">
+          <p className="text-xs font-medium text-muted-foreground">
+            {format(new Date(), "EEEE, d MMMM yyyy")}
+          </p>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground mt-0.5 truncate">
+            {getGreeting()}
+            {firstName ? `, ${firstName}` : ""}{" "}
+            <span aria-hidden="true">&#x1F44B;</span>
+          </h1>
+        </div>
+        <Link href="/settings" aria-label="Settings" className="shrink-0">
+          <Avatar className="w-10 h-10 md:w-11 md:h-11 ring-2 ring-border hover:ring-primary/40 transition">
+            <AvatarFallback
+              className={cn(
+                "text-sm font-semibold",
+                fullName ? getAvatarColor(fullName) : "bg-muted text-muted-foreground",
+              )}
+            >
+              {initials || "?"}
+            </AvatarFallback>
+          </Avatar>
         </Link>
       </div>
 
-      {overdueLoansList.length > 0 && (
-        <OverduePanel overdueLoans={overdueLoansList} />
-      )}
+      {/* Hero + Stats grid */}
+      <div className="grid gap-3 md:gap-5 md:grid-cols-3">
+        {/* Hero Stat — Total Lent Out (spans 2 cols on desktop) */}
+        <Card className="md:col-span-2 rounded-2xl border-0 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/20 overflow-hidden relative">
+          <div
+            aria-hidden
+            className="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-white/10 blur-2xl"
+          />
+          <div
+            aria-hidden
+            className="absolute -right-20 bottom-0 w-56 h-56 rounded-full bg-white/5 blur-3xl"
+          />
+          <CardContent className="p-5 md:p-7 relative">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-primary-foreground/80">
+              Total Lent Out
+            </p>
+            <p className="text-3xl md:text-5xl font-bold mt-1.5 tabular-nums">
+              {formatCompactCurrency(totalLent)}
+            </p>
+            <div className="flex items-center gap-2 mt-3 flex-wrap">
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium bg-white/15 backdrop-blur rounded-full px-2.5 py-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-300" />
+                {activeLoans} active loan{activeLoans !== 1 ? "s" : ""}
+              </span>
+              {overdueLoans > 0 && (
+                <span className="inline-flex items-center gap-1.5 text-xs font-medium bg-white/15 backdrop-blur rounded-full px-2.5 py-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-300" />
+                  {overdueLoans} overdue
+                </span>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
-      <div className="bg-transparent rounded-2xl overflow-hidden">
-        <div className="flex items-center justify-between px-2 py-4">
-          <h2 className="text-xs font-semibold uppercase text-zinc-400 dark:text-zinc-600">Recent Activity</h2>
-          <Link href="/reports">
-            <Button variant="ghost" size="sm" className="text-[10px] font-semibold uppercase text-primary hover:bg-primary/5">
-              Full Report
-            </Button>
-          </Link>
+        {/* Side stats — stacked on desktop, 2-up on mobile */}
+        <div className="grid grid-cols-2 md:grid-cols-1 gap-3 md:gap-5">
+          <Card className="rounded-2xl">
+            <CardContent className="p-4 md:p-5">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Your Capital
+              </p>
+              <p
+                className={cn(
+                  "text-lg md:text-2xl font-bold mt-1 tabular-nums",
+                  yourCapital < 0 ? "text-destructive" : "text-foreground",
+                )}
+              >
+                {formatCompactCurrency(yourCapital)}
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="rounded-2xl">
+            <CardContent className="p-4 md:p-5">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Collected This Month
+              </p>
+              <p className="text-lg md:text-2xl font-bold text-foreground mt-1 tabular-nums">
+                {formatCompactCurrency(collected)}
+              </p>
+            </CardContent>
+          </Card>
         </div>
-        <div className="px-2 md:px-6 pb-2">
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-4 gap-2 md:gap-4">
+        {quickActions.map((action) => (
+          <Link
+            key={action.href}
+            href={action.href}
+            className="flex flex-col items-center gap-1.5 md:gap-2 group min-w-0"
+          >
+            <div
+              className={cn(
+                "relative w-12 h-12 md:w-16 md:h-16 rounded-2xl flex items-center justify-center transition-all duration-200 group-active:scale-90 group-hover:-translate-y-0.5",
+                action.primary
+                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25 ring-4 ring-primary/10"
+                  : "bg-card border shadow-sm group-hover:border-primary/30 group-hover:shadow-md",
+              )}
+            >
+              <HugeiconsIcon
+                icon={action.icon}
+                className={cn(
+                  "w-6 h-6 md:w-7 md:h-7",
+                  action.primary ? "" : "text-muted-foreground group-hover:text-foreground",
+                )}
+              />
+              {action.badge !== undefined && (
+                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center ring-2 ring-background">
+                  {action.badge}
+                </span>
+              )}
+            </div>
+            <span
+              className={cn(
+                "text-[9px] md:text-xs font-semibold uppercase tracking-wide text-center truncate w-full transition-colors",
+                action.primary
+                  ? "text-primary"
+                  : "text-muted-foreground group-hover:text-foreground",
+              )}
+            >
+              {action.label}
+            </span>
+          </Link>
+        ))}
+      </div>
+
+      {/* Needs Attention + Recent Activity — side by side on desktop */}
+      <div className="grid gap-6 md:gap-8 md:grid-cols-2">
+        <div className="space-y-3 min-w-0">
+          <OverduePanel overdueLoans={overdueLoansList} />
+        </div>
+
+        <div className="min-w-0">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Recent Activity
+            </h2>
+            <Link
+              href="/payments"
+              className="text-xs font-medium text-primary hover:underline inline-flex items-center gap-0.5"
+            >
+              View all
+              <HugeiconsIcon icon={ArrowRight01Icon} className="w-3.5 h-3.5" />
+            </Link>
+          </div>
           <ActivityFeed activity={activity} />
         </div>
       </div>

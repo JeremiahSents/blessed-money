@@ -17,30 +17,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CustomerForm } from "@/components/customers/customer-form";
 import { DetailPageSkeleton } from "@/components/shared/page-skeletons";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { formatCurrency, formatDate, cn } from "@/lib/utils";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { formatCurrency, formatDate, cn, getAvatarColor, getInitials } from "@/lib/utils";
 import type { BillingCycle, Customer, LoanSummary } from "@/lib/types";
 
 import { useState, use } from "react";
 import Link from "next/link";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
-
-const customerAvatarUrls = [
-    "https://nyc.cloud.appwrite.io/v1/storage/buckets/694f8728000d9f558482/files/694f89470031cae2d8a0/view?project=694f86f8000af20e3525",
-    "https://nyc.cloud.appwrite.io/v1/storage/buckets/694f8728000d9f558482/files/694f88f40038fe6fa4f1/view?project=694f86f8000af20e3525",
-    "https://nyc.cloud.appwrite.io/v1/storage/buckets/694f8728000d9f558482/files/694f88f20012413729ee/view?project=694f86f8000af20e3525",
-    "https://nyc.cloud.appwrite.io/v1/storage/buckets/694f8728000d9f558482/files/694f88f7001cdd345d10/view?project=694f86f8000af20e3525",
-    "https://nyc.cloud.appwrite.io/v1/storage/buckets/694f8728000d9f558482/files/694f894100313e47a10a/view?project=694f86f8000af20e3525",
-];
-
-function getAvatarIndex(seed: string) {
-    let hash = 0;
-    for (let i = 0; i < seed.length; i++) {
-        hash = seed.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    return Math.abs(hash) % customerAvatarUrls.length;
-}
 
 export default function CustomerDetailPage(props: { params: Promise<{ id: string }> }) {
     const params = use(props.params);
@@ -96,7 +80,7 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
     if (!customer) return <div className="p-12 text-center">Customer not found.</div>;
 
     const loans = customer.loans || [];
-    const avatarUrl = customerAvatarUrls[getAvatarIndex(customer.id || customer.name)];
+    const avatarColor = getAvatarColor(customer.name);
     const totalPaid = loans.reduce((acc: number, l: LoanSummary) => acc + (l.billingCycles || []).reduce((lAcc: number, c: BillingCycle) => lAcc + parseFloat(c.totalPaid), 0), 0);
     const totalLent = parseFloat(customer.totalLent || "0");
     const balance = parseFloat(customer.outstandingBalance || "0");
@@ -124,9 +108,8 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                     <div className="flex items-center gap-5">
                         <Avatar className="w-16 h-16 shrink-0 rounded-2xl">
-                            <AvatarImage src={avatarUrl} alt={customer.name} />
-                            <AvatarFallback className="rounded-2xl bg-zinc-900 text-white text-xl font-semibold uppercase tracking-tighter">
-                                {customer.name.split(' ').map(n => n.charAt(0)).slice(0, 2).join('')}
+                            <AvatarFallback className={`rounded-2xl text-xl font-semibold uppercase tracking-tighter ${avatarColor}`}>
+                                {getInitials(customer.name)}
                             </AvatarFallback>
                         </Avatar>
                         <div>
