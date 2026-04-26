@@ -20,12 +20,8 @@ export function OverduePanel({ overdueLoans = [] }: { overdueLoans: OverdueLoan[
     if (overdueLoans.length === 0) return null;
 
     return (
-        <div className="px-2 space-y-3">
-            <h2 className="text-xs font-semibold uppercase text-muted-foreground">
-                Needs Attention
-            </h2>
-
-            <div className="rounded-2xl border bg-card divide-y divide-border overflow-hidden">
+        <div className="space-y-3">
+            <div className="divide-y divide-border/70 -mx-1">
                 {overdueLoans.map((loan) => {
                     const overdueCycle = loan.billingCycles?.[0];
                     const amountDue = overdueCycle ? parseFloat(overdueCycle.balance) : parseFloat(loan.principalAmount);
@@ -33,7 +29,7 @@ export function OverduePanel({ overdueLoans = [] }: { overdueLoans: OverdueLoan[
                     const whatsappUrl = phone ? `https://wa.me/${formatWhatsAppNumber(phone)}` : null;
 
                     return (
-                        <div key={loan.id} className="flex items-center gap-3 px-4 py-3.5">
+                        <div key={loan.id} className="flex items-center gap-3 px-1 py-3">
                             <Avatar className="w-10 h-10 shrink-0">
                                 <AvatarFallback className={`text-sm font-semibold ${getAvatarColor(loan.customer.name)}`}>
                                     {getInitials(loan.customer.name)}
@@ -65,10 +61,10 @@ export function OverduePanel({ overdueLoans = [] }: { overdueLoans: OverdueLoan[
                 })}
             </div>
 
-            <div className="text-center pt-1">
+            <div className="pt-1">
                 <Link
                     href="/loans?status=overdue"
-                    className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                    className="text-sm font-medium text-primary hover:text-primary/80 transition-colors inline-flex items-center gap-1"
                 >
                     View all overdue loans &rarr;
                 </Link>

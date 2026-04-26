@@ -10,12 +10,20 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { CollateralUploader, CollateralFormData } from "../collateral/collateral-uploader";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Delete02Icon, UserIcon, PlusSignIcon, Coins01Icon, Calendar01Icon, MoneyBag01Icon, Shield01Icon, UnfoldMoreIcon } from '@hugeicons/core-free-icons';
+import { Delete02Icon, UserIcon, PlusSignIcon, Coins01Icon, Calendar01Icon, MoneyBag01Icon, Shield01Icon, Search01Icon } from '@hugeicons/core-free-icons';
 import { useRouter } from "next/navigation";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuGroup } from "@/components/ui/dropdown-menu";
+import {
+    Combobox,
+    ComboboxInput,
+    ComboboxContent,
+    ComboboxList,
+    ComboboxItem,
+    ComboboxCollection,
+    ComboboxEmpty,
+} from "@/components/ui/combobox";
 import { useQuery } from "@tanstack/react-query";
 import { addMonths, format } from "date-fns";
 import type { Customer } from "@/lib/types";
@@ -40,8 +48,8 @@ export function LoanForm() {
     const queryClient = useQueryClient();
     const router = useRouter();
     const [collateralItems, setCollateralItems] = useState<CollateralFormData[]>([]);
-    const [isAddingCollateral, setIsAddingCollateral] = useState(false);
     const [isCustomerModalOpen, setCustomerModalOpen] = useState(false);
+    const [customerSearch, setCustomerSearch] = useState("");
 
     const searchParams = useSearchParams();
     const preselectedCustomer = searchParams.get("customer") || "";
@@ -144,18 +152,29 @@ export function LoanForm() {
     };
 
     const handleAddCollateral = (data: CollateralFormData) => {
-        setCollateralItems([...collateralItems, data]);
-        setIsAddingCollateral(false);
+        setCollateralItems((prev) => [...prev, data]);
     };
 
     const removeCollateral = (index: number) => {
         setCollateralItems(collateralItems.filter((_, i) => i !== index));
     };
 
+    const previewUrls = useMemo(
+        () => collateralItems.map((item) => (item.files[0] ? URL.createObjectURL(item.files[0]) : null)),
+        [collateralItems]
+    );
+
+    useEffect(() => {
+        return () => {
+            previewUrls.forEach((url) => url && URL.revokeObjectURL(url));
+        };
+    }, [previewUrls]);
+
     const handleCustomerSuccess = (data: any) => {
         const newCustId = data?.data?.id || data?.id;
         if (newCustId) {
             form.setValue("customerId", newCustId);
+            setCustomerSearch("");
             toast.success("Customer created and selected.");
         }
     };
@@ -165,6 +184,7 @@ export function LoanForm() {
             <CustomerForm
                 open={isCustomerModalOpen}
                 onOpenChange={setCustomerModalOpen}
+                defaultValues={customerSearch ? { name: customerSearch } : undefined}
                 onSuccess={handleCustomerSuccess}
             />
 
@@ -189,98 +209,89 @@ export function LoanForm() {
                             <FormField
                                 control={form.control}
                                 name="customerId"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormControl>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger
-                                                    render={(props) => (
-                                                        <Button
-                                                            {...props}
-                                                            variant="outline"
-                                                            className="w-full h-14 px-5 justify-between text-base font-medium border-2 border-zinc-200 dark:border-zinc-800 rounded-2xl bg-zinc-50/50 dark:bg-zinc-900/50 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:border-zinc-300 dark:hover:border-zinc-700 focus-visible:ring-4 focus-visible:ring-primary/10 focus-visible:border-primary transition-all shadow-sm group"
-                                                        >
-                                                            <div className="flex items-center gap-3 truncate">
-                                                                {field.value ? (
-                                                                    <div className="flex items-center gap-2">
-                                                                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary/20 transition-colors">
-                                                                            <HugeiconsIcon icon={UserIcon} className="size-4" />
-                                                                        </div>
-                                                                        <span className="truncate">{customersData?.data?.find(c => c.id === field.value)?.name ?? field.value}</span>
-                                                                    </div>
-                                                                ) : (
-                                                                    <span className="text-zinc-400 dark:text-zinc-500 font-normal">Choose a borrower...</span>
-                                                                )}
-                                                            </div>
-                                                            <HugeiconsIcon icon={UnfoldMoreIcon} className="size-5 text-zinc-400 shrink-0" />
-                                                        </Button>
-                                                    )}
-                                                />
-                                                <DropdownMenuContent
-                                                    className="w-full rounded-3xl p-3 shadow-2xl border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl z-50 overflow-hidden"
-                                                    align="start"
-                                                    side="bottom"
-                                                    sideOffset={8}
+                                render={({ field }) => {
+                                    const selectedCustomer = customersData?.data?.find(c => c.id === field.value) || null;
+                                    return (
+                                        <FormItem>
+                                            <FormControl>
+                                                <Combobox
+                                                    items={customersData?.data || []}
+                                                    itemToStringLabel={(c: Customer) => c.name}
+                                                    itemToStringValue={(c: Customer) => c.id}
+                                                    value={selectedCustomer}
+                                                    onValueChange={(c: Customer | null) => {
+                                                        field.onChange(c?.id || "");
+                                                        if (c) setTimeout(() => form.setFocus("principalAmount"), 0);
+                                                    }}
+                                                    onInputValueChange={setCustomerSearch}
                                                 >
-                                                    {customersData?.data && customersData.data.length > 0 && (
-                                                        <DropdownMenuGroup className="flex flex-col">
-                                                            <DropdownMenuLabel className="px-4 py-2 text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em]">Existing Customers</DropdownMenuLabel>
-                                                            <div className="max-h-[300px] overflow-y-auto px-1 space-y-1 scrollbar-none">
-                                                                <DropdownMenuRadioGroup
-                                                                    value={field.value}
-                                                                    onValueChange={(val) => {
-                                                                        field.onChange(val);
-                                                                        setTimeout(() => form.setFocus("principalAmount"), 0);
-                                                                    }}
-                                                                >
-                                                                    {customersData.data.map((c) => (
-                                                                        <DropdownMenuRadioItem
-                                                                            key={c.id}
-                                                                            value={c.id}
-                                                                            className="rounded-2xl px-4 py-3 cursor-pointer transition-all hover:bg-zinc-50 dark:hover:bg-zinc-900 focus:bg-primary/5 data-[state=checked]:bg-primary/10 data-[state=checked]:text-primary border border-transparent data-[state=checked]:border-primary/20"
-                                                                        >
-                                                                            <div className="flex flex-col gap-0.5">
-                                                                                <span className="font-semibold text-base leading-tight text-zinc-900 dark:text-zinc-100">
+                                                    <ComboboxInput
+                                                        placeholder="Search by name..."
+                                                        showTrigger={false}
+                                                        className="h-14 rounded-2xl border-2 border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 px-5 text-base font-medium focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 transition-all shadow-sm"
+                                                    >
+                                                        <HugeiconsIcon
+                                                            icon={Search01Icon}
+                                                            className="size-5 text-zinc-400 shrink-0 pointer-events-none"
+                                                        />
+                                                    </ComboboxInput>
+                                                    <ComboboxContent
+                                                        sideOffset={8}
+                                                        className="rounded-2xl p-2 shadow-2xl border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl"
+                                                    >
+                                                        <ComboboxList className="max-h-[300px]">
+                                                            <ComboboxCollection>
+                                                                {(c: Customer) => (
+                                                                    <ComboboxItem
+                                                                        key={c.id}
+                                                                        value={c}
+                                                                        className="rounded-xl px-3 py-2.5 cursor-pointer data-highlighted:bg-primary/5 data-highlighted:text-primary"
+                                                                    >
+                                                                        <div className="flex items-center gap-3 w-full">
+                                                                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                                                                                <HugeiconsIcon icon={UserIcon} className="size-4" />
+                                                                            </div>
+                                                                            <div className="flex flex-col gap-0.5 min-w-0">
+                                                                                <span className="font-semibold text-sm leading-tight text-zinc-900 dark:text-zinc-100 truncate">
                                                                                     {c.name}
                                                                                 </span>
                                                                                 {c.phone && (
-                                                                                    <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                                                                                    <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400 truncate">
                                                                                         {c.phone}
                                                                                     </span>
                                                                                 )}
                                                                             </div>
-                                                                        </DropdownMenuRadioItem>
-                                                                    ))}
-                                                                </DropdownMenuRadioGroup>
-                                                            </div>
-                                                        </DropdownMenuGroup>
-                                                    )}
-
-                                                    <DropdownMenuSeparator className="mx-2 my-2 bg-zinc-100 dark:bg-zinc-800/50" />
-
-                                                    <div className="p-1 mt-1">
-                                                        <Button
-                                                            variant="default"
-                                                            className="w-full justify-start h-12 px-4 bg-primary text-primary-foreground hover:bg-primary/90 rounded-2xl shadow-lg shadow-primary/20 transition-all active:scale-[0.98]"
-                                                            onClick={(e) => {
-                                                                e.preventDefault();
-                                                                setCustomerModalOpen(true);
-                                                            }}
-                                                        >
-                                                            <div className="flex items-center gap-3">
-                                                                <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-white/20 shrink-0">
-                                                                    <HugeiconsIcon icon={PlusSignIcon} className="size-5" />
-                                                                </div>
-                                                                <span className="font-semibold text-sm tracking-tight">Add New Customer</span>
-                                                            </div>
-                                                        </Button>
-                                                    </div>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </FormControl>
-                                        <FormMessage className="ml-1 mt-2" />
-                                    </FormItem>
-                                )}
+                                                                        </div>
+                                                                    </ComboboxItem>
+                                                                )}
+                                                            </ComboboxCollection>
+                                                            <ComboboxEmpty className="flex-col p-3 gap-2 text-left items-stretch">
+                                                                <p className="text-sm text-zinc-500 dark:text-zinc-400 px-2">
+                                                                    No customer found{customerSearch ? ` for "${customerSearch}"` : ""}.
+                                                                </p>
+                                                                <Button
+                                                                    type="button"
+                                                                    className="w-full justify-start h-12 px-4 bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl shadow-lg shadow-primary/20"
+                                                                    onClick={() => setCustomerModalOpen(true)}
+                                                                >
+                                                                    <div className="flex items-center gap-3">
+                                                                        <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-white/20 shrink-0">
+                                                                            <HugeiconsIcon icon={PlusSignIcon} className="size-4" />
+                                                                        </div>
+                                                                        <span className="font-semibold text-sm">
+                                                                            {customerSearch ? `Create "${customerSearch}"` : "Add New Customer"}
+                                                                        </span>
+                                                                    </div>
+                                                                </Button>
+                                                            </ComboboxEmpty>
+                                                        </ComboboxList>
+                                                    </ComboboxContent>
+                                                </Combobox>
+                                            </FormControl>
+                                            <FormMessage className="ml-1 mt-2" />
+                                        </FormItem>
+                                    );
+                                }}
                             />
                         </div>
                     </div>
@@ -315,7 +326,7 @@ export function LoanForm() {
                                                     type="text"
                                                     inputMode="decimal"
                                                     placeholder="50,000"
-                                                    className="pl-12 h-12 text-base font-medium rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 focus-visible:ring-primary/20 focus-visible:border-primary transition-all"
+                                                    className="pl-12 h-14 text-base font-medium rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 focus-visible:ring-primary/20 focus-visible:border-primary transition-all"
                                                     value={formatWithCommas(field.value)}
                                                     onChange={(e) => {
                                                         const rawValue = e.target.value.replace(/,/g, "");
@@ -344,7 +355,7 @@ export function LoanForm() {
                                                     type="text"
                                                     inputMode="numeric"
                                                     placeholder="20"
-                                                    className="pr-10 h-12 text-base font-medium rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 focus-visible:ring-primary/20 focus-visible:border-primary transition-all"
+                                                    className="pr-10 h-14 text-base font-medium rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 focus-visible:ring-primary/20 focus-visible:border-primary transition-all"
                                                     {...field}
                                                 />
                                                 <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
@@ -374,7 +385,7 @@ export function LoanForm() {
                                                             {...props}
                                                             variant="outline"
                                                             className={cn(
-                                                                "w-full h-12 pl-3 text-left font-medium rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 focus-visible:ring-primary/20 focus-visible:border-primary transition-colors",
+                                                                "w-full h-14 pl-4 text-left text-base font-medium rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 focus-visible:ring-primary/20 focus-visible:border-primary transition-colors",
                                                                 !field.value && "text-muted-foreground"
                                                             )}
                                                         >
@@ -430,7 +441,7 @@ export function LoanForm() {
                                                             {...props}
                                                             variant="outline"
                                                             className={cn(
-                                                                "w-full h-12 pl-3 text-left font-medium rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 focus-visible:ring-primary/20 focus-visible:border-primary transition-all",
+                                                                "w-full h-14 pl-4 text-left text-base font-medium rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 focus-visible:ring-primary/20 focus-visible:border-primary transition-all",
                                                                 !field.value && "text-muted-foreground"
                                                             )}
                                                         >
@@ -490,73 +501,52 @@ export function LoanForm() {
                     <div className="bg-white dark:bg-zinc-950/80 p-6 sm:p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-sm relative overflow-hidden group transition-all duration-300 hover:shadow-md">
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-primary/5 blur-[120px] rounded-full pointer-events-none transition-all duration-500 group-hover:bg-primary/10"></div>
 
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 relative z-10">
-                            <div className="flex items-center gap-3">
-                                <div className="flex items-center justify-center w-10 h-10 rounded-xl text-primary">
-                                    <HugeiconsIcon icon={Shield01Icon} className="w-5 h-5" />
-                                </div>
-                                <div>
-                                    <h2 className="text-xl font-semibold bg-linear-to-br from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent">Collateral Items</h2>
-                                    <p className="text-sm text-zinc-500 dark:text-zinc-400">Record items secured against this loan.</p>
-                                </div>
+                        <div className="flex items-center gap-3 mb-6 relative z-10">
+                            <div className="flex items-center justify-center w-10 h-10 rounded-xl text-primary">
+                                <HugeiconsIcon icon={Shield01Icon} className="w-5 h-5" />
                             </div>
-
-                            {!isAddingCollateral && (
-                                <Button
-                                    type="button"
-                                    size="sm"
-                                    variant="outline"
-                                    className="rounded-xl border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 shrink-0"
-                                    onClick={() => setIsAddingCollateral(true)}
-                                >
-                                    <HugeiconsIcon icon={PlusSignIcon} className="w-4 h-4 mr-1.5" />
-                                    Add Security Item
-                                </Button>
-                            )}
+                            <div>
+                                <h2 className="text-xl font-semibold bg-linear-to-br from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent">Collateral</h2>
+                                <p className="text-sm text-zinc-500 dark:text-zinc-400">Snap or upload images of items secured against this loan.</p>
+                            </div>
                         </div>
 
-                        <div className="relative z-10">
-                            {isAddingCollateral && (
-                                <div className="mb-4">
-                                    <CollateralUploader
-                                        onAdd={handleAddCollateral}
-                                        onCancel={() => setIsAddingCollateral(false)}
-                                    />
-                                </div>
-                            )}
+                        <div className="relative z-10 space-y-4">
+                            <CollateralUploader onAdd={handleAddCollateral} />
 
-                            {collateralItems.length === 0 && !isAddingCollateral ? (
-                                <div className="py-8 text-center border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl bg-zinc-50/50 dark:bg-zinc-900/30">
-                                    <HugeiconsIcon icon={Shield01Icon} className="w-8 h-8 text-zinc-300 dark:text-zinc-700 mx-auto mb-2" />
-                                    <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">No security items added</p>
-                                    <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">Add items to lower lending risk</p>
-                                </div>
-                            ) : (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    {collateralItems.map((item, idx) => (
-                                        <div key={idx} className="p-4 border border-zinc-200 dark:border-zinc-800 rounded-2xl bg-zinc-50 dark:bg-zinc-900/50 relative group transition-all hover:border-primary/30 hover:bg-primary/5 dark:hover:bg-primary/5">
-                                            <h4 className="font-semibold text-zinc-900 dark:text-zinc-100 leading-tight">{item.description}</h4>
-                                            <div className="mt-2 space-y-1">
-                                                <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400 flex items-center gap-1.5">
-                                                    <span className="w-1.5 h-1.5 rounded-full bg-zinc-300 dark:bg-zinc-600"></span>
-                                                    Value: {item.estimatedValue ? `UGX ${Number(item.estimatedValue).toLocaleString()}` : "N/A"}
-                                                </p>
-                                                <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400 flex items-center gap-1.5">
-                                                    <span className="w-1.5 h-1.5 rounded-full bg-zinc-300 dark:bg-zinc-600"></span>
-                                                    Files attached: {item.files.length}
-                                                </p>
-                                            </div>
-                                            <Button
-                                                type="button"
-                                                variant="destructive"
-                                                size="icon"
-                                                className="absolute top-3 right-3 w-7 h-7 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all rounded-full shadow-sm"
-                                                onClick={() => removeCollateral(idx)}
+                            {collateralItems.length > 0 && (
+                                <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                                    {collateralItems.map((item, idx) => {
+                                        const previewUrl = previewUrls[idx];
+                                        return (
+                                            <div
+                                                key={idx}
+                                                className="relative aspect-square rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 group"
                                             >
-                                                <HugeiconsIcon icon={Delete02Icon} className="w-3.5 h-3.5" />
-                                            </Button>
-                                        </div>
-                                    ))}
+                                                {previewUrl ? (
+                                                    // eslint-disable-next-line @next/next/no-img-element
+                                                    <img
+                                                        src={previewUrl}
+                                                        alt={item.description}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center">
+                                                        <HugeiconsIcon icon={Shield01Icon} className="w-8 h-8 text-zinc-300" />
+                                                    </div>
+                                                )}
+                                                <Button
+                                                    type="button"
+                                                    variant="destructive"
+                                                    size="icon"
+                                                    className="absolute top-2 right-2 w-8 h-8 rounded-full shadow-md"
+                                                    onClick={() => removeCollateral(idx)}
+                                                >
+                                                    <HugeiconsIcon icon={Delete02Icon} className="w-4 h-4" />
+                                                </Button>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             )}
                         </div>

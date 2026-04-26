@@ -1,25 +1,22 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { OverduePanel } from "@/components/dashboard/overdue-panel";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { DashboardPageSkeleton } from "@/components/shared/page-skeletons";
-import {
-  cn,
-  formatCompactCurrency,
-  getAvatarColor,
-  getGreeting,
-  getInitials,
-} from "@/lib/utils";
+import { cn, formatCompactCurrency, getGreeting } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   UserMultipleIcon,
   Coins01Icon,
-  Alert02Icon,
   PlusSignIcon,
   ArrowRight01Icon,
+  Wallet01Icon,
+  CheckmarkCircle02Icon,
+  Calendar01Icon,
 } from "@hugeicons/core-free-icons";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -39,13 +36,17 @@ type DashboardResponse = {
       capitalOutstanding?: string | number;
       activeLoans?: number;
       overdueLoans?: number;
-      expectedThisCycle?: string | number;
       collectedThisMonth?: string | number;
+      lentThisMonth?: string | number;
+      remainingThisMonth?: string | number;
+      netWorth?: string | number;
     };
     activity: ActivityItem[];
     overdueLoansList: OverdueLoan[];
   };
 };
+
+type ActivityTab = "all" | "payments" | "loans";
 
 export default function DashboardPage() {
   const { data, isLoading, isError } = useQuery<DashboardResponse>({
@@ -73,7 +74,16 @@ export default function DashboardPage() {
 
   const fullName = session?.user?.name?.trim() || "";
   const firstName = fullName.split(/\s+/)[0] || "";
-  const initials = fullName ? getInitials(fullName) : "";
+
+  const [activityTab, setActivityTab] = useState<ActivityTab>("all");
+
+  const filteredActivity = useMemo(() => {
+    const list = data?.data?.activity ?? [];
+    let filtered = list;
+    if (activityTab === "payments") filtered = list.filter((a) => a.type === "PAYMENT");
+    else if (activityTab === "loans") filtered = list.filter((a) => a.type === "LOAN");
+    return filtered.slice(0, 10);
+  }, [data, activityTab]);
 
   if (isLoading) {
     return <DashboardPageSkeleton />;
@@ -87,20 +97,28 @@ export default function DashboardPage() {
     );
   }
 
-  const { stats, activity, overdueLoansList } = data.data;
+  const { stats, overdueLoansList } = data.data;
 
   const activeLoans = stats?.activeLoans || 0;
   const overdueLoans = stats?.overdueLoans || 0;
-  const totalLent = parseFloat(String(stats?.capitalOutstanding || 0));
-  const yourCapital = parseFloat(String(stats?.workingCapitalCurrent || 0));
+  const netWorth = parseFloat(String(stats?.netWorth || 0));
+  const lentThisMonth = parseFloat(String(stats?.lentThisMonth || 0));
   const collected = parseFloat(String(stats?.collectedThisMonth || 0));
+  const remainingThisMonth = parseFloat(String(stats?.remainingThisMonth || 0));
 
   const quickActions = [
     {
       href: "/loans/new",
-      label: "Give Loan",
+      label: "New Loan",
       icon: PlusSignIcon,
       primary: true,
+    },
+    {
+      href: "/loans?status=due-this-week",
+      label: "Due This Week",
+      icon: Calendar01Icon,
+      primary: false,
+      badge: overdueLoans > 0 ? overdueLoans : undefined,
     },
     {
       href: "/payments",
@@ -113,13 +131,6 @@ export default function DashboardPage() {
       label: "Customers",
       icon: UserMultipleIcon,
       primary: false,
-    },
-    {
-      href: "/loans?status=overdue",
-      label: "Follow Up",
-      icon: Alert02Icon,
-      primary: false,
-      badge: overdueLoans > 0 ? overdueLoans : undefined,
     },
   ];
 
@@ -134,46 +145,42 @@ export default function DashboardPage() {
           <h1 className="text-2xl md:text-3xl font-bold text-foreground mt-0.5 truncate">
             {getGreeting()}
             {firstName ? `, ${firstName}` : ""}{" "}
-            <span aria-hidden="true">&#x1F44B;</span>
           </h1>
         </div>
-        <Link href="/settings" aria-label="Settings" className="shrink-0">
-          <Avatar className="w-10 h-10 md:w-11 md:h-11 ring-2 ring-border hover:ring-primary/40 transition">
-            <AvatarFallback
-              className={cn(
-                "text-sm font-semibold",
-                fullName ? getAvatarColor(fullName) : "bg-muted text-muted-foreground",
-              )}
-            >
-              {initials || "?"}
-            </AvatarFallback>
-          </Avatar>
-        </Link>
       </div>
 
-      {/* Hero + Stats grid */}
-      <div className="grid gap-3 md:gap-5 md:grid-cols-3">
-        {/* Hero Stat — Total Lent Out (spans 2 cols on desktop) */}
-        <Card className="md:col-span-2 rounded-2xl border-0 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/20 overflow-hidden relative">
+      {/* Subtitle */}
+      <p className="text-sm text-muted-foreground -mt-3 md:-mt-5">
+        Your business at a glance
+      </p>
+
+      {/* Bento Grid Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 auto-rows-fr gap-3 md:gap-4">
+        {/* Hero — Net Worth (lifetime, spans 2x2 on desktop) */}
+        <Card className="col-span-2 md:col-span-2 md:row-span-2 rounded-2xl bg-linear-to-br from-primary to-primary/85 text-primary-foreground border-0 overflow-hidden relative">
           <div
             aria-hidden
-            className="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-white/10 blur-2xl"
+            className="absolute -right-8 -top-8 w-44 h-44 rounded-full bg-white/10 blur-2xl"
           />
           <div
             aria-hidden
-            className="absolute -right-20 bottom-0 w-56 h-56 rounded-full bg-white/5 blur-3xl"
+            className="absolute -right-12 -bottom-12 w-56 h-56 rounded-full bg-white/5 blur-3xl"
           />
-          <CardContent className="p-5 md:p-7 relative">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-primary-foreground/80">
-              Total Lent Out
-            </p>
-            <p className="text-3xl md:text-5xl font-bold mt-1.5 tabular-nums">
-              {formatCompactCurrency(totalLent)}
+          <CardContent className="p-5 md:p-7 relative flex flex-col h-full">
+            <div className="flex items-center gap-2 text-primary-foreground/85">
+              <HugeiconsIcon icon={Wallet01Icon} className="w-4 h-4" />
+              <p className="text-sm font-medium">Net Worth</p>
+              <span className="ml-auto text-[10px] font-semibold uppercase tracking-wider bg-white/15 backdrop-blur rounded-full px-2 py-0.5">
+                Lifetime
+              </span>
+            </div>
+            <p className="text-3xl md:text-5xl font-bold mt-2 md:mt-3 tabular-nums leading-tight">
+              {formatCompactCurrency(netWorth)}
             </p>
             <div className="flex items-center gap-2 mt-3 flex-wrap">
               <span className="inline-flex items-center gap-1.5 text-xs font-medium bg-white/15 backdrop-blur rounded-full px-2.5 py-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-300" />
-                {activeLoans} active loan{activeLoans !== 1 ? "s" : ""}
+                {activeLoans} active
               </span>
               {overdueLoans > 0 && (
                 <span className="inline-flex items-center gap-1.5 text-xs font-medium bg-white/15 backdrop-blur rounded-full px-2.5 py-1">
@@ -182,103 +189,193 @@ export default function DashboardPage() {
                 </span>
               )}
             </div>
+            <div className="mt-auto pt-4 hidden md:block">
+              <p className="text-xs text-primary-foreground/75">
+                Cash on hand plus outstanding receivables
+              </p>
+            </div>
           </CardContent>
         </Card>
 
-        {/* Side stats — stacked on desktop, 2-up on mobile */}
-        <div className="grid grid-cols-2 md:grid-cols-1 gap-3 md:gap-5">
-          <Card className="rounded-2xl">
-            <CardContent className="p-4 md:p-5">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Your Capital
-              </p>
-              <p
-                className={cn(
-                  "text-lg md:text-2xl font-bold mt-1 tabular-nums",
-                  yourCapital < 0 ? "text-destructive" : "text-foreground",
-                )}
-              >
-                {formatCompactCurrency(yourCapital)}
-              </p>
-            </CardContent>
-          </Card>
-          <Card className="rounded-2xl">
-            <CardContent className="p-4 md:p-5">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Collected This Month
-              </p>
-              <p className="text-lg md:text-2xl font-bold text-foreground mt-1 tabular-nums">
-                {formatCompactCurrency(collected)}
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Total Lent Out (this month) — wide tile on desktop */}
+        <Card className="col-span-2 md:col-span-2 rounded-2xl">
+          <CardContent className="p-5 md:p-6">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <HugeiconsIcon icon={PlusSignIcon} className="w-4 h-4" />
+              <p className="text-sm font-medium">Total Lent Out</p>
+              <span className="ml-auto text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+                This month
+              </span>
+            </div>
+            <p className="text-2xl md:text-4xl font-bold mt-2 tabular-nums text-foreground">
+              {formatCompactCurrency(lentThisMonth)}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1.5">
+              New loans issued in {format(new Date(), "MMMM")}
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Collected (this month) */}
+        <Card className="col-span-1 rounded-2xl">
+          <CardContent className="p-4 md:p-5">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <HugeiconsIcon icon={CheckmarkCircle02Icon} className="w-4 h-4" />
+              <p className="text-xs md:text-sm font-medium">Collected</p>
+            </div>
+            <p className="text-xl md:text-2xl font-bold text-foreground mt-2 tabular-nums">
+              {formatCompactCurrency(collected)}
+            </p>
+            <p className="text-[10px] md:text-xs text-muted-foreground mt-1">
+              This month
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Remaining Balance (this month) */}
+        <Card className="col-span-1 rounded-2xl">
+          <CardContent className="p-4 md:p-5">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <HugeiconsIcon icon={Calendar01Icon} className="w-4 h-4" />
+              <p className="text-xs md:text-sm font-medium">Remaining</p>
+            </div>
+            <p
+              className={cn(
+                "text-xl md:text-2xl font-bold mt-2 tabular-nums",
+                remainingThisMonth > 0 ? "text-amber-600 dark:text-amber-500" : "text-foreground",
+              )}
+            >
+              {formatCompactCurrency(remainingThisMonth)}
+            </p>
+            <p className="text-[10px] md:text-xs text-muted-foreground mt-1">
+              Still due this month
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-4 gap-2 md:gap-4">
-        {quickActions.map((action) => (
-          <Link
-            key={action.href}
-            href={action.href}
-            className="flex flex-col items-center gap-1.5 md:gap-2 group min-w-0"
-          >
-            <div
-              className={cn(
-                "relative w-12 h-12 md:w-16 md:h-16 rounded-2xl flex items-center justify-center transition-all duration-200 group-active:scale-90 group-hover:-translate-y-0.5",
-                action.primary
-                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25 ring-4 ring-primary/10"
-                  : "bg-card border shadow-sm group-hover:border-primary/30 group-hover:shadow-md",
-              )}
-            >
-              <HugeiconsIcon
-                icon={action.icon}
-                className={cn(
-                  "w-6 h-6 md:w-7 md:h-7",
-                  action.primary ? "" : "text-muted-foreground group-hover:text-foreground",
-                )}
-              />
-              {action.badge !== undefined && (
-                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center ring-2 ring-background">
-                  {action.badge}
+      <Card className="rounded-2xl">
+        <CardContent className="p-4 md:p-6">
+          <div className="grid grid-cols-4 gap-2 md:gap-4">
+            {quickActions.map((action) => (
+              <Link
+                key={action.href}
+                href={action.href}
+                className="flex flex-col items-center gap-1.5 md:gap-2 group min-w-0"
+              >
+                <div
+                  className={cn(
+                    "relative w-12 h-12 md:w-16 md:h-16 rounded-2xl flex items-center justify-center transition-all duration-200 group-active:scale-90 group-hover:-translate-y-0.5",
+                    action.primary
+                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25 ring-4 ring-primary/10"
+                      : "bg-zinc-100/70 dark:bg-zinc-900 group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800",
+                  )}
+                >
+                  <HugeiconsIcon
+                    icon={action.icon}
+                    className={cn(
+                      "w-6 h-6 md:w-7 md:h-7",
+                      action.primary ? "" : "text-muted-foreground group-hover:text-foreground",
+                    )}
+                  />
+                  {action.badge !== undefined && (
+                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center ring-2 ring-card">
+                      {action.badge}
+                    </span>
+                  )}
+                </div>
+                <span
+                  className={cn(
+                    "text-[9px] md:text-xs font-semibold uppercase tracking-wide text-center truncate w-full transition-colors",
+                    action.primary
+                      ? "text-primary"
+                      : "text-muted-foreground group-hover:text-foreground",
+                  )}
+                >
+                  {action.label}
                 </span>
-              )}
-            </div>
-            <span
-              className={cn(
-                "text-[9px] md:text-xs font-semibold uppercase tracking-wide text-center truncate w-full transition-colors",
-                action.primary
-                  ? "text-primary"
-                  : "text-muted-foreground group-hover:text-foreground",
-              )}
-            >
-              {action.label}
-            </span>
-          </Link>
-        ))}
-      </div>
+              </Link>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Needs Attention + Recent Activity — side by side on desktop */}
-      <div className="grid gap-6 md:gap-8 md:grid-cols-2">
-        <div className="space-y-3 min-w-0">
-          <OverduePanel overdueLoans={overdueLoansList} />
-        </div>
+      <div className="grid gap-4 md:gap-6 md:grid-cols-2">
+        {overdueLoansList.length > 0 ? (
+          <Card className="rounded-2xl min-w-0">
+            <CardContent className="p-5 md:p-6">
+              <h2 className="text-sm font-semibold text-foreground mb-1">
+                Needs Attention
+              </h2>
+              <p className="text-xs text-muted-foreground mb-4">
+                Customers with overdue payments
+              </p>
+              <OverduePanel overdueLoans={overdueLoansList} />
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="rounded-2xl min-w-0">
+            <CardContent className="p-5 md:p-6 flex flex-col items-center justify-center text-center min-h-[140px]">
+              <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/20 flex items-center justify-center mb-2">
+                <HugeiconsIcon
+                  icon={CheckmarkCircle02Icon}
+                  className="w-5 h-5 text-emerald-600 dark:text-emerald-400"
+                />
+              </div>
+              <p className="text-sm font-semibold text-foreground">All caught up</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                No overdue payments right now
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
-        <div className="min-w-0">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Recent Activity
-            </h2>
-            <Link
-              href="/payments"
-              className="text-xs font-medium text-primary hover:underline inline-flex items-center gap-0.5"
+        <Card className="rounded-2xl min-w-0">
+          <CardContent className="p-5 md:p-6">
+            <div className="flex items-start justify-between gap-3 mb-4">
+              <div className="min-w-0">
+                <h2 className="text-sm font-semibold text-foreground">
+                  Recent Activity
+                </h2>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Showing latest 10
+                </p>
+              </div>
+              <Link
+                href="/payments"
+                className="text-xs font-medium text-primary hover:underline inline-flex items-center gap-0.5 shrink-0"
+              >
+                View all
+                <HugeiconsIcon icon={ArrowRight01Icon} className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+
+            <Tabs
+              value={activityTab}
+              onValueChange={(v) => setActivityTab((v as ActivityTab) ?? "all")}
             >
-              View all
-              <HugeiconsIcon icon={ArrowRight01Icon} className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-          <ActivityFeed activity={activity} />
-        </div>
+              <TabsList className="w-full grid grid-cols-3 mb-3">
+                <TabsTrigger value="all">All</TabsTrigger>
+                <TabsTrigger value="payments">Payments</TabsTrigger>
+                <TabsTrigger value="loans">Loans</TabsTrigger>
+              </TabsList>
+              <TabsContent value={activityTab}>
+                <ActivityFeed
+                  activity={filteredActivity}
+                  emptyLabel={
+                    activityTab === "payments"
+                      ? "No recent payments"
+                      : activityTab === "loans"
+                        ? "No recent loans"
+                        : "No activity yet"
+                  }
+                />
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

@@ -53,15 +53,20 @@ export function Navigation() {
       {/* ── DESKTOP SIDEBAR ── */}
       <aside
         className={cn(
-          "hidden md:flex flex-col fixed left-0 top-0 bottom-0 z-40 bg-white dark:bg-zinc-950 border-r border-zinc-200 dark:border-zinc-800 transition-all duration-200",
+          "hidden md:flex flex-col fixed left-0 top-0 bottom-0 z-40 bg-zinc-100/70 dark:bg-zinc-950 border-r border-zinc-200/70 dark:border-zinc-800 transition-all duration-200",
           collapsed ? "w-16" : "w-56",
         )}
       >
-        {/* Logo */}
-        <div className="flex items-center h-16 px-4 border-b border-zinc-200 dark:border-zinc-800 shrink-0">
+        {/* Logo + Sidebar trigger */}
+        <div
+          className={cn(
+            "flex items-center h-16 shrink-0 gap-2",
+            collapsed ? "justify-center px-2" : "justify-between px-4",
+          )}
+        >
           <Link
             href="/"
-            className="flex items-center gap-2.5 font-bold text-lg overflow-hidden"
+            className="flex items-center gap-2.5 font-bold text-lg overflow-hidden min-w-0"
           >
             <Image
               src="/blessed.png"
@@ -72,7 +77,31 @@ export function Navigation() {
             />
             {!collapsed && <span className="truncate">Blessed</span>}
           </Link>
+          {!collapsed && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggle}
+              aria-label="Collapse sidebar"
+              className="text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 shrink-0 h-8 w-8"
+            >
+              <HugeiconsIcon icon={SidebarLeft01Icon} className="w-5 h-5" />
+            </Button>
+          )}
         </div>
+        {collapsed && (
+          <div className="px-2 pb-2 flex justify-center">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggle}
+              aria-label="Expand sidebar"
+              className="text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 h-8 w-8"
+            >
+              <HugeiconsIcon icon={SidebarLeft01Icon} className="w-5 h-5" />
+            </Button>
+          </div>
+        )}
 
         {/* Nav links */}
         <nav className="flex-1 py-6 space-y-1 px-3 overflow-y-auto">
@@ -100,7 +129,7 @@ export function Navigation() {
         </nav>
 
         {/* Sign out */}
-        <div className="p-3 border-t border-zinc-200 dark:border-zinc-800 shrink-0">
+        <div className="p-3 border-t border-zinc-200/70 dark:border-zinc-800 shrink-0">
           <button
             onClick={handleSignOut}
             className={cn(
@@ -125,22 +154,6 @@ export function Navigation() {
           </button>
         </div>
       </aside>
-
-      {/* ── DESKTOP TOP BAR (sidebar trigger lives here, outside sidebar) ── */}
-      <header
-        className="hidden md:flex fixed top-0 z-30 items-center h-16 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 transition-all duration-200"
-        style={{ left: collapsed ? "4rem" : "14rem", right: 0 }}
-      >
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggle}
-          className="ml-4 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
-          aria-label="Toggle sidebar"
-        >
-          <HugeiconsIcon icon={SidebarLeft01Icon} className="w-5 h-5" />
-        </Button>
-      </header>
 
       {/* ── MOBILE BOTTOM DOCK ── */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t bg-white dark:bg-zinc-950 pb-safe">

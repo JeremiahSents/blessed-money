@@ -1,7 +1,7 @@
 import db from "@/core/db";
 import { loans, billingCycles, payments, appSettings } from "@/core/db/schema";
-import { eq, or, sql, gte, desc } from "drizzle-orm";
-import { startOfMonth } from "date-fns";
+import { and, eq, or, sql, gte, lte, desc } from "drizzle-orm";
+import { endOfMonth, startOfMonth } from "date-fns";
 
 export async function getDashboardStats() {
     const settingsRes = await db
@@ -39,16 +39,9 @@ export async function getDashboardStats() {
             )
         );
 
-    const expectedRes = await db
-        .select({
-            sum: sql<number>`sum(CAST(${billingCycles.totalDue} AS NUMERIC))`,
-        })
-        .from(billingCycles)
-        .where(eq(billingCycles.status, "open"));
-
-    const startOfCurrentMonth = startOfMonth(new Date())
-        .toISOString()
-        .split("T")[0];
+    const now = new Date();
+    const startOfCurrentMonth = startOfMonth(now).toISOString().split("T")[0];
+    const endOfCurrentMonth = endOfMonth(now).toISOString().split("T")[0];
 
     const collectedRes = await db
         .select({
@@ -63,21 +56,49 @@ export async function getDashboardStats() {
         })
         .from(payments);
 
+    const lentThisMonthRes = await db
+        .select({
+            sum: sql<number>`sum(CAST(${loans.principalAmount} AS NUMERIC))`,
+        })
+        .from(loans)
+        .where(gte(loans.createdAt, startOfMonth(now)));
+
+    const remainingThisMonthRes = await db
+        .select({
+            sum: sql<number>`sum(CAST(${billingCycles.balance} AS NUMERIC))`,
+        })
+        .from(billingCycles)
+        .where(
+            and(
+                or(
+                    eq(billingCycles.status, "open"),
+                    eq(billingCycles.status, "overdue")
+                ),
+                lte(billingCycles.cycleEndDate, endOfCurrentMonth)
+            )
+        );
+
     const principalIssued = parseFloat(String(principalIssuedRes[0].sum || "0"));
     const totalCollectedAllTime = parseFloat(String(totalCollectedAllTimeRes[0].sum || "0"));
     const outstanding = parseFloat(String(outstandingRes[0].sum || "0"));
-    const expected = parseFloat(String(expectedRes[0].sum || "0"));
     const collected = parseFloat(String(collectedRes[0].sum || "0"));
+    const lentThisMonth = parseFloat(String(lentThisMonthRes[0].sum || "0"));
+    const remainingThisMonth = parseFloat(String(remainingThisMonthRes[0].sum || "0"));
 
     const workingCapitalCurrent =
         parseFloat(baseWorkingCapital) - principalIssued + totalCollectedAllTime;
+
+    // Net worth = cash on hand + outstanding receivables
+    const netWorth = workingCapitalCurrent + outstanding;
 
     return {
         activeLoans: activeLoansRes[0].count || 0,
         overdueLoans: overdueLoansRes[0].count || 0,
         capitalOutstanding: outstanding,
-        expectedThisCycle: expected,
         collectedThisMonth: collected,
+        lentThisMonth,
+        remainingThisMonth,
+        netWorth,
         workingCapitalBase: baseWorkingCapital,
         workingCapitalCurrent,
     };

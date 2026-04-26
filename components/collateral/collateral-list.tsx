@@ -86,7 +86,6 @@ export function CollateralList({ loanId, items = [] }: { loanId: string; items: 
             ) : (
                 <div className="p-6 rounded-2xl bg-zinc-50 dark:bg-zinc-900/10 border border-zinc-100 dark:border-zinc-800 animate-in fade-in zoom-in duration-200">
                     <CollateralUploader
-                        onCancel={() => setIsAdding(false)}
                         onAdd={(data) => addMutation.mutate(data)}
                     />
                 </div>

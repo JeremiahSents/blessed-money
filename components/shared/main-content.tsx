@@ -8,7 +8,7 @@ export function MainContent({ children }: { children: React.ReactNode }) {
     return (
         <main
             className={cn(
-                "pb-16 md:pb-0 md:pt-16 transition-all duration-200",
+                "pb-16 md:pb-0 transition-all duration-200",
                 collapsed ? "md:pl-16" : "md:pl-56"
             )}
         >

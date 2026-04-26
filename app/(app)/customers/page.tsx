@@ -17,7 +17,10 @@ export default function CustomersPage() {
                 title="Customers"
                 description="Manage your client base and view their profiles."
                 action={
-                    <Button onClick={() => setIsFormOpen(true)}>
+                    <Button
+                        onClick={() => setIsFormOpen(true)}
+                        className="w-full sm:w-auto h-12 sm:h-11 rounded-2xl px-5 text-sm font-semibold"
+                    >
                         <HugeiconsIcon icon={PlusSignIcon} className="w-4 h-4 mr-2" />
                         Add Customer
                     </Button>

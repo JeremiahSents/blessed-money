@@ -9,7 +9,7 @@ export default function AppLayout({
 }>) {
   return (
     <AdminGuard>
-      <div className="min-h-screen bg-zinc-50/50 dark:bg-zinc-950">
+      <div className="min-h-screen bg-zinc-100/70 dark:bg-zinc-950">
         <Navigation />
         <MainContent>{children}</MainContent>
       </div>

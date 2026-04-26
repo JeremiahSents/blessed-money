@@ -1,5 +1,5 @@
 import db from "@/core/db";
-import { customers, auditLogs, loans, billingCycles } from "@/core/db/schema";
+import { customers, loans, billingCycles } from "@/core/db/schema";
 import { ilike, or, desc, sql, and, ne } from "drizzle-orm";
 import { eq } from "drizzle-orm";
 
@@ -28,7 +28,8 @@ export async function findManyCustomers(opts: {
     const whereClause = search
         ? or(
             ilike(customers.name, `%${search}%`),
-            ilike(customers.phone, `%${search}%`)
+            ilike(customers.phone, `%${search}%`),
+            ilike(customers.id, `%${search}%`)
         )
         : undefined;
 
