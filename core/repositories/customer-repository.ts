@@ -29,7 +29,7 @@ export async function findManyCustomers(opts: {
         ? or(
             ilike(customers.name, `%${search}%`),
             ilike(customers.phone, `%${search}%`),
-            ilike(customers.id, `%${search}%`)
+            ilike(sql`${customers.id}::text`, `%${search}%`)
         )
         : undefined;
 
