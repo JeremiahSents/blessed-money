@@ -153,8 +153,8 @@ export function Navigation() {
       </aside>
 
       {/* ── MOBILE BOTTOM DOCK ── */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t bg-card pb-safe">
-        <div className="flex h-16 items-center justify-around px-2">
+      <nav className="md:hidden fixed inset-x-0 bottom-4 z-50 px-4 pb-safe pointer-events-none">
+        <div className="mx-auto flex h-16 max-w-sm items-center justify-around rounded-full border border-border/80 bg-card/95 px-2 shadow-2xl shadow-foreground/10 backdrop-blur-xl pointer-events-auto">
           {mobileNavItems.map((item) => {
             const isActive =
               item.url === "/"
@@ -164,18 +164,16 @@ export function Navigation() {
               <Link
                 key={item.url}
                 href={item.url}
+                aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "flex flex-col items-center justify-center w-full h-full space-y-1 relative",
+                  "relative flex h-12 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-full text-[10px] font-medium transition-all duration-200",
                   isActive
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground dark:hover:text-muted-foreground",
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground dark:hover:text-muted-foreground",
                 )}
               >
                 <HugeiconsIcon icon={item.icon} className="w-5 h-5" />
-                <span className="text-[10px] font-medium">{item.title}</span>
-                {isActive && (
-                  <span className="absolute top-1 w-4 h-0.5 rounded-full bg-primary" />
-                )}
+                <span className="truncate leading-none">{item.title}</span>
               </Link>
             );
           })}

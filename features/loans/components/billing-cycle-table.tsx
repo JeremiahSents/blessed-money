@@ -32,7 +32,7 @@ function BillingCycleCard({ cycle }: { cycle: BillingCycle }) {
             <Button
                 variant="ghost"
                 onClick={() => setExpanded(v => !v)}
-                className="h-auto w-full justify-start text-left p-5 hover:bg-transparent"
+                className="h-auto w-full flex-col items-stretch justify-start text-left p-5 hover:bg-transparent"
             >
                 <div className="flex items-start justify-between gap-4">
                     <div className="flex flex-col gap-1">
