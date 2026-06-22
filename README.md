@@ -1,68 +1,62 @@
-# LendTrack
+# Blessed Money
 
-LendTrack is a personal loan portfolio management application built for a solo money lender. It provides a comprehensive dashboard, customer management, billing cycle tracking, collateral management, and Cent-based interest calculations.
+A simple, mobile-first app for a solo money lender. It does four things:
+
+1. **Give a loan** to a borrower
+2. **Record a payment** on a loan
+3. **Email a daily reminder** of payments due
+4. **Track** how much is out on loan and what each borrower still owes
+
+For how the code is organised, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## Technology Stack
-- **Framework:** Next.js 16 (App Router)
-- **Database:** Supabase (PostgreSQL) + Drizzle ORM
+- **Framework:** Next.js 16 (App Router) + TypeScript
+- **Database:** PostgreSQL + Drizzle ORM
 - **Authentication:** Better Auth (Google OAuth)
-- **UI & Styling:** Tailwind CSS v4, shadcn/ui (base-nova with hugeicons), Lucide Icons
+- **UI:** Tailwind CSS v4, shadcn/ui (with hugeicons)
 - **Forms & Validation:** React Hook Form + Zod
 - **Data Fetching:** TanStack Query v5
-- **PDF Generation:** jsPDF + jspdf-autotable
+- **Email:** Resend
 
 ## Local Setup
 
 ### 1. Prerequisites
-- Node.js >= 20
-- A Supabase account and project
+- [Bun](https://bun.sh) (package manager + runner)
+- A PostgreSQL database (a `DATABASE_URL`)
 - A Google Cloud project (for OAuth credentials)
 
 ### 2. Environment Variables
-Copy the `.env.example` file to a new `.env` file:
-```bash
-cp .env.example .env
+Create a `.env` file with at least:
 ```
-Fill in the placeholders with your actual Supabase and Google OAuth credentials.
-
-### 3. Supabase Storage Setup
-1. Go to your Supabase project dashboard -> Storage.
-2. Create two new buckets:
-   - `customer-ids`
-   - `collateral-docs`
-3. Both buckets should be **private** (the application server uses the Service Role key to generate Signed URLs for secure viewing).
-
-### 4. Database Setup
-Ensure your local `.env` has the correct `DATABASE_URL`. Run the Drizzle migrations to set up the schema:
-```bash
-npm run db:push
-```
-Or generate and apply migrations:
-```bash
-npx drizzle-kit generate
-npx drizzle-kit migrate
+DATABASE_URL=...
+BETTER_AUTH_SECRET=...
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+CRON_SECRET=...            # protects the cron routes
+RESEND_API_KEY=...         # optional — daily reminder emails
+ADMIN_EMAIL=...            # who receives the daily reminders
 ```
 
-### 5. Seeding Dummy Data (Optional)
-To test the application out of the box with sample data:
+### 3. Database
 ```bash
-npx tsx scripts/seed.ts
+bun run push          # apply the schema to your database
 ```
 
-### 6. Start the Development Server
+### 4. Run it
 ```bash
-npm run dev
+bun install
+bun run dev           # http://localhost:3000
 ```
-Visit `http://localhost:3000`.
 
-## Automated Nightly Rollover (Cron)
-LendTrack includes an automated cron job route that rolls over billing cycles when they expire, capitalizing interest and marking accounts as overdue if they miss payments.
-- **Route:** `POST /api/cron/rollover`
-- **Security:** Requires a Bearer token matching your `CRON_SECRET` environment variable.
-- **Vercel Setup:** If deploying to Vercel, configure a Cron Job in your `vercel.json` pointing to this route to run every night at midnight.
+## Background Jobs (Cron)
+- `POST /api/cron/rollover` — rolls over expired billing cycles (capitalises unpaid interest,
+  marks accounts overdue).
+- `POST /api/cron/daily-reminders` — emails the lender the list of payments due today.
 
-## Domain Logic: Interest Calculation Engine
-The application engine uses strict Cent-based arithmetic (`BigInt`) for all financial operations. This ensures zero floating-point drift over the lifetime of a loan.
-The logic resides in `lib/interest.ts`, and is heavily tested via Vitest (`lib/interest.test.ts`).
-1. **Cycle 1:** Computes interest on the original Principal.
-2. ** Rollover (Cycle 2+):** If a cycle is unpaid or partially paid by its due date, the remaining *Balance* (Principal + Unpaid Interest) becomes the *Opening Principal* for the next cycle. Interest is applied to this new amount. By doing this, the system mathematically acts as a compound interest model, which is the standard methodology for local money lenders.
+Both require a `Authorization: Bearer <CRON_SECRET>` header. On Vercel, schedule them in
+`vercel.json`.
+
+## Interest Engine
+All money math uses cent-based `BigInt` arithmetic (zero floating-point drift). The logic lives in
+[lib/interest.ts](lib/interest.ts). When a cycle is unpaid by its due date, the remaining balance
+becomes the opening principal of the next cycle (a compound model, standard for local lenders).

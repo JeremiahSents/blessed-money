@@ -32,6 +32,9 @@ export default function RootLayout({
       className={cn("antialiased", fontMono.variable, "font-sans", dmSans.variable, geistHeading.variable)}
     >
       <body>
+        <head>
+          <meta name="apple-mobile-web-app-title" content="Blessed" />
+        </head>
         <Providers>
           <AppShell>{children}</AppShell>
         </Providers>
