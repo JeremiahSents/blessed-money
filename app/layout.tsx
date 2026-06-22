@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist_Mono, IBM_Plex_Sans, Roboto } from "next/font/google"
+import { Geist_Mono, IBM_Plex_Sans, Roboto, DM_Sans, Geist } from "next/font/google"
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/sonner";
@@ -8,9 +8,9 @@ import { extractRouterConfig } from "uploadthing/server";
 import { ourFileRouter } from "@/app/api/uploadthing/core";
 import { cn } from "@/lib/utils";
 
-const robotoHeading = Roboto({subsets:['latin'],variable:'--font-heading'});
+const geistHeading = Geist({subsets:['latin'],variable:'--font-heading'});
 
-const ibmPlexSans = IBM_Plex_Sans({subsets:['latin'],variable:'--font-sans'})
+const dmSans = DM_Sans({subsets:['latin'],variable:'--font-sans'})
 
 const fontMono = Geist_Mono({
   subsets: ["latin"],
@@ -31,7 +31,7 @@ export default function RootLayout({
       <html
       lang="en"
       suppressHydrationWarning
-      className={cn("antialiased", fontMono.variable, "font-sans", ibmPlexSans.variable, robotoHeading.variable)}
+      className={cn("antialiased", fontMono.variable, "font-sans", dmSans.variable, geistHeading.variable)}
     >
       <body>
         <Providers>
