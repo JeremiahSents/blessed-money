@@ -20,7 +20,7 @@ import { DashboardPageSkeleton } from "@/components/shared/page-skeletons";
 import { NewLoanSheet } from "@/features/loans/components/new-loan-sheet";
 import { PaymentForm } from "@/features/loans/components/payment-form";
 import { PersonAvatar } from "@/components/shared/person-avatar";
-import { cn, formatCurrency, formatCompactCurrency, formatDate, getGreeting } from "@/lib/utils";
+import { cn, formatCurrency, formatDate, getGreeting } from "@/lib/utils";
 import { authClient } from "@/lib/auth-client";
 import { buildActivityFeed, type ActivityKind, type FeedItem } from "@/features/dashboard/lib/activity";
 
@@ -128,10 +128,10 @@ export default function DashboardPage() {
                 </Card>
 
                 {/* Four equal tiles */}
-                <StatTile icon={CheckmarkCircle02Icon} label="Collected this month" value={formatCompactCurrency(collected)} accent />
-                <StatTile icon={Coins01Icon} label="Due this month" value={formatCompactCurrency(dueThisMonth)} />
-                <StatTile icon={Wallet01Icon} label="Cash on hand" value={formatCompactCurrency(cashOnHand)} />
-                <StatTile icon={MoneyReceive01Icon} label="Lent this month" value={formatCompactCurrency(parseFloat(String(stats.lentThisMonth || 0)))} />
+                <StatTile icon={CheckmarkCircle02Icon} label="Collected this month" value={formatCurrency(collected)} accent />
+                <StatTile icon={Coins01Icon} label="Due this month" value={formatCurrency(dueThisMonth)} />
+                <StatTile icon={Wallet01Icon} label="Cash on hand" value={formatCurrency(cashOnHand)} />
+                <StatTile icon={MoneyReceive01Icon} label="Lent this month" value={formatCurrency(parseFloat(String(stats.lentThisMonth || 0)))} />
             </div>
 
             {/* Primary action */}
@@ -209,21 +209,19 @@ function StatTile({
     accent?: boolean;
 }) {
     return (
-        <div className="rounded-3xl border border-border bg-card p-5 flex flex-col justify-between min-h-[112px]">
-            <div className={cn(
-                "w-9 h-9 rounded-2xl flex items-center justify-center",
-                accent ? "bg-success/10 text-success" : "bg-muted text-muted-foreground",
-            )}>
-                <HugeiconsIcon icon={icon} className="w-4 h-4" />
-            </div>
-            <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground leading-tight">
+        <div className="rounded-3xl border border-border bg-card p-4 flex flex-col justify-between min-h-[104px]">
+            <div className="flex items-center gap-1.5">
+                <HugeiconsIcon
+                    icon={icon}
+                    className={cn("w-4 h-4 shrink-0", accent ? "text-success" : "text-muted-foreground")}
+                />
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground leading-tight">
                     {label}
                 </p>
-                <p className="text-xl font-bold tabular-nums text-foreground leading-none mt-1.5">
-                    {value}
-                </p>
             </div>
+            <p className="text-base font-bold tabular-nums text-foreground leading-none mt-2">
+                {value}
+            </p>
         </div>
     );
 }
@@ -232,8 +230,8 @@ function ActivityRow({ item, onCollect }: { item: FeedItem; onCollect?: () => vo
     const style = KIND_STYLE[item.kind];
     return (
         <Card className="rounded-2xl overflow-hidden">
-            <CardContent className="p-3.5 flex items-center gap-3">
-                <Link href={item.href} className="flex items-center gap-3 min-w-0 flex-1">
+            <CardContent className="p-3.5 flex items-start gap-3">
+                <Link href={item.href} className="flex items-start gap-3 min-w-0 flex-1">
                     <div className="relative shrink-0">
                         <PersonAvatar seed={item.customerId ?? item.name} name={item.name} className="w-11 h-11" />
                         <span className={cn(
@@ -244,11 +242,11 @@ function ActivityRow({ item, onCollect }: { item: FeedItem; onCollect?: () => vo
                         </span>
                     </div>
                     <div className="min-w-0">
-                        <p className="font-semibold text-sm truncate capitalize">{item.name}</p>
-                        <p className="text-xs text-muted-foreground truncate mt-0.5">
-                            {item.label}
-                            {item.date && <span className="text-muted-foreground/70"> · {formatDate(item.date)}</span>}
-                        </p>
+                        <p className="font-semibold text-sm capitalize leading-snug line-clamp-2">{item.name}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{item.label}</p>
+                        {item.date && (
+                            <p className="text-xs text-muted-foreground/70 mt-0.5">{formatDate(item.date)}</p>
+                        )}
                     </div>
                 </Link>
                 {onCollect ? (

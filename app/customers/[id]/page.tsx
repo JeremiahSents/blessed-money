@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { CustomerForm } from "@/features/customers/components/customer-form";
 import { DetailPageSkeleton } from "@/components/shared/page-skeletons";
 import { PersonAvatar } from "@/components/shared/person-avatar";
-import { formatCurrency, formatDate, cn } from "@/lib/utils";
+import { formatCurrency, formatCompactCurrency, formatDate, cn } from "@/lib/utils";
 import type { BillingCycle, Customer, LoanSummary, Payment } from "@/lib/types";
 
 import { useState, use } from "react";
@@ -130,9 +130,9 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
 
                 {/* The money, as a flat divided row — not three cards */}
                 <div className="mt-6 grid grid-cols-3 divide-x divide-border rounded-2xl border border-border bg-card py-4">
-                    <Stat label="Total lent" value={formatCurrency(totalLent)} />
-                    <Stat label="Repaid" value={formatCurrency(totalPaid)} tone="text-primary" />
-                    <Stat label="Outstanding" value={formatCurrency(balance)} tone={balance > 0 ? "text-foreground" : "text-success"} />
+                    <Stat label="Total lent" value={formatCompactCurrency(totalLent)} />
+                    <Stat label="Repaid" value={formatCompactCurrency(totalPaid)} tone="text-primary" />
+                    <Stat label="Outstanding" value={formatCompactCurrency(balance)} tone={balance > 0 ? "text-foreground" : "text-success"} />
                 </div>
             </div>
 
@@ -162,13 +162,13 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
                 </Fact>
             </div>
 
-            {/* Internal notes — light, only if present */}
+            {/* Internal notes — only if present */}
             {customer.notes && (
                 <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground mb-2 px-1">Internal notes</p>
-                    <p className="text-sm leading-relaxed text-foreground italic bg-muted/60 rounded-2xl p-4 border border-border">
-                        &quot;{customer.notes}&quot;
-                    </p>
+                    <h2 className="text-sm font-semibold text-foreground mb-3 px-1">Internal notes</h2>
+                    <div className="rounded-2xl border border-border bg-card p-4">
+                        <p className="text-sm leading-relaxed text-muted-foreground">{customer.notes}</p>
+                    </div>
                 </div>
             )}
 
