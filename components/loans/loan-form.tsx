@@ -365,9 +365,9 @@ export function LoanForm() {
                                                             date < new Date("1900-01-01")
                                                         }
                                                         captionLayout="dropdown"
-                                                        fromYear={2024}
-                                                        toYear={2045}
-                                                        initialFocus
+                                                        startMonth={new Date(2024, 0)}
+                                                        endMonth={new Date(2045, 11)}
+                                                        autoFocus
                                                     />
                                                 </PopoverContent>
                                             </Popover>
@@ -416,9 +416,9 @@ export function LoanForm() {
                                                             date < (form.getValues("startDate") || new Date())
                                                         }
                                                         captionLayout="dropdown"
-                                                        fromYear={2024}
-                                                        toYear={2045}
-                                                        initialFocus
+                                                        startMonth={new Date(2024, 0)}
+                                                        endMonth={new Date(2045, 11)}
+                                                        autoFocus
                                                     />
                                                 </PopoverContent>
                                             </Popover>
