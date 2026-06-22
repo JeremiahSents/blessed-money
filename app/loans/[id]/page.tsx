@@ -168,7 +168,7 @@ export default function LoanDetailPage(props: { params: Promise<{ id: string }> 
             </div>
 
             {/* Main Stacked Sections */}
-            <div className="space-y-16">
+            <div className="space-y-10">
                 {/* Recent Activity: next payment + past payments */}
                 <section className="space-y-6">
                     <div className="flex items-center gap-3 border-b border-border pb-4 text-foreground">
@@ -190,7 +190,7 @@ export default function LoanDetailPage(props: { params: Promise<{ id: string }> 
                                     "w-11 h-11 rounded-2xl flex items-center justify-center shrink-0",
                                     isOverdue ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"
                                 )}>
-                                    <HugeiconsIcon icon={Alert02Icon} className="w-5 h-5" />
+                                    <HugeiconsIcon icon={isOverdue ? Alert02Icon : Calendar04Icon} className="w-5 h-5" />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 mb-1">
@@ -285,13 +285,14 @@ export default function LoanDetailPage(props: { params: Promise<{ id: string }> 
                 balance={nextPaymentDue ? parseFloat(nextPaymentDue.balance) : 0}
             />
 
-            {/* Mobile sticky payment bar */}
+            {/* Mobile collect button — floats just above the bottom dock */}
             {loan.status !== 'settled' && (
-                <div className="md:hidden fixed bottom-16 left-0 right-0 z-40 px-4 pb-4 pt-4 bg-card backdrop-blur-xl border-t border-border">
+                <div className="md:hidden fixed inset-x-0 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-40 px-4 pointer-events-none">
                     <Button
-                        className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/20"
+                        className="w-full max-w-sm mx-auto pointer-events-auto h-12 rounded-2xl bg-primary text-primary-foreground font-semibold text-sm shadow-2xl shadow-primary/30"
                         onClick={() => setIsPaymentOpen(true)}
                     >
+                        <HugeiconsIcon icon={MoneyReceive01Icon} className="w-4 h-4 mr-2" />
                         Collect Payment
                     </Button>
                 </div>

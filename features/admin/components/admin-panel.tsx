@@ -1,18 +1,13 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/errors";
 import { PersonAvatar } from "@/components/shared/person-avatar";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { UserMultipleIcon } from "@hugeicons/core-free-icons";
 
 interface UserRecord {
   id: string;
@@ -62,57 +57,64 @@ export function AdminPanel() {
   });
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>User Access</CardTitle>
-        <CardDescription>
-          Grant admin access so users can log in and use Blessed. Users without
-          admin access will be sent to onboarding.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {isLoading ? (
-          <p className="text-sm text-muted-foreground">Loading users...</p>
-        ) : (
-          <div className="space-y-3">
-            {usersData?.data?.map((u) => (
-              <div
-                key={u.id}
-                className="flex items-center justify-between gap-3 p-3 rounded-xl border border-border"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <PersonAvatar seed={u.id} name={u.name} className="w-9 h-9 shrink-0" />
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium truncate">{u.name}</p>
-                      {u.isAdmin && (
-                        <Badge className="text-[10px] px-1.5 py-0 shrink-0">
-                          Admin
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground truncate">{u.email}</p>
-                  </div>
-                </div>
-                <Button
-                  size="sm"
-                  variant={u.isAdmin ? "destructive" : "outline"}
-                  onClick={() =>
-                    toggleAdminMutation.mutate({
-                      userId: u.id,
-                      isAdmin: !u.isAdmin,
-                    })
-                  }
-                  disabled={toggleAdminMutation.isPending}
-                  className="shrink-0"
-                >
-                  {u.isAdmin ? "Remove Access" : "Grant Access"}
-                </Button>
+    <div className="space-y-4">
+      <div>
+        <div className="flex items-center gap-2.5 text-foreground">
+          <HugeiconsIcon icon={UserMultipleIcon} className="w-5 h-5" />
+          <h2 className="text-lg font-semibold">User access</h2>
+        </div>
+        <p className="text-sm text-muted-foreground mt-1.5">
+          Grant access so people can log in. Anyone without access is sent to onboarding.
+        </p>
+      </div>
+
+      {isLoading ? (
+        <div className="rounded-2xl border border-border bg-card divide-y divide-border overflow-hidden">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-3 px-4 py-3.5">
+              <div className="w-9 h-9 rounded-full bg-muted shrink-0" />
+              <div className="flex-1 space-y-2">
+                <div className="h-3.5 w-28 rounded-full bg-muted" />
+                <div className="h-3 w-40 rounded-full bg-muted" />
               </div>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-border bg-card divide-y divide-border overflow-hidden">
+          {usersData?.data?.map((u) => (
+            <div key={u.id} className="flex items-center gap-3.5 px-4 py-3.5">
+              <PersonAvatar seed={u.id} name={u.name} className="w-10 h-10 shrink-0" />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-semibold truncate">{u.name}</p>
+                  {u.isAdmin && (
+                    <Badge className="h-5 rounded-full px-2 text-[10px] font-semibold uppercase tracking-wide border-none bg-success/10 text-success shrink-0">
+                      Admin
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground truncate">{u.email}</p>
+              </div>
+              <Button
+                size="sm"
+                variant={u.isAdmin ? "ghost" : "secondary"}
+                onClick={() =>
+                  toggleAdminMutation.mutate({ userId: u.id, isAdmin: !u.isAdmin })
+                }
+                disabled={toggleAdminMutation.isPending}
+                className={
+                  u.isAdmin
+                    ? "shrink-0 h-9 rounded-xl px-3 text-xs font-semibold text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    : "shrink-0 h-9 rounded-xl px-3 text-xs font-semibold border border-border bg-card"
+                }
+              >
+                {u.isAdmin ? "Remove" : "Grant access"}
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

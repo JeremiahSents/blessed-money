@@ -1,11 +1,8 @@
 "use client";
 
-import { useDeferredValue, useState } from "react";
+import { useDeferredValue, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { Search01Icon } from "@hugeicons/core-free-icons";
-import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,13 +13,17 @@ import { CustomerCard } from "@/features/customers/components/customer-card";
 import type { Customer } from "@/lib/types";
 import { cn, formatCurrency } from "@/lib/utils";
 
-export function CustomerTable() {
+export function CustomerTable({ search = "" }: { search?: string }) {
     const router = useRouter();
     const isMobile = useIsMobile();
-    const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
     const limit = 10;
     const deferredSearch = useDeferredValue(search);
+
+    // Reset to the first page whenever the active search changes.
+    useEffect(() => {
+        setPage(1);
+    }, [deferredSearch]);
 
     const { data, isLoading, isError } = useQuery<{ data: Customer[]; meta: { totalPages: number } }>({
         queryKey: ["customers", deferredSearch, page],
@@ -71,49 +72,40 @@ export function CustomerTable() {
 
     return (
         <div className="space-y-4 md:space-y-5">
-            <div className="relative">
-                <HugeiconsIcon
-                    icon={Search01Icon}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none"
-                />
-                <Input
-                    placeholder="Search by name, phone, or ID..."
-                    value={search}
-                    onChange={(e) => {
-                        setSearch(e.target.value);
-                        setPage(1);
-                    }}
-                    className="pl-10 h-12 md:h-11 rounded-2xl md:rounded-full md:max-w-lg border-border bg-card shadow-sm dark:shadow-none focus-visible:ring-primary/20"
-                />
-            </div>
+            {deferredSearch && (
+                <p className="text-xs text-muted-foreground px-1">
+                    Showing results for <span className="font-semibold text-foreground">{deferredSearch}</span>
+                </p>
+            )}
 
             {isMobile ? (
-                <div className="space-y-3">
+                <div className="space-y-4">
                     {isLoading ? (
-                        Array.from({ length: 5 }).map((_, i) => (
-                            <div
-                                key={i}
-                                className="flex items-center gap-4 p-4 rounded-2xl border border-border bg-card shadow-sm dark:shadow-none"
-                            >
-                                <Skeleton className="w-11 h-11 rounded-full shrink-0" />
-                                <div className="flex-1 space-y-2">
-                                    <Skeleton className="h-4 w-32 rounded-full" />
-                                    <Skeleton className="h-3 w-24 rounded-full" />
+                        <div className="rounded-2xl border border-border bg-card divide-y divide-border overflow-hidden">
+                            {Array.from({ length: 6 }).map((_, i) => (
+                                <div key={i} className="flex items-center gap-3.5 px-4 py-3.5">
+                                    <Skeleton className="w-10 h-10 rounded-full shrink-0" />
+                                    <div className="flex-1 space-y-2">
+                                        <Skeleton className="h-4 w-32 rounded-full" />
+                                        <Skeleton className="h-3 w-24 rounded-full" />
+                                    </div>
+                                    <div className="space-y-2 text-right">
+                                        <Skeleton className="h-4 w-20 rounded-full ml-auto" />
+                                        <Skeleton className="h-3 w-12 rounded-full ml-auto" />
+                                    </div>
                                 </div>
-                                <div className="space-y-2 text-right">
-                                    <Skeleton className="h-3 w-16 rounded-full ml-auto" />
-                                    <Skeleton className="h-4 w-8 rounded-full ml-auto" />
-                                </div>
-                            </div>
-                        ))
+                            ))}
+                        </div>
                     ) : isError ? (
                         <p className="text-center text-destructive py-8">Failed to load customers.</p>
                     ) : data?.data?.length === 0 ? (
                         <p className="text-center text-muted-foreground py-8">No customers found.</p>
                     ) : (
-                        data?.data?.map((customer) => (
-                            <CustomerCard key={customer.id} customer={customer} />
-                        ))
+                        <div className="rounded-2xl border border-border bg-card divide-y divide-border overflow-hidden">
+                            {data?.data?.map((customer) => (
+                                <CustomerCard key={customer.id} customer={customer} />
+                            ))}
+                        </div>
                     )}
                     {pagination}
                 </div>

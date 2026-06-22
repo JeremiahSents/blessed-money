@@ -18,18 +18,31 @@ import { LoanForm } from "@/features/loans/components/loan-form";
  * (desktop) containing the loan form. On success the form navigates to the new
  * loan, which closes the sheet.
  */
-export function NewLoanSheet() {
-    const [open, setOpen] = useState(false);
+export function NewLoanSheet({
+    open: controlledOpen,
+    onOpenChange,
+    showTrigger = true,
+}: {
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+    showTrigger?: boolean;
+} = {}) {
+    const [internalOpen, setInternalOpen] = useState(false);
+    const isControlled = controlledOpen !== undefined;
+    const open = isControlled ? controlledOpen : internalOpen;
+    const setOpen = onOpenChange ?? setInternalOpen;
 
     return (
         <>
-            <Button
-                onClick={() => setOpen(true)}
-                className="h-14 w-full sm:w-auto px-6 rounded-2xl text-base font-semibold shadow-lg shadow-primary/20"
-            >
-                <HugeiconsIcon icon={PlusSignIcon} className="w-5 h-5 mr-2" />
-                Give a loan
-            </Button>
+            {showTrigger && (
+                <Button
+                    onClick={() => setOpen(true)}
+                    className="h-14 w-full sm:w-auto px-6 rounded-2xl text-base font-semibold shadow-lg shadow-primary/20"
+                >
+                    <HugeiconsIcon icon={PlusSignIcon} className="w-5 h-5 mr-2" />
+                    Give a loan
+                </Button>
+            )}
 
             <Sheet open={open} onOpenChange={setOpen}>
                 <SheetContent

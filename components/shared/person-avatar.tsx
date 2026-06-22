@@ -80,8 +80,8 @@ export function PersonAvatar({
     const mouthStyle = (h >> 9) % 4;
 
     return (
-        <Avatar className={cn("rounded-full", className)}>
-            <svg viewBox="0 0 100 100" className="h-full w-full" role="img" aria-label={name ? `${name}'s avatar` : "avatar"}>
+        <Avatar className={cn("overflow-hidden rounded-full", className)}>
+            <svg viewBox="0 0 100 100" className="size-full" role="img" aria-label={name ? `${name}'s avatar` : "avatar"}>
                 <rect width="100" height="100" fill={bg} />
                 {/* neck + shoulders */}
                 <path d="M30 100c0-12 9-20 20-20s20 8 20 20z" fill={skin} opacity="0.9" />

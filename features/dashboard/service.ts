@@ -123,14 +123,12 @@ export async function getDashboardData() {
         getOverdueList(),
     ]);
 
-    const activity = [
+    const activity = ([
         ...recentPayments.map((p) => ({ type: "PAYMENT" as const, date: p.createdAt, data: p })),
         ...recentLoans.map((l) => ({ type: "LOAN" as const, date: l.createdAt, data: l })),
-    ] as ActivityItem[];
-
-    activity
+    ] as ActivityItem[])
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-        .slice(0, 10);
+        .slice(0, 12);
 
     return { stats, activity, overdueLoansList };
 }

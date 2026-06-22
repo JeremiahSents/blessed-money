@@ -29,18 +29,18 @@ export const friendlyStatus: Record<string, string> = {
 export const displayStatus = (s: string) => friendlyStatus[s] ?? s;
 
 export function formatCompactCurrency(amount: number): string {
-  if (amount === 0) return "UGX 0";
+  if (amount === 0) return "USh 0";
   const abs = Math.abs(amount);
   const sign = amount < 0 ? "-" : "";
   if (abs >= 1_000_000) {
     const val = abs / 1_000_000;
-    return `${sign}UGX ${val % 1 === 0 ? val.toFixed(0) : val.toFixed(1)}M`;
+    return `${sign}USh ${val % 1 === 0 ? val.toFixed(0) : val.toFixed(1)}M`;
   }
   if (abs >= 1_000) {
     const val = abs / 1_000;
-    return `${sign}UGX ${val % 1 === 0 ? val.toFixed(0) : val.toFixed(1)}K`;
+    return `${sign}USh ${val % 1 === 0 ? val.toFixed(0) : val.toFixed(1)}K`;
   }
-  return `${sign}UGX ${abs.toLocaleString()}`;
+  return `${sign}USh ${abs.toLocaleString()}`;
 }
 
 export function getGreeting(): string {

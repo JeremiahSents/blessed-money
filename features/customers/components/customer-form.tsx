@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ResponsiveModal } from "@/components/shared/responsive-modal";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -89,15 +89,19 @@ export function CustomerForm({ open, onOpenChange, defaultValues, onSuccess }: C
     };
 
     return (
-        <ResponsiveModal
-            open={open}
-            onOpenChange={onOpenChange}
-            title={isEditing ? "Edit Customer" : "New Customer"}
-            description={isEditing ? "Update customer details below." : "Enter the details for the new customer."}
-        >
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent showCloseButton={false} className="rounded-3xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                    <DialogTitle className="text-lg font-semibold">
+                        {isEditing ? "Edit customer" : "New customer"}
+                    </DialogTitle>
+                    <DialogDescription>
+                        {isEditing ? "Update customer details below." : "Enter the details for the new customer."}
+                    </DialogDescription>
+                </DialogHeader>
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-2">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                        <div className="grid grid-cols-1 gap-5">
                             <FormField
                                 control={form.control}
                                 name="name"
@@ -138,16 +142,27 @@ export function CustomerForm({ open, onOpenChange, defaultValues, onSuccess }: C
                                 </FormItem>
                             )}
                         />
-                        <div className="flex justify-end space-x-2">
-                            <Button variant="outline" type="button" onClick={() => onOpenChange(false)} disabled={mutation.isPending}>
+                        <div className="flex gap-2 pt-1">
+                            <Button
+                                variant="outline"
+                                type="button"
+                                onClick={() => onOpenChange(false)}
+                                disabled={mutation.isPending}
+                                className="flex-1 h-11 rounded-xl font-semibold"
+                            >
                                 Cancel
                             </Button>
-                            <Button type="submit" disabled={mutation.isPending}>
-                                {mutation.isPending ? "Saving..." : "Save Customer"}
+                            <Button
+                                type="submit"
+                                disabled={mutation.isPending}
+                                className="flex-1 h-11 rounded-xl font-semibold"
+                            >
+                                {mutation.isPending ? "Saving..." : isEditing ? "Save" : "Save customer"}
                             </Button>
                         </div>
                     </form>
                 </Form>
-        </ResponsiveModal>
+            </DialogContent>
+        </Dialog>
     );
 }

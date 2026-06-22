@@ -6,11 +6,11 @@ import {
     PencilEdit01Icon,
     ArrowLeft01Icon,
     TelephoneIcon,
-    Coins01Icon,
-    Task01Icon,
-    InformationCircleIcon,
     Calendar04Icon,
-    PlusSignIcon
+    TickDouble02Icon,
+    PlusSignIcon,
+    Alert02Icon,
+    ArrowRight01Icon,
 } from '@hugeicons/core-free-icons';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +18,7 @@ import { CustomerForm } from "@/features/customers/components/customer-form";
 import { DetailPageSkeleton } from "@/components/shared/page-skeletons";
 import { PersonAvatar } from "@/components/shared/person-avatar";
 import { formatCurrency, formatDate, cn } from "@/lib/utils";
-import type { BillingCycle, Customer, LoanSummary } from "@/lib/types";
+import type { BillingCycle, Customer, LoanSummary, Payment } from "@/lib/types";
 
 import { useState, use } from "react";
 import Link from "next/link";
@@ -50,6 +50,22 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
     const totalLent = parseFloat(customer.totalLent || "0");
     const balance = parseFloat(customer.outstandingBalance || "0");
 
+    const activeLoans = loans.filter((l) => l.status !== "settled");
+    const settledLoans = loans.filter((l) => l.status === "settled");
+    const hasOverdue = loans.some((l) => l.status === "overdue");
+
+    // Most recent payment across all of this person's loans.
+    const allPayments: Payment[] = loans.flatMap((l) => l.payments || []);
+    const lastPayment = allPayments
+        .slice()
+        .sort((a, b) => new Date(b.paidAt).getTime() - new Date(a.paidAt).getTime())[0];
+
+    // One-line read on where this relationship stands.
+    const standing = hasOverdue
+        ? { label: "Has overdue payments", tone: "bg-destructive/10 text-destructive", icon: Alert02Icon }
+        : activeLoans.length > 0
+            ? { label: "Paying on time", tone: "bg-success/10 text-success", icon: TickDouble02Icon }
+            : { label: "All loans cleared", tone: "bg-success/10 text-success", icon: TickDouble02Icon };
 
     const customerFormDefaults = {
         id: customer.id,
@@ -59,268 +75,173 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
     };
 
     return (
-        <div className="max-w-5xl mx-auto space-y-8 pb-24 px-4 sm:px-6">
-            <div className="pt-8 sm:pt-10">
+        <div className="max-w-3xl mx-auto space-y-8 px-1">
+            <div className="pt-2 md:pt-4">
                 <Link
                     href="/customers"
-                    className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors mb-8"
+                    className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors mb-6"
                 >
                     <HugeiconsIcon icon={ArrowLeft01Icon} className="w-3.5 h-3.5 mr-2" />
                     Back to Customers
                 </Link>
 
-                <section className="relative overflow-hidden rounded-[36px] border border-border bg-card shadow-sm dark:shadow-none">
-                    <div className="absolute -right-24 -top-20 h-64 w-64 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
-                    <div className="absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-success/10 blur-3xl pointer-events-none" />
-
-                    <div className="relative z-10 p-6 sm:p-8 xl:p-10 space-y-8">
-                        <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-6">
-                            <div className="flex items-start gap-4 sm:gap-5 min-w-0">
-                                <PersonAvatar seed={customer.id} name={customer.name} className="w-14 h-14 sm:w-16 sm:h-16 shrink-0" />
-                                <div className="min-w-0 pt-0.5 sm:pt-1">
-                                    <div className="flex flex-wrap items-center gap-2">
-                                        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight leading-none text-foreground capitalize">
-                                            {customer.name}
-                                        </h1>
-                                        <Badge className={cn(
-                                            "h-6 rounded-full px-2.5 text-[10px] font-semibold uppercase tracking-wider border-none shadow-none",
-                                            customer.isActive ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"
-                                        )}>
-                                            {customer.isActive ? "Active" : "Inactive"}
-                                        </Badge>
-                                    </div>
-                                    <p className="text-xs sm:text-sm font-medium text-muted-foreground mt-2">
-                                        Customer since {formatDate(customer.createdAt!)}
-                                        <span className="mx-2 text-muted-foreground">•</span>
-                                        {loans.length} loan{loans.length === 1 ? "" : "s"}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="grid w-full sm:w-auto grid-cols-1 sm:grid-cols-2 gap-2">
-                                <Button
-                                    variant="secondary"
-                                    size="sm"
-                                    className="h-11 rounded-2xl px-4 bg-muted border border-border font-semibold text-muted-foreground hover:text-foreground dark:hover:text-primary-foreground transition-all"
-                                    onClick={() => setIsEditOpen(true)}
-                                >
-                                    <HugeiconsIcon icon={PencilEdit01Icon} className="w-4 h-4 mr-2" />
-                                    Edit
-                                </Button>
-                                <Button
-                                    variant="default"
-                                    size="sm"
-                                    className="h-11 rounded-2xl px-4 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold border-none shadow-none"
-                                    onClick={() => router.push(`/loans/new?customer=${customer.id}`)}
-                                >
-                                    <HugeiconsIcon icon={PlusSignIcon} className="w-4 h-4 mr-2" />
-                                    New Loan
-                                </Button>
-                            </div>
+                {/* Identity + standing */}
+                <div className="flex items-start gap-4">
+                    <PersonAvatar seed={customer.id} name={customer.name} className="w-16 h-16 shrink-0" />
+                    <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground capitalize leading-none">
+                                {customer.name}
+                            </h1>
+                            {!customer.isActive && (
+                                <Badge className="h-5 rounded-full px-2 text-[10px] font-semibold uppercase tracking-wider border-none bg-muted text-muted-foreground">
+                                    Inactive
+                                </Badge>
+                            )}
                         </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="rounded-[28px] border border-border bg-muted p-5">
-                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Total Lent</p>
-                                <p className="text-2xl sm:text-[28px] font-semibold text-foreground tabular-nums mt-2">{formatCurrency(totalLent)}</p>
-                            </div>
-                            <div className="rounded-[28px] border border-border bg-card p-5">
-                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Total Repaid</p>
-                                <p className="text-2xl sm:text-[28px] font-semibold text-primary tabular-nums mt-2">{formatCurrency(totalPaid)}</p>
-                            </div>
-                            <div className="rounded-[28px] border border-border bg-muted p-5">
-                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Outstanding</p>
-                                <p className="text-2xl sm:text-[28px] font-semibold text-foreground tabular-nums mt-2">{formatCurrency(balance)}</p>
-                            </div>
-                        </div>
+                        <span className={cn(
+                            "inline-flex items-center gap-1.5 mt-2.5 rounded-full px-2.5 py-1 text-xs font-semibold",
+                            standing.tone,
+                        )}>
+                            <HugeiconsIcon icon={standing.icon} className="w-3.5 h-3.5" />
+                            {standing.label}
+                        </span>
                     </div>
-                </section>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
-                <div className="rounded-[32px] border border-border bg-card p-6 shadow-sm dark:shadow-none">
-                    <div className="flex items-center gap-3 mb-5">
-                        <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                            <HugeiconsIcon icon={TelephoneIcon} className="w-4 h-4" />
-                        </div>
-                        <div>
-                            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Phone Number</p>
-                            <p className="text-sm text-muted-foreground">Primary contact for payment follow-up</p>
-                        </div>
-                    </div>
-                    <p className="text-base font-semibold text-foreground tabular-nums">
-                        {customer.phone || "No phone provided"}
-                    </p>
                 </div>
 
-                {customer.notes ? (
-                    <div className="rounded-[32px] border border-border bg-muted p-6 shadow-sm dark:shadow-none">
-                        <div className="flex items-center gap-3 mb-5">
-                            <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                                <HugeiconsIcon icon={InformationCircleIcon} className="w-4 h-4" />
-                            </div>
-                            <div>
-                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Internal Notes</p>
-                                <p className="text-sm text-muted-foreground">Private context for your team</p>
-                            </div>
-                        </div>
-                        <p className="text-sm leading-relaxed text-foreground italic">
-                            &quot;{customer.notes}&quot;
-                        </p>
-                    </div>
-                ) : (
-                    <div className="rounded-[32px] border border-dashed border-border bg-transparent p-6 flex items-center justify-center text-center text-sm text-muted-foreground">
-                        No internal notes recorded.
-                    </div>
-                )}
+                {/* Actions */}
+                <div className="grid grid-cols-2 gap-2 mt-5">
+                    <Button
+                        variant="secondary"
+                        className="h-11 rounded-2xl bg-muted border border-border font-semibold text-muted-foreground hover:text-foreground"
+                        onClick={() => setIsEditOpen(true)}
+                    >
+                        <HugeiconsIcon icon={PencilEdit01Icon} className="w-4 h-4 mr-2" />
+                        Edit
+                    </Button>
+                    <Button
+                        className="h-11 rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90 font-semibold"
+                        onClick={() => router.push(`/loans/new?customer=${customer.id}`)}
+                    >
+                        <HugeiconsIcon icon={PlusSignIcon} className="w-4 h-4 mr-2" />
+                        New Loan
+                    </Button>
+                </div>
+
+                {/* The money, as a flat divided row — not three cards */}
+                <div className="mt-6 grid grid-cols-3 divide-x divide-border rounded-2xl border border-border bg-card py-4">
+                    <Stat label="Total lent" value={formatCurrency(totalLent)} />
+                    <Stat label="Repaid" value={formatCurrency(totalPaid)} tone="text-primary" />
+                    <Stat label="Outstanding" value={formatCurrency(balance)} tone={balance > 0 ? "text-foreground" : "text-success"} />
+                </div>
             </div>
 
-            <div className="space-y-6">
-                <section className="space-y-5">
-                    <div className="flex items-center justify-between gap-4 border-b border-border pb-4">
-                        <div className="flex items-center gap-3 text-foreground">
-                            <HugeiconsIcon icon={Task01Icon} className="w-5 h-5" />
-                            <h2 className="text-xl font-semibold">Loan Portfolio</h2>
-                        </div>
-                        <Badge variant="outline" className="h-6 rounded-full px-2.5 border-border text-[10px] font-semibold uppercase tracking-wider">
-                            {loans.length} total loans
-                        </Badge>
+            {/* Person-to-person facts — plain rows, no cards */}
+            <div className="divide-y divide-border rounded-2xl border border-border bg-card px-4">
+                <Fact icon={TelephoneIcon} label="Phone">
+                    {customer.phone ? (
+                        <a href={`tel:${customer.phone}`} className="text-sm font-semibold text-primary tabular-nums hover:underline">
+                            {customer.phone}
+                        </a>
+                    ) : (
+                        <span className="text-sm text-muted-foreground">Not provided</span>
+                    )}
+                </Fact>
+                <Fact icon={Calendar04Icon} label="Customer since">
+                    <span className="text-sm font-medium text-foreground">{formatDate(customer.createdAt!)}</span>
+                </Fact>
+                <Fact icon={TickDouble02Icon} label="Last payment">
+                    <span className="text-sm font-medium text-foreground">
+                        {lastPayment ? `${formatCurrency(parseFloat(lastPayment.amount))} · ${formatDate(lastPayment.paidAt)}` : "None yet"}
+                    </span>
+                </Fact>
+                <Fact icon={ArrowRight01Icon} label="Loans">
+                    <span className="text-sm font-medium text-foreground">
+                        {activeLoans.length} active · {settledLoans.length} settled
+                    </span>
+                </Fact>
+            </div>
+
+            {/* Internal notes — light, only if present */}
+            {customer.notes && (
+                <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground mb-2 px-1">Internal notes</p>
+                    <p className="text-sm leading-relaxed text-foreground italic bg-muted/60 rounded-2xl p-4 border border-border">
+                        &quot;{customer.notes}&quot;
+                    </p>
+                </div>
+            )}
+
+            {/* Loan portfolio — flat list rows */}
+            <div>
+                <div className="flex items-center justify-between mb-3 px-1">
+                    <h2 className="text-sm font-semibold text-foreground">Loans ({loans.length})</h2>
+                </div>
+
+                {loans.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-14 text-center bg-muted rounded-2xl border border-dashed border-border">
+                        <p className="text-sm font-semibold text-muted-foreground">No loans yet</p>
+                        <Button
+                            variant="link"
+                            className="text-primary font-semibold mt-1"
+                            onClick={() => router.push(`/loans/new?customer=${customer.id}`)}
+                        >
+                            Give the first loan
+                        </Button>
                     </div>
+                ) : (
+                    <div className="space-y-2.5">
+                        {loans.map((loan: LoanSummary) => {
+                            const lTotalDue = (loan.billingCycles || []).reduce((acc, c) => acc + parseFloat(c.totalDue), 0);
+                            const lTotalPaid = (loan.billingCycles || []).reduce((acc, c) => acc + parseFloat(c.totalPaid), 0);
+                            const rate = lTotalDue > 0 ? Math.min(100, (lTotalPaid / lTotalDue) * 100) : 0;
+                            const outstandingLoan = Math.max(0, lTotalDue - lTotalPaid);
+                            const isSettled = loan.status === "settled";
+                            const isOverdue = loan.status === "overdue";
+                            const accent = isSettled ? "bg-success" : isOverdue ? "bg-destructive" : "bg-primary";
 
-                    <div className="space-y-4">
-                        {loans.length > 0 ? (
-                            loans.map((loan: LoanSummary) => {
-                                const lTotalDue = (loan.billingCycles || []).reduce((acc: number, c: BillingCycle) => acc + parseFloat(c.totalDue), 0);
-                                const lTotalPaid = (loan.billingCycles || []).reduce((acc: number, c: BillingCycle) => acc + parseFloat(c.totalPaid), 0);
-                                const repaymentRate = lTotalDue > 0 ? (lTotalPaid / lTotalDue) * 100 : 0;
-                                const outstandingLoan = Math.max(0, lTotalDue - lTotalPaid);
-                                const isSettled = loan.status === "settled";
-                                const isOverdue = loan.status === "overdue";
-                                const accentClass = isSettled
-                                    ? "bg-success"
-                                    : isOverdue
-                                        ? "bg-destructive"
-                                        : "bg-primary";
-
-                                return (
-                                    <Link
-                                        key={loan.id}
-                                        href={`/loans/${loan.id}`}
-                                        className={cn(
-                                            "group relative block overflow-hidden rounded-[40px] border transition-all active:scale-[0.99]",
-                                            isSettled
-                                                ? "bg-success/15 border-success/30 hover:border-success/30"
-                                                : isOverdue
-                                                    ? "bg-destructive/10 border-destructive/30 hover:border-destructive/30"
-                                                    : "bg-card border-border hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5"
-                                        )}
-                                    >
-                                        <div className={cn("absolute inset-y-0 left-0 w-1.5", accentClass)} />
-                                        <div className="p-5 sm:p-6 pl-6 sm:pl-7 space-y-5">
-                                            <div className="flex items-start justify-between gap-5">
-                                                <div className="min-w-0 space-y-2">
-                                                    <div className="flex flex-wrap items-center gap-2">
-                                                        <Badge className={cn(
-                                                            "h-5 rounded-full px-2 text-[9px] font-semibold uppercase border-none shadow-none",
-                                                            isSettled ? "bg-success text-primary-foreground" :
-                                                                isOverdue ? "bg-destructive text-primary-foreground" :
-                                                                    "bg-muted text-muted-foreground"
-                                                        )}>
-                                                            {loan.status}
-                                                        </Badge>
-                                                    </div>
-                                                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[10px] sm:text-[11px] font-semibold uppercase">
-                                                        <div className={cn(
-                                                            "flex items-center gap-1.5 whitespace-nowrap",
-                                                            isSettled ? "text-success/70" : isOverdue ? "text-destructive/70" : "text-muted-foreground"
-                                                        )}>
-                                                            <HugeiconsIcon icon={Calendar04Icon} className="w-3.5 h-3.5 shrink-0" />
-                                                            <span className="truncate">{formatDate(loan.startDate)}</span>
-                                                        </div>
-                                                        <div className={cn(
-                                                            "flex items-center gap-1.5 whitespace-nowrap",
-                                                            isSettled ? "text-success" : isOverdue ? "text-destructive" : "text-foreground"
-                                                        )}>
-                                                            <HugeiconsIcon icon={Coins01Icon} className="w-3.5 h-3.5 shrink-0 opacity-60" />
-                                                            <span className="truncate">{formatCurrency(parseFloat(loan.principalAmount))}</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div className="flex items-center gap-4 shrink-0">
-                                                    <div className="text-right min-w-[76px]">
-                                                        <p className={cn(
-                                                            "text-lg font-semibold tabular-nums leading-none mb-1.5",
-                                                            repaymentRate >= 100 ? "text-success" :
-                                                                repaymentRate > 0 ? "text-primary" : "text-muted-foreground"
-                                                        )}>
-                                                            {repaymentRate.toFixed(0)}%
-                                                        </p>
-                                                        <p className="text-[9px] font-semibold text-muted-foreground uppercase tracking-tight">Paid</p>
-                                                    </div>
-                                                    <div className={cn(
-                                                        "w-9 h-9 rounded-full flex items-center justify-center transition-all",
-                                                        isSettled ? "bg-success/15 text-success group-hover:bg-success group-hover:text-primary-foreground" :
-                                                            isOverdue ? "bg-destructive/10 text-destructive group-hover:bg-destructive group-hover:text-primary-foreground" :
-                                                                "bg-muted text-muted-foreground group-hover:bg-primary group-hover:text-primary-foreground"
-                                                    )}>
-                                                        <HugeiconsIcon icon={ArrowLeft01Icon} className="w-4 h-4 rotate-180" />
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                <div className="rounded-[28px] border border-border bg-muted p-4">
-                                                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Principal</p>
-                                                    <p className="text-base font-semibold text-foreground tabular-nums mt-2">
-                                                        {formatCurrency(parseFloat(loan.principalAmount))}
-                                                    </p>
-                                                </div>
-                                                <div className="rounded-[28px] border border-border bg-muted p-4">
-                                                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                                                        Outstanding
-                                                    </p>
-                                                    <p className={cn(
-                                                        "text-base font-semibold tabular-nums mt-2",
-                                                        outstandingLoan === 0 ? "text-success" : "text-foreground"
-                                                    )}>
-                                                        {formatCurrency(outstandingLoan)}
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            <div className="space-y-2 pt-1">
-                                                <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
-                                                    <span>Repayment progress</span>
-                                                    <span>{repaymentRate.toFixed(0)}%</span>
-                                                </div>
-                                                <div className="h-2 rounded-full bg-muted overflow-hidden">
-                                                    <div
-                                                        className={cn("h-full rounded-full transition-all duration-500", accentClass)}
-                                                        style={{ width: `${Math.min(100, repaymentRate)}%` }}
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </Link>
-                                );
-                            })
-                        ) : (
-                            <div className="flex flex-col items-center justify-center py-20 text-center bg-muted rounded-[40px] border border-dashed border-border">
-                                <HugeiconsIcon icon={Task01Icon} className="w-12 h-12 text-primary-foreground mb-4" />
-                                <p className="text-sm font-semibold text-muted-foreground uppercase">No active or previous loans</p>
-                                <Button
-                                    variant="link"
-                                    className="text-primary font-semibold mt-2"
-                                    onClick={() => router.push(`/loans/new?customer=${customer.id}`)}
+                            return (
+                                <Link
+                                    key={loan.id}
+                                    href={`/loans/${loan.id}`}
+                                    className="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-border bg-card p-4 pl-5 transition-all hover:border-primary/20 hover:shadow-md active:scale-[0.99]"
                                 >
-                                    Issue first loan
-                                </Button>
-                            </div>
-                        )}
+                                    <div className={cn("absolute inset-y-0 left-0 w-1.5", accent)} />
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex items-center gap-2">
+                                            <Badge className={cn(
+                                                "h-5 rounded-full px-2 text-[9px] font-semibold uppercase border-none",
+                                                isSettled ? "bg-success/15 text-success" : isOverdue ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary",
+                                            )}>
+                                                {loan.status}
+                                            </Badge>
+                                            <span className="text-xs text-muted-foreground">{formatDate(loan.startDate)}</span>
+                                        </div>
+                                        <p className="text-sm font-semibold tabular-nums mt-1.5">
+                                            {formatCurrency(parseFloat(loan.principalAmount))}
+                                            <span className="text-xs font-medium text-muted-foreground ml-2">
+                                                {outstandingLoan > 0 ? `${formatCurrency(outstandingLoan)} left` : "Cleared"}
+                                            </span>
+                                        </p>
+                                        <div className="h-1.5 rounded-full bg-muted overflow-hidden mt-2.5 max-w-[180px]">
+                                            <div className={cn("h-full rounded-full", accent)} style={{ width: `${rate}%` }} />
+                                        </div>
+                                    </div>
+                                    <div className="text-right shrink-0">
+                                        <p className={cn(
+                                            "text-base font-bold tabular-nums leading-none",
+                                            rate >= 100 ? "text-success" : "text-primary",
+                                        )}>
+                                            {rate.toFixed(0)}%
+                                        </p>
+                                        <p className="text-[9px] font-semibold uppercase tracking-tight text-muted-foreground mt-1">Paid</p>
+                                    </div>
+                                    <HugeiconsIcon icon={ArrowRight01Icon} className="w-4 h-4 text-muted-foreground shrink-0" />
+                                </Link>
+                            );
+                        })}
                     </div>
-                </section>
-
+                )}
             </div>
 
             <CustomerForm
@@ -328,6 +249,27 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
                 onOpenChange={setIsEditOpen}
                 defaultValues={customerFormDefaults}
             />
+        </div>
+    );
+}
+
+function Stat({ label, value, tone }: { label: string; value: string; tone?: string }) {
+    return (
+        <div className="px-3 text-center first:text-left first:pl-5 last:text-right last:pr-5">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">{label}</p>
+            <p className={cn("text-base sm:text-lg font-bold tabular-nums mt-1 truncate", tone ?? "text-foreground")}>{value}</p>
+        </div>
+    );
+}
+
+function Fact({ icon, label, children }: { icon: typeof TelephoneIcon; label: string; children: React.ReactNode }) {
+    return (
+        <div className="flex items-center justify-between gap-4 py-3.5">
+            <div className="flex items-center gap-3 text-muted-foreground">
+                <HugeiconsIcon icon={icon} className="w-4 h-4 shrink-0" />
+                <span className="text-xs font-semibold uppercase tracking-wider">{label}</span>
+            </div>
+            <div className="text-right min-w-0">{children}</div>
         </div>
     );
 }

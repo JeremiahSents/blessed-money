@@ -153,8 +153,8 @@ export function Navigation() {
       </aside>
 
       {/* ── MOBILE BOTTOM DOCK ── */}
-      <nav className="md:hidden fixed inset-x-0 bottom-4 z-50 px-4 pb-safe pointer-events-none">
-        <div className="mx-auto flex h-16 max-w-sm items-center justify-around rounded-full border border-border/80 bg-card/95 px-2 shadow-2xl shadow-foreground/10 backdrop-blur-xl pointer-events-auto">
+      <nav className="md:hidden fixed inset-x-0 bottom-0 z-50 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-2 pointer-events-none bg-gradient-to-t from-background via-background/90 to-transparent">
+        <div className="mx-auto flex h-16 max-w-sm items-center justify-around rounded-full border border-border bg-card px-2 shadow-2xl shadow-foreground/10 pointer-events-auto">
           {mobileNavItems.map((item) => {
             const isActive =
               item.url === "/"
