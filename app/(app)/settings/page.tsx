@@ -7,13 +7,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Logout03Icon, Book02Icon, Settings01Icon, Notification03Icon, Alert01Icon } from '@hugeicons/core-free-icons';
+import { Logout03Icon, Settings01Icon, Notification03Icon, Alert01Icon } from '@hugeicons/core-free-icons';
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { AdminPanel } from "@/components/admin/admin-panel";
 import { DetailPageSkeleton } from "@/components/shared/page-skeletons";
 
@@ -182,22 +181,6 @@ export default function SettingsPage() {
 
                 {/* Admin Panel — only visible to admins */}
                 {isAdmin && <AdminPanel />}
-
-                {/* Mobile Reports Link */}
-                <Card className="md:hidden rounded-[32px] border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 overflow-hidden">
-                    <CardHeader>
-                        <CardTitle className="text-lg font-semibold">Reports</CardTitle>
-                        <CardDescription className="text-xs font-medium">View monthly portfolio performance.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <Link href="/reports">
-                            <Button variant="outline" className="w-full h-11 rounded-xl font-semibold border-zinc-200 dark:border-zinc-800">
-                                <HugeiconsIcon icon={Book02Icon} className="w-4 h-4 mr-2" />
-                                Portfolio Reports
-                            </Button>
-                        </Link>
-                    </CardContent>
-                </Card>
 
                 {/* Sign Out Card */}
                 <Card className="rounded-[32px] border-rose-100 dark:border-rose-900/30 bg-rose-50/30 dark:bg-rose-900/5 overflow-hidden">

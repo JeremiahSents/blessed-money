@@ -3,9 +3,6 @@ import { Geist_Mono, IBM_Plex_Sans, Roboto, DM_Sans, Geist } from "next/font/goo
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/sonner";
-import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
-import { extractRouterConfig } from "uploadthing/server";
-import { ourFileRouter } from "@/app/api/uploadthing/core";
 import { cn } from "@/lib/utils";
 
 const geistHeading = Geist({subsets:['latin'],variable:'--font-heading'});
@@ -35,7 +32,6 @@ export default function RootLayout({
     >
       <body>
         <Providers>
-          <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
           {children}
         </Providers>
         <Toaster position="bottom-right" richColors />

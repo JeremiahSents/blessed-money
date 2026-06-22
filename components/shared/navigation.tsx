@@ -3,11 +3,9 @@
 import { usePathname, useRouter } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  Book02Icon,
   DashboardSquare01Icon,
   UserMultipleIcon,
   Wallet01Icon,
-  PropertyEditIcon,
   Settings01Icon,
   SidebarLeft01Icon,
 } from "@hugeicons/core-free-icons";
@@ -20,15 +18,13 @@ import { useSidebar } from "@/components/shared/sidebar-context";
 
 const allNavItems = [
   { title: "Dashboard", url: "/", icon: DashboardSquare01Icon },
-  { title: "Customers", url: "/customers", icon: UserMultipleIcon },
+  { title: "Borrowers", url: "/customers", icon: UserMultipleIcon },
   { title: "Loans", url: "/loans", icon: Wallet01Icon },
-  { title: "Payments", url: "/payments", icon: PropertyEditIcon },
-  { title: "Reports", url: "/reports", icon: Book02Icon },
   { title: "Settings", url: "/settings", icon: Settings01Icon },
 ];
 
-// Mobile bottom dock: 5 items (no Reports)
-const mobileNavItems = allNavItems.filter((item) => item.title !== "Reports");
+// Mobile bottom dock uses the same items.
+const mobileNavItems = allNavItems;
 
 export function Navigation() {
   const pathname = usePathname();

@@ -9,11 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { CollateralUploader, CollateralFormData } from "../collateral/collateral-uploader";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Delete02Icon, UserIcon, PlusSignIcon, Coins01Icon, Calendar01Icon, MoneyBag01Icon, Shield01Icon, Search01Icon } from '@hugeicons/core-free-icons';
+import { UserIcon, PlusSignIcon, Coins01Icon, Calendar01Icon, MoneyBag01Icon, Search01Icon } from '@hugeicons/core-free-icons';
 import { useRouter } from "next/navigation";
 import {
     Combobox,
@@ -39,7 +38,7 @@ const loanSchema = z.object({
     interestRate: z.string().min(1, "Interest rate is required"),
     startDate: z.date({ error: "Start date is required" }),
     dueDate: z.date({ error: "Due date is required" }),
-    notes: z.string().min(1, "Notes are required"),
+    notes: z.string().optional(),
 });
 
 type LoanFormValues = z.infer<typeof loanSchema>;
@@ -47,7 +46,6 @@ type LoanFormValues = z.infer<typeof loanSchema>;
 export function LoanForm() {
     const queryClient = useQueryClient();
     const router = useRouter();
-    const [collateralItems, setCollateralItems] = useState<CollateralFormData[]>([]);
     const [isCustomerModalOpen, setCustomerModalOpen] = useState(false);
     const [customerSearch, setCustomerSearch] = useState("");
 
@@ -100,7 +98,6 @@ export function LoanForm() {
                     interestRate: interestRateDecimal,
                     startDate: values.startDate.toISOString().split('T')[0],
                     dueDate: values.dueDate.toISOString().split('T')[0],
-                    collateralItems: []
                 }),
             });
 
@@ -110,32 +107,7 @@ export function LoanForm() {
             }
 
             const loanData = await res1.json();
-            const newLoanId = loanData.data.id;
-
-            for (const item of collateralItems) {
-                const cRes = await fetch(`/api/loans/${newLoanId}/collateral`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        description: item.description,
-                        estimatedValue: item.estimatedValue,
-                        serialNumber: item.serialNumber,
-                        notes: item.notes,
-                    })
-                });
-                const cData = await cRes.json();
-
-                if (item.files.length > 0) {
-                    const formData = new FormData();
-                    item.files.forEach(f => formData.append("files", f));
-                    await fetch(`/api/loans/${newLoanId}/collateral/${cData.data.id}/images`, {
-                        method: "POST",
-                        body: formData
-                    });
-                }
-            }
-
-            return newLoanId;
+            return loanData.data.id as string;
         },
         onSuccess: (id) => {
             queryClient.invalidateQueries({ queryKey: ['loans'] });
@@ -150,25 +122,6 @@ export function LoanForm() {
     const onSubmit = (values: LoanFormValues) => {
         mutation.mutate(values);
     };
-
-    const handleAddCollateral = (data: CollateralFormData) => {
-        setCollateralItems((prev) => [...prev, data]);
-    };
-
-    const removeCollateral = (index: number) => {
-        setCollateralItems(collateralItems.filter((_, i) => i !== index));
-    };
-
-    const previewUrls = useMemo(
-        () => collateralItems.map((item) => (item.files[0] ? URL.createObjectURL(item.files[0]) : null)),
-        [collateralItems]
-    );
-
-    useEffect(() => {
-        return () => {
-            previewUrls.forEach((url) => url && URL.revokeObjectURL(url));
-        };
-    }, [previewUrls]);
 
     const handleCustomerSuccess = (data: any) => {
         const newCustId = data?.data?.id || data?.id;
@@ -481,7 +434,7 @@ export function LoanForm() {
                                     name="notes"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Additional Notes <span className="text-red-500">*</span></FormLabel>
+                                            <FormLabel className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Additional Notes</FormLabel>
                                             <FormControl>
                                                 <Textarea
                                                     placeholder="Specify loan purpose, agreements, or special conditions..."
@@ -494,61 +447,6 @@ export function LoanForm() {
                                     )}
                                 />
                             </div>
-                        </div>
-                    </div>
-
-                    {/* Card 3: Security & Collateral */}
-                    <div className="bg-white dark:bg-zinc-950/80 p-6 sm:p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-sm relative overflow-hidden group transition-all duration-300 hover:shadow-md">
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-primary/5 blur-[120px] rounded-full pointer-events-none transition-all duration-500 group-hover:bg-primary/10"></div>
-
-                        <div className="flex items-center gap-3 mb-6 relative z-10">
-                            <div className="flex items-center justify-center w-10 h-10 rounded-xl text-primary">
-                                <HugeiconsIcon icon={Shield01Icon} className="w-5 h-5" />
-                            </div>
-                            <div>
-                                <h2 className="text-xl font-semibold bg-linear-to-br from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent">Collateral</h2>
-                                <p className="text-sm text-zinc-500 dark:text-zinc-400">Snap or upload images of items secured against this loan.</p>
-                            </div>
-                        </div>
-
-                        <div className="relative z-10 space-y-4">
-                            <CollateralUploader onAdd={handleAddCollateral} />
-
-                            {collateralItems.length > 0 && (
-                                <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                                    {collateralItems.map((item, idx) => {
-                                        const previewUrl = previewUrls[idx];
-                                        return (
-                                            <div
-                                                key={idx}
-                                                className="relative aspect-square rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 group"
-                                            >
-                                                {previewUrl ? (
-                                                    // eslint-disable-next-line @next/next/no-img-element
-                                                    <img
-                                                        src={previewUrl}
-                                                        alt={item.description}
-                                                        className="w-full h-full object-cover"
-                                                    />
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center">
-                                                        <HugeiconsIcon icon={Shield01Icon} className="w-8 h-8 text-zinc-300" />
-                                                    </div>
-                                                )}
-                                                <Button
-                                                    type="button"
-                                                    variant="destructive"
-                                                    size="icon"
-                                                    className="absolute top-2 right-2 w-8 h-8 rounded-full shadow-md"
-                                                    onClick={() => removeCollateral(idx)}
-                                                >
-                                                    <HugeiconsIcon icon={Delete02Icon} className="w-4 h-4" />
-                                                </Button>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            )}
                         </div>
                     </div>
 

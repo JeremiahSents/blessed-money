@@ -26,17 +26,6 @@ export interface LoanSummary {
   payments?: Payment[];
 }
 
-export interface CollateralItem {
-  id: Id;
-  loanId: Id;
-  description: string;
-  estimatedValue: string | null;
-  serialNumber: string | null;
-  imagePaths: string[] | null;
-  returnedAt: string | Date | null;
-  notes: string | null;
-}
-
 export interface BillingCycle {
   id: Id;
   loanId: Id;
@@ -53,7 +42,6 @@ export interface BillingCycle {
 
 export interface LoanDetail extends LoanSummary {
   customer: Customer;
-  collateral: CollateralItem[];
   billingCycles: BillingCycle[];
 }
 

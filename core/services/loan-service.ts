@@ -8,7 +8,6 @@ import {
     findLoanById,
     createLoan,
 } from "@/core/repositories/loan-repository";
-import { createCollateral } from "@/core/repositories/collateral-repository";
 
 export type LoanCreatePayload = {
     customerId: string;
@@ -17,13 +16,6 @@ export type LoanCreatePayload = {
     startDate: string;
     dueDate: string;
     notes?: string | null;
-    collateralItems?: Array<{
-        description: string;
-        estimatedValue?: string | number | null;
-        serialNumber?: string | null;
-        imagePaths?: string[];
-        notes?: string | null;
-    }>;
 };
 
 export async function listLoans(opts: {
@@ -94,38 +86,7 @@ export async function createLoanWithCycleAndAudit(
             status: "open",
         });
 
-        // 3. Create Collateral Items
-        if (
-            data.collateralItems &&
-            Array.isArray(data.collateralItems) &&
-            data.collateralItems.length > 0
-        ) {
-            for (const item of data.collateralItems) {
-                const collateralRecord = await createCollateral(
-                    {
-                        loanId: loan.id,
-                        description: item.description,
-                        estimatedValue: item.estimatedValue
-                            ? Number(item.estimatedValue).toFixed(2)
-                            : null,
-                        serialNumber: item.serialNumber,
-                        imagePaths: item.imagePaths || [],
-                        notes: item.notes,
-                    },
-                    tx
-                );
-
-                await tx.insert(auditLogs).values({
-                    userId,
-                    action: "COLLATERAL_ADDED",
-                    entityType: "collateral",
-                    entityId: collateralRecord.id,
-                    metadata: { after: collateralRecord },
-                });
-            }
-        }
-
-        // 4. Audit Log for Loan
+        // 3. Audit Log for Loan
         const initialCycleForAudit = {
             openingPrincipalCents: Number(firstCycleData.openingPrincipalCents),
             interestChargedCents: Number(firstCycleData.interestChargedCents),

@@ -10,7 +10,6 @@ import {
     Task01Icon,
     InformationCircleIcon,
     Calendar04Icon,
-    Download01Icon,
     PlusSignIcon
 } from '@hugeicons/core-free-icons';
 import { Button } from "@/components/ui/button";
@@ -23,8 +22,6 @@ import type { BillingCycle, Customer, LoanSummary } from "@/lib/types";
 
 import { useState, use } from "react";
 import Link from "next/link";
-import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
 
 export default function CustomerDetailPage(props: { params: Promise<{ id: string }> }) {
     const params = use(props.params);
@@ -38,39 +35,6 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
             return res.json();
         }
     });
-
-    const generateStatement = () => {
-        if (!data?.data) return;
-        const doc = new jsPDF();
-        const customer = data.data;
-
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(20);
-        doc.text("Customer Statement", 14, 22);
-
-        doc.setFontSize(12);
-        doc.setFont("helvetica", "normal");
-        doc.text(`Name: ${customer.name}`, 14, 32);
-        doc.text(`Phone: ${customer.phone || 'N/A'}`, 14, 38);
-        doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, 44);
-
-        const loansData = (customer.loans || []).map((loan: LoanSummary) => [
-            loan.id.slice(0, 8),
-            formatCurrency(parseFloat(loan.principalAmount)),
-            `${(parseFloat(loan.interestRate) * 100).toFixed(1)}%`,
-            new Date(loan.startDate).toLocaleDateString(),
-            loan.status,
-        ]);
-
-        autoTable(doc, {
-            startY: 55,
-            head: [['Loan ID', 'Principal', 'Rate', 'Started', 'Status']],
-            body: loansData,
-            theme: 'grid',
-        });
-
-        doc.save(`Statement_${customer.name.replace(/\s+/g, '_')}.pdf`);
-    };
 
     if (isLoading) {
         return <DetailPageSkeleton />;
@@ -360,17 +324,6 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
                     </div>
                 </section>
 
-                <div className="pt-4 flex justify-center">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-zinc-400 hover:text-zinc-600 font-semibold uppercase text-[10px] tracking-wide"
-                        onClick={generateStatement}
-                    >
-                        <HugeiconsIcon icon={Download01Icon} className="w-3.5 h-3.5 mr-2" />
-                        Download Full Statement
-                    </Button>
-                </div>
             </div>
 
             <CustomerForm

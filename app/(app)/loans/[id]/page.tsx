@@ -8,7 +8,6 @@ import {
     Calendar04Icon,
     MoneyReceive01Icon,
     Note01Icon,
-    Shield01Icon,
     Activity03Icon,
     Wallet01Icon,
     TickDouble02Icon
@@ -16,7 +15,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DetailPageSkeleton } from "@/components/shared/page-skeletons";
-import { CollateralList } from "@/components/collateral/collateral-list";
 import { PaymentForm } from "@/components/loans/payment-form";
 import { formatCurrency, formatDate, displayStatus, cn } from "@/lib/utils";
 import type { LoanDetail } from "@/lib/types";
@@ -279,14 +277,6 @@ export default function LoanDetailPage(props: { params: Promise<{ id: string }> 
                     </div>
                 </section>
 
-                {/* 4. Security Items */}
-                <section className="space-y-6">
-                    <div className="flex items-center gap-3 border-b border-zinc-100 dark:border-zinc-800 pb-4 text-zinc-900 dark:text-white">
-                        <HugeiconsIcon icon={Shield01Icon} className="w-5 h-5" />
-                        <h2 className="text-xl font-semibold">Security Items</h2>
-                    </div>
-                    <CollateralList loanId={loan.id} items={loan.collateral} />
-                </section>
             </div>
 
             <PaymentForm

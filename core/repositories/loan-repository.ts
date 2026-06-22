@@ -65,7 +65,6 @@ export async function findLoanById(id: string) {
                     },
                 },
             },
-            collateral: true,
             billingCycles: {
                 orderBy: (cycles, { asc }) => [asc(cycles.cycleNumber)],
             },

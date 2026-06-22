@@ -120,20 +120,6 @@ export const loans = pgTable("loans", {
     notes: text("notes"),
 });
 
-export const collateral = pgTable("collateral", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    loanId: uuid("loan_id")
-        .notNull()
-        .references(() => loans.id, { onDelete: "cascade" }),
-    description: text("description").notNull(),
-    estimatedValue: numeric("estimated_value", { precision: 12, scale: 2 }),
-    serialNumber: text("serial_number"),
-    imagePaths: text("image_paths").array(),
-    returnedAt: timestamp("returned_at"),
-    notes: text("notes"),
-});
-
 export const billingCycles = pgTable("billing_cycles", {
     id: uuid("id").primaryKey().defaultRandom(),
     loanId: uuid("loan_id")
@@ -191,13 +177,8 @@ export const customerRelations = relations(customers, ({ many }) => ({
 
 export const loanRelations = relations(loans, ({ one, many }) => ({
     customer: one(customers, { fields: [loans.customerId], references: [customers.id] }),
-    collateral: many(collateral),
     billingCycles: many(billingCycles),
     payments: many(payments),
-}));
-
-export const collateralRelations = relations(collateral, ({ one }) => ({
-    loan: one(loans, { fields: [collateral.loanId], references: [loans.id] }),
 }));
 
 export const billingCycleRelations = relations(billingCycles, ({ one, many }) => ({
