@@ -21,34 +21,34 @@ export default function AccessDeniedPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4 bg-zinc-50 dark:bg-zinc-950">
+        <div className="min-h-screen flex items-center justify-center p-4 bg-muted">
             <Card className="max-w-md w-full p-8 text-center space-y-6">
                 <div className="flex justify-center">
-                    <div className="w-16 h-16 rounded-full bg-amber-100 dark:bg-amber-900/20 flex items-center justify-center">
-                        <ShieldAlertIcon className="w-8 h-8 text-amber-600 dark:text-amber-500" />
+                    <div className="w-16 h-16 rounded-full bg-warning/15 flex items-center justify-center">
+                        <ShieldAlertIcon className="w-8 h-8 text-warning" />
                     </div>
                 </div>
 
                 <div className="space-y-2">
-                    <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
+                    <h1 className="text-2xl font-bold text-foreground">
                         Access Pending
                     </h1>
-                    <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                    <p className="text-sm text-muted-foreground">
                         Your account has been created successfully, but you don&apos;t have admin access yet.
                     </p>
                 </div>
 
-                <div className="bg-zinc-100 dark:bg-zinc-900 rounded-lg p-4 space-y-2">
-                    <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                <div className="bg-muted rounded-lg p-4 space-y-2">
+                    <p className="text-xs font-medium text-foreground">
                         Logged in as:
                     </p>
-                    <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                    <p className="text-sm font-semibold text-foreground">
                         {session?.user?.email || "Loading..."}
                     </p>
                 </div>
 
                 <div className="space-y-3 pt-2">
-                    <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                    <p className="text-sm text-muted-foreground">
                         Please contact your administrator to request access to this application.
                     </p>
                     <Button

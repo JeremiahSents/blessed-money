@@ -85,9 +85,9 @@ export function PaymentForm({
     const formContent = (
         <>
             {balance !== undefined && balance > 0 && (
-                <div className="mb-8 p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-2xl flex items-center justify-between">
+                <div className="mb-8 p-4 bg-muted border border-border rounded-2xl flex items-center justify-between">
                     <div>
-                        <p className="text-[10px] font-semibold uppercase text-zinc-400 mb-0.5 tracking-wider">Outstanding Balance</p>
+                        <p className="text-[10px] font-semibold uppercase text-muted-foreground mb-0.5 tracking-wider">Outstanding Balance</p>
                         <p className="text-lg font-semibold text-primary tabular-nums tracking-tight">{formatCurrency(balance)}</p>
                     </div>
                     <Button
@@ -118,15 +118,15 @@ export function PaymentForm({
                             render={({ field }) => (
                                 <FormItem className="space-y-2.5">
                                     <div className="flex items-center gap-2 px-1">
-                                        <HugeiconsIcon icon={Coins01Icon} className="w-3.5 h-3.5 text-zinc-400" />
-                                        <FormLabel className="text-xs font-semibold uppercase text-zinc-500 tracking-wide">Amount (UGX)</FormLabel>
+                                        <HugeiconsIcon icon={Coins01Icon} className="w-3.5 h-3.5 text-muted-foreground" />
+                                        <FormLabel className="text-xs font-semibold uppercase text-muted-foreground tracking-wide">Amount (UGX)</FormLabel>
                                     </div>
                                     <FormControl>
                                         <div className="relative group">
                                             <Input
                                                 type="text"
                                                 placeholder="0.00"
-                                                className="h-14 bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 rounded-2xl text-lg font-semibold focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-zinc-300 dark:placeholder:text-zinc-700"
+                                                className="h-14 bg-card border-border rounded-2xl text-lg font-semibold focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-muted-foreground dark:placeholder:text-foreground"
                                                 {...field}
                                                 onChange={(e) => {
                                                     const val = e.target.value;
@@ -154,13 +154,13 @@ export function PaymentForm({
                             render={({ field }) => (
                                 <FormItem className="space-y-2.5">
                                     <div className="flex items-center gap-2 px-1">
-                                        <HugeiconsIcon icon={Calendar04Icon} className="w-3.5 h-3.5 text-zinc-400" />
-                                        <FormLabel className="text-xs font-semibold uppercase text-zinc-500 tracking-wide">Date Collected</FormLabel>
+                                        <HugeiconsIcon icon={Calendar04Icon} className="w-3.5 h-3.5 text-muted-foreground" />
+                                        <FormLabel className="text-xs font-semibold uppercase text-muted-foreground tracking-wide">Date Collected</FormLabel>
                                     </div>
                                     <FormControl>
                                         <Input
                                             type="date"
-                                            className="h-12 bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 rounded-xl font-medium focus:ring-4 focus:ring-primary/10 transition-all"
+                                            className="h-12 bg-card border-border rounded-xl font-medium focus:ring-4 focus:ring-primary/10 transition-all"
                                             {...field}
                                         />
                                     </FormControl>
@@ -175,13 +175,13 @@ export function PaymentForm({
                             render={({ field }) => (
                                 <FormItem className="space-y-2.5">
                                     <div className="flex items-center gap-2 px-1">
-                                        <HugeiconsIcon icon={Note01Icon} className="w-3.5 h-3.5 text-zinc-400" />
-                                        <FormLabel className="text-xs font-semibold uppercase text-zinc-500 tracking-wide">Reference / Note</FormLabel>
+                                        <HugeiconsIcon icon={Note01Icon} className="w-3.5 h-3.5 text-muted-foreground" />
+                                        <FormLabel className="text-xs font-semibold uppercase text-muted-foreground tracking-wide">Reference / Note</FormLabel>
                                     </div>
                                     <FormControl>
                                         <Textarea
                                             placeholder="Enter transaction ID or note..."
-                                            className="min-h-[100px] bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 rounded-xl font-medium"
+                                            className="min-h-[100px] bg-card border-border rounded-xl font-medium"
                                             {...field}
                                         />
                                     </FormControl>
@@ -195,7 +195,7 @@ export function PaymentForm({
                         <Button
                             type="button"
                             variant="outline"
-                            className="flex-1 h-12 rounded-xl font-semibold uppercase text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-white border-zinc-200 dark:border-zinc-800 transition-all"
+                            className="flex-1 h-12 rounded-xl font-semibold uppercase text-xs text-muted-foreground hover:text-foreground dark:hover:text-primary-foreground border-border transition-all"
                             onClick={() => onOpenChange(false)}
                             disabled={mutation.isPending}
                         >
@@ -203,7 +203,7 @@ export function PaymentForm({
                         </Button>
                         <Button
                             type="submit"
-                            className="flex-1 h-12 rounded-xl font-semibold uppercase text-xs bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all"
+                            className="flex-1 h-12 rounded-xl font-semibold uppercase text-xs bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all"
                             disabled={mutation.isPending}
                         >
                             {mutation.isPending ? "Recording..." : "Save Payment"}
@@ -218,16 +218,16 @@ export function PaymentForm({
         return (
             <Sheet open={open} onOpenChange={onOpenChange}>
                 <SheetContent side="bottom" className="rounded-t-[32px] max-h-[92vh] overflow-y-auto overflow-x-hidden pb-safe">
-                    <div className="w-10 h-1 bg-zinc-200 dark:bg-zinc-700 rounded-full mx-auto mb-4" />
+                    <div className="w-10 h-1 bg-muted rounded-full mx-auto mb-4" />
                     <div className="bg-primary/5 dark:bg-primary/10 px-6 py-6 -mx-4 border-b border-primary/10 mb-4">
                         <SheetHeader className="px-0 pt-0">
                             <div className="flex items-center gap-3 mb-2">
-                                <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
+                                <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20">
                                     <HugeiconsIcon icon={MoneyReceive01Icon} className="w-5 h-5" />
                                 </div>
                                 <SheetTitle className="text-xl font-semibold tracking-tight">Record Payment</SheetTitle>
                             </div>
-                            <SheetDescription className="text-zinc-600 dark:text-zinc-400 font-medium leading-relaxed">
+                            <SheetDescription className="text-muted-foreground font-medium leading-relaxed">
                                 Log a new payment towards this loan. Make sure to verify the amount before saving.
                             </SheetDescription>
                         </SheetHeader>
@@ -246,12 +246,12 @@ export function PaymentForm({
                 <div className="bg-primary/5 dark:bg-primary/10 px-6 py-8 border-b border-primary/10">
                     <DialogHeader>
                         <div className="flex items-center gap-3 mb-2">
-                            <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
+                            <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20">
                                 <HugeiconsIcon icon={MoneyReceive01Icon} className="w-5 h-5" />
                             </div>
                             <DialogTitle className="text-xl font-semibold tracking-tight">Record Payment</DialogTitle>
                         </div>
-                        <DialogDescription className="text-zinc-600 dark:text-zinc-400 font-medium leading-relaxed">
+                        <DialogDescription className="text-muted-foreground font-medium leading-relaxed">
                             Log a new payment towards this loan. Make sure to verify the amount before saving.
                         </DialogDescription>
                     </DialogHeader>

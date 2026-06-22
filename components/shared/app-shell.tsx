@@ -21,7 +21,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
     if (isBare) {
         return (
-            <div className="flex h-screen overflow-hidden items-center justify-center bg-zinc-50 dark:bg-zinc-950 px-4">
+            <div className="flex h-screen overflow-hidden items-center justify-center bg-muted px-4">
                 {children}
             </div>
         );
@@ -29,7 +29,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
     return (
         <AdminGuard>
-            <div className="min-h-screen bg-zinc-100/70 dark:bg-zinc-950">
+            <div className="min-h-screen bg-muted">
                 <Navigation />
                 <MainContent>{children}</MainContent>
             </div>

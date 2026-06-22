@@ -145,7 +145,7 @@ export function LoanForm() {
                 <form id="loan-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
 
                     {/* Card 1: Borrower Information */}
-                    <div className="bg-white dark:bg-zinc-950/80 p-6 sm:p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-sm relative overflow-hidden group transition-all duration-300 hover:shadow-md">
+                    <div className="bg-card p-6 sm:p-8 rounded-3xl border border-border shadow-sm relative overflow-hidden group transition-all duration-300 hover:shadow-md">
                         <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/5 blur-[80px] rounded-full pointer-events-none transition-all duration-500 group-hover:bg-primary/10"></div>
 
                         <div className="flex items-center gap-3 mb-6 relative z-10">
@@ -153,8 +153,8 @@ export function LoanForm() {
                                 <HugeiconsIcon icon={UserIcon} className="w-5 h-5" />
                             </div>
                             <div>
-                                <h2 className="text-xl font-semibold bg-linear-to-br from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent">Borrower Information</h2>
-                                <p className="text-sm text-zinc-500 dark:text-zinc-400">Select an existing customer or create a new one.</p>
+                                <h2 className="text-xl font-semibold bg-linear-to-br from-foreground to-muted-foreground bg-clip-text text-transparent">Borrower Information</h2>
+                                <p className="text-sm text-muted-foreground">Select an existing customer or create a new one.</p>
                             </div>
                         </div>
 
@@ -181,16 +181,16 @@ export function LoanForm() {
                                                     <ComboboxInput
                                                         placeholder="Search by name..."
                                                         showTrigger={false}
-                                                        className="h-14 rounded-2xl border-2 border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 px-5 text-base font-medium focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 transition-all shadow-sm"
+                                                        className="h-14 rounded-2xl border-2 border-border bg-muted px-5 text-base font-medium focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 transition-all shadow-sm"
                                                     >
                                                         <HugeiconsIcon
                                                             icon={Search01Icon}
-                                                            className="size-5 text-zinc-400 shrink-0 pointer-events-none"
+                                                            className="size-5 text-muted-foreground shrink-0 pointer-events-none"
                                                         />
                                                     </ComboboxInput>
                                                     <ComboboxContent
                                                         sideOffset={8}
-                                                        className="rounded-2xl p-2 shadow-2xl border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl"
+                                                        className="rounded-2xl p-2 shadow-2xl border-border bg-card backdrop-blur-xl"
                                                     >
                                                         <ComboboxList className="max-h-[300px]">
                                                             <ComboboxCollection>
@@ -205,11 +205,11 @@ export function LoanForm() {
                                                                                 <HugeiconsIcon icon={UserIcon} className="size-4" />
                                                                             </div>
                                                                             <div className="flex flex-col gap-0.5 min-w-0">
-                                                                                <span className="font-semibold text-sm leading-tight text-zinc-900 dark:text-zinc-100 truncate">
+                                                                                <span className="font-semibold text-sm leading-tight text-foreground truncate">
                                                                                     {c.name}
                                                                                 </span>
                                                                                 {c.phone && (
-                                                                                    <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400 truncate">
+                                                                                    <span className="text-xs font-medium text-muted-foreground truncate">
                                                                                         {c.phone}
                                                                                     </span>
                                                                                 )}
@@ -219,7 +219,7 @@ export function LoanForm() {
                                                                 )}
                                                             </ComboboxCollection>
                                                             <ComboboxEmpty className="flex-col p-3 gap-2 text-left items-stretch">
-                                                                <p className="text-sm text-zinc-500 dark:text-zinc-400 px-2">
+                                                                <p className="text-sm text-muted-foreground px-2">
                                                                     No customer found{customerSearch ? ` for "${customerSearch}"` : ""}.
                                                                 </p>
                                                                 <Button
@@ -228,7 +228,7 @@ export function LoanForm() {
                                                                     onClick={() => setCustomerModalOpen(true)}
                                                                 >
                                                                     <div className="flex items-center gap-3">
-                                                                        <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-white/20 shrink-0">
+                                                                        <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-card shrink-0">
                                                                             <HugeiconsIcon icon={PlusSignIcon} className="size-4" />
                                                                         </div>
                                                                         <span className="font-semibold text-sm">
@@ -250,7 +250,7 @@ export function LoanForm() {
                     </div>
 
                     {/* Card 2: Loan Configuration */}
-                    <div className="bg-white dark:bg-zinc-950/80 p-6 sm:p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-sm relative overflow-hidden group transition-all duration-300 hover:shadow-md">
+                    <div className="bg-card p-6 sm:p-8 rounded-3xl border border-border shadow-sm relative overflow-hidden group transition-all duration-300 hover:shadow-md">
                         <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-primary/5 blur-[100px] rounded-full pointer-events-none transition-all duration-500 group-hover:bg-primary/10"></div>
 
                         <div className="flex items-center gap-3 mb-6 relative z-10">
@@ -258,8 +258,8 @@ export function LoanForm() {
                                 <HugeiconsIcon icon={MoneyBag01Icon} className="w-5 h-5" />
                             </div>
                             <div>
-                                <h2 className="text-xl font-semibold bg-linear-to-br from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent">Loan Structure</h2>
-                                <p className="text-sm text-zinc-500 dark:text-zinc-400">Define the core terms of the loan.</p>
+                                <h2 className="text-xl font-semibold bg-linear-to-br from-foreground to-muted-foreground bg-clip-text text-transparent">Loan Structure</h2>
+                                <p className="text-sm text-muted-foreground">Define the core terms of the loan.</p>
                             </div>
                         </div>
 
@@ -269,17 +269,17 @@ export function LoanForm() {
                                 name="principalAmount"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Principal Amount (UGX) <span className="text-red-500">*</span></FormLabel>
+                                        <FormLabel className="text-sm font-semibold text-foreground">Principal Amount (UGX) <span className="text-destructive">*</span></FormLabel>
                                         <FormControl>
                                             <div className="relative">
                                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <span className="text-zinc-500 sm:text-sm font-medium">UGX</span>
+                                                    <span className="text-muted-foreground sm:text-sm font-medium">UGX</span>
                                                 </div>
                                                 <Input
                                                     type="text"
                                                     inputMode="decimal"
                                                     placeholder="50,000"
-                                                    className="pl-12 h-14 text-base font-medium rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 focus-visible:ring-primary/20 focus-visible:border-primary transition-all"
+                                                    className="pl-12 h-14 text-base font-medium rounded-xl border-border bg-muted focus-visible:ring-primary/20 focus-visible:border-primary transition-all"
                                                     value={formatWithCommas(field.value)}
                                                     onChange={(e) => {
                                                         const rawValue = e.target.value.replace(/,/g, "");
@@ -301,18 +301,18 @@ export function LoanForm() {
                                 name="interestRate"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Interest Rate / Month <span className="text-red-500">*</span></FormLabel>
+                                        <FormLabel className="text-sm font-semibold text-foreground">Interest Rate / Month <span className="text-destructive">*</span></FormLabel>
                                         <FormControl>
                                             <div className="relative">
                                                 <Input
                                                     type="text"
                                                     inputMode="numeric"
                                                     placeholder="20"
-                                                    className="pr-10 h-14 text-base font-medium rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 focus-visible:ring-primary/20 focus-visible:border-primary transition-all"
+                                                    className="pr-10 h-14 text-base font-medium rounded-xl border-border bg-muted focus-visible:ring-primary/20 focus-visible:border-primary transition-all"
                                                     {...field}
                                                 />
                                                 <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                                                    <span className="text-zinc-500 sm:text-sm font-semibold">%</span>
+                                                    <span className="text-muted-foreground sm:text-sm font-semibold">%</span>
                                                 </div>
                                             </div>
                                         </FormControl>
@@ -326,9 +326,9 @@ export function LoanForm() {
                                 name="startDate"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="flex items-center gap-1.5 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-                                            <HugeiconsIcon icon={Calendar01Icon} className="w-4 h-4 text-zinc-400" />
-                                            Start Date <span className="text-red-500">*</span>
+                                        <FormLabel className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                                            <HugeiconsIcon icon={Calendar01Icon} className="w-4 h-4 text-muted-foreground" />
+                                            Start Date <span className="text-destructive">*</span>
                                         </FormLabel>
                                         <FormControl>
                                             <Popover>
@@ -338,7 +338,7 @@ export function LoanForm() {
                                                             {...props}
                                                             variant="outline"
                                                             className={cn(
-                                                                "w-full h-14 pl-4 text-left text-base font-medium rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 focus-visible:ring-primary/20 focus-visible:border-primary transition-colors",
+                                                                "w-full h-14 pl-4 text-left text-base font-medium rounded-xl border-border bg-muted focus-visible:ring-primary/20 focus-visible:border-primary transition-colors",
                                                                 !field.value && "text-muted-foreground"
                                                             )}
                                                         >
@@ -382,9 +382,9 @@ export function LoanForm() {
                                 name="dueDate"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="flex items-center gap-1.5 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-                                            <HugeiconsIcon icon={Calendar01Icon} className="w-4 h-4 text-zinc-400" />
-                                            First Payment Due <span className="text-red-500">*</span>
+                                        <FormLabel className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                                            <HugeiconsIcon icon={Calendar01Icon} className="w-4 h-4 text-muted-foreground" />
+                                            First Payment Due <span className="text-destructive">*</span>
                                         </FormLabel>
                                         <FormControl>
                                             <Popover>
@@ -394,7 +394,7 @@ export function LoanForm() {
                                                             {...props}
                                                             variant="outline"
                                                             className={cn(
-                                                                "w-full h-14 pl-4 text-left text-base font-medium rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 focus-visible:ring-primary/20 focus-visible:border-primary transition-all",
+                                                                "w-full h-14 pl-4 text-left text-base font-medium rounded-xl border-border bg-muted focus-visible:ring-primary/20 focus-visible:border-primary transition-all",
                                                                 !field.value && "text-muted-foreground"
                                                             )}
                                                         >
@@ -434,11 +434,11 @@ export function LoanForm() {
                                     name="notes"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Additional Notes</FormLabel>
+                                            <FormLabel className="text-sm font-semibold text-foreground">Additional Notes</FormLabel>
                                             <FormControl>
                                                 <Textarea
                                                     placeholder="Specify loan purpose, agreements, or special conditions..."
-                                                    className="resize-none min-h-[100px] rounded-xl border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 focus-visible:ring-primary/20 focus-visible:border-primary transition-all"
+                                                    className="resize-none min-h-[100px] rounded-xl border-border bg-muted focus-visible:ring-primary/20 focus-visible:border-primary transition-all"
                                                     {...field}
                                                 />
                                             </FormControl>
@@ -454,11 +454,11 @@ export function LoanForm() {
                         <Button
                             type="submit"
                             disabled={mutation.isPending}
-                            className="w-full sm:w-auto h-14 px-8 text-base font-semibold rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white shadow-xl shadow-primary/10 dark:shadow-white/10 transition-all active:scale-[0.98]"
+                            className="w-full sm:w-auto h-14 px-8 text-base font-semibold rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 dark:hover:bg-card shadow-xl shadow-primary/10 transition-all active:scale-[0.98]"
                         >
                             {mutation.isPending ? (
                                 <span className="flex items-center gap-2">
-                                    <div className="w-4 h-4 border-2 border-white/30 dark:border-black/30 border-t-white dark:border-t-black rounded-full animate-spin"></div>
+                                    <div className="w-4 h-4 border-2 border-border border-t-white dark:border-t-black rounded-full animate-spin"></div>
                                     Processing Loan...
                                 </span>
                             ) : (

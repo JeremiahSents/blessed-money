@@ -49,7 +49,7 @@ export function Navigation() {
       {/* ── DESKTOP SIDEBAR ── */}
       <aside
         className={cn(
-          "hidden md:flex flex-col fixed left-0 top-0 bottom-0 z-40 bg-zinc-100/70 dark:bg-zinc-950 border-r border-zinc-200/70 dark:border-zinc-800 transition-all duration-200",
+          "hidden md:flex flex-col fixed left-0 top-0 bottom-0 z-40 bg-muted border-r border-border transition-all duration-200",
           collapsed ? "w-16" : "w-56",
         )}
       >
@@ -79,7 +79,7 @@ export function Navigation() {
               size="icon"
               onClick={toggle}
               aria-label="Collapse sidebar"
-              className="text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 shrink-0 h-8 w-8"
+              className="text-muted-foreground hover:text-foreground dark:hover:text-primary-foreground shrink-0 h-8 w-8"
             >
               <HugeiconsIcon icon={SidebarLeft01Icon} className="w-5 h-5" />
             </Button>
@@ -92,7 +92,7 @@ export function Navigation() {
               size="icon"
               onClick={toggle}
               aria-label="Expand sidebar"
-              className="text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 h-8 w-8"
+              className="text-muted-foreground hover:text-foreground dark:hover:text-primary-foreground h-8 w-8"
             >
               <HugeiconsIcon icon={SidebarLeft01Icon} className="w-5 h-5" />
             </Button>
@@ -114,7 +114,7 @@ export function Navigation() {
                   "flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors",
                   isActive
                     ? "bg-primary/10 text-primary"
-                    : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-900 dark:hover:text-zinc-100",
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground dark:hover:bg-muted dark:hover:text-primary-foreground",
                 )}
               >
                 <HugeiconsIcon icon={item.icon} className="w-5 h-5 shrink-0" />
@@ -125,11 +125,11 @@ export function Navigation() {
         </nav>
 
         {/* Sign out */}
-        <div className="p-3 border-t border-zinc-200/70 dark:border-zinc-800 shrink-0">
+        <div className="p-3 border-t border-border shrink-0">
           <button
             onClick={handleSignOut}
             className={cn(
-              "w-full flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors",
+              "w-full flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors",
               collapsed && "justify-center",
             )}
           >
@@ -152,7 +152,7 @@ export function Navigation() {
       </aside>
 
       {/* ── MOBILE BOTTOM DOCK ── */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t bg-white dark:bg-zinc-950 pb-safe">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t bg-card pb-safe">
         <div className="flex h-16 items-center justify-around px-2">
           {mobileNavItems.map((item) => {
             const isActive =
@@ -167,7 +167,7 @@ export function Navigation() {
                   "flex flex-col items-center justify-center w-full h-full space-y-1 relative",
                   isActive
                     ? "text-primary"
-                    : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300",
+                    : "text-muted-foreground hover:text-foreground dark:hover:text-muted-foreground",
                 )}
               >
                 <HugeiconsIcon icon={item.icon} className="w-5 h-5" />

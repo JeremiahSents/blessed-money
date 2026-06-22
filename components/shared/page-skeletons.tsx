@@ -2,8 +2,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function AppShellSkeleton() {
   return (
-    <div className="min-h-svh bg-zinc-50/60 dark:bg-zinc-950 md:pl-56">
-      <aside className="hidden md:flex fixed inset-y-0 left-0 z-40 w-56 flex-col border-r border-zinc-200/70 dark:border-zinc-800 bg-white/80 dark:bg-zinc-950/90 backdrop-blur">
+    <div className="min-h-svh bg-muted md:pl-56">
+      <aside className="hidden md:flex fixed inset-y-0 left-0 z-40 w-56 flex-col border-r border-border bg-card backdrop-blur">
         <div className="flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2">
             <Skeleton className="h-8 w-8 rounded-md" />
@@ -26,7 +26,7 @@ export function AppShellSkeleton() {
           ))}
         </div>
 
-        <div className="border-t border-zinc-200/70 dark:border-zinc-800 p-3">
+        <div className="border-t border-border p-3">
           <Skeleton className="h-11 w-full rounded-xl" />
         </div>
       </aside>
@@ -45,7 +45,7 @@ export function AppShellSkeleton() {
             {Array.from({ length: 4 }).map((_, i) => (
               <div
                 key={i}
-                className="rounded-2xl border border-zinc-200/70 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-4 space-y-3"
+                className="rounded-2xl border border-border bg-card p-4 space-y-3"
               >
                 <div className="flex items-center justify-between">
                   <Skeleton className="h-3 w-16 rounded-full" />
@@ -61,7 +61,7 @@ export function AppShellSkeleton() {
             {Array.from({ length: 2 }).map((_, i) => (
               <div
                 key={i}
-                className="rounded-[28px] border border-zinc-200/70 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-5 md:p-6 space-y-5"
+                className="rounded-[28px] border border-border bg-card p-5 md:p-6 space-y-5"
               >
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3 min-w-0">
@@ -188,7 +188,7 @@ export function DetailPageSkeleton() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {Array.from({ length: 2 }).map((_, i) => (
-          <div key={i} className="bg-white dark:bg-zinc-950 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 space-y-4">
+          <div key={i} className="bg-card p-6 rounded-2xl border border-border space-y-4">
             <div className="flex items-center gap-2">
               <Skeleton className="h-4 w-4 rounded-md" />
               <Skeleton className="h-3 w-20 rounded-full" />
@@ -201,13 +201,13 @@ export function DetailPageSkeleton() {
       <div className="space-y-6">
         {Array.from({ length: 3 }).map((_, i) => (
           <section key={i} className="space-y-4">
-            <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-4">
+            <div className="flex items-center justify-between border-b border-border pb-4">
               <Skeleton className="h-6 w-40 rounded-lg" />
               <Skeleton className="h-4 w-20 rounded-full" />
             </div>
             <div className="space-y-3">
               {Array.from({ length: 3 }).map((__, j) => (
-                <div key={j} className="rounded-2xl border border-zinc-100 dark:border-zinc-800 p-5 space-y-3">
+                <div key={j} className="rounded-2xl border border-border p-5 space-y-3">
                   <div className="flex items-center justify-between gap-4">
                     <Skeleton className="h-4 w-28 rounded-md" />
                     <Skeleton className="h-4 w-16 rounded-md" />
@@ -226,7 +226,7 @@ export function DetailPageSkeleton() {
 export function LoansPageSkeleton() {
   return (
     <div className="max-w-5xl mx-auto space-y-8 pb-32 pt-8 px-4 sm:px-6">
-      <div className="flex flex-col gap-6 pb-2 border-b border-zinc-100 dark:border-zinc-800">
+      <div className="flex flex-col gap-6 pb-2 border-b border-border">
         <div className="space-y-3">
           <div className="flex items-center gap-3">
             <Skeleton className="h-12 w-12 rounded-2xl" />
@@ -243,7 +243,7 @@ export function LoansPageSkeleton() {
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className="rounded-[32px] border border-zinc-200/70 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-6 space-y-6"
+              className="rounded-[32px] border border-border bg-card p-6 space-y-6"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-3.5 min-w-0 flex-1">
@@ -287,7 +287,7 @@ export function TablePageSkeleton({ rows = 5, cols = 5 }: { rows?: number; cols?
         <Skeleton className="h-10 w-36 rounded-xl" />
       </div>
 
-      <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 overflow-hidden">
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
         <div className="p-4 space-y-4">
           {Array.from({ length: rows }).map((_, row) => (
             <div key={row} className="grid gap-4" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>

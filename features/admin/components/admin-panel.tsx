@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/errors";
+import { PersonAvatar } from "@/components/shared/person-avatar";
 
 interface UserRecord {
   id: string;
@@ -19,12 +20,6 @@ interface UserRecord {
   email: string;
   image: string | null;
   isAdmin: boolean;
-}
-
-function getInitials(name: string) {
-  const parts = name.trim().split(/\s+/);
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
 export function AdminPanel() {
@@ -77,27 +72,16 @@ export function AdminPanel() {
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <p className="text-sm text-zinc-500">Loading users...</p>
+          <p className="text-sm text-muted-foreground">Loading users...</p>
         ) : (
           <div className="space-y-3">
             {usersData?.data?.map((u) => (
               <div
                 key={u.id}
-                className="flex items-center justify-between gap-3 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800"
+                className="flex items-center justify-between gap-3 p-3 rounded-xl border border-border"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  {u.image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={u.image}
-                      alt={u.name}
-                      className="w-9 h-9 rounded-full object-cover shrink-0"
-                    />
-                  ) : (
-                    <div className="w-9 h-9 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-xs font-bold shrink-0">
-                      {getInitials(u.name)}
-                    </div>
-                  )}
+                  <PersonAvatar seed={u.id} name={u.name} className="w-9 h-9 shrink-0" />
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-medium truncate">{u.name}</p>
@@ -107,7 +91,7 @@ export function AdminPanel() {
                         </Badge>
                       )}
                     </div>
-                    <p className="text-xs text-zinc-500 truncate">{u.email}</p>
+                    <p className="text-xs text-muted-foreground truncate">{u.email}</p>
                   </div>
                 </div>
                 <Button

@@ -17,7 +17,8 @@ import { Button } from "@/components/ui/button";
 import { DashboardPageSkeleton } from "@/components/shared/page-skeletons";
 import { NewLoanSheet } from "@/features/loans/components/new-loan-sheet";
 import { PaymentForm } from "@/features/loans/components/payment-form";
-import { cn, formatCurrency, getGreeting } from "@/lib/utils";
+import { PersonAvatar } from "@/components/shared/person-avatar";
+import { formatCurrency, getGreeting } from "@/lib/utils";
 import { authClient } from "@/lib/auth-client";
 
 type DashboardResponse = {
@@ -100,7 +101,7 @@ export default function DashboardPage() {
             {/* The two numbers that matter */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Card className="rounded-3xl bg-linear-to-br from-primary to-primary/85 text-primary-foreground border-0 overflow-hidden relative">
-                    <div aria-hidden className="absolute -right-8 -top-8 w-40 h-40 rounded-full bg-white/10 blur-2xl" />
+                    <div aria-hidden className="absolute -right-8 -top-8 w-40 h-40 rounded-full bg-primary-foreground/10 blur-2xl" />
                     <CardContent className="p-6 relative">
                         <div className="flex items-center gap-2 text-primary-foreground/85">
                             <HugeiconsIcon icon={Wallet01Icon} className="w-4 h-4" />
@@ -108,13 +109,13 @@ export default function DashboardPage() {
                         </div>
                         <p className="text-4xl font-bold mt-2 tabular-nums">{formatCurrency(owed)}</p>
                         <div className="flex items-center gap-2 mt-3 flex-wrap">
-                            <span className="inline-flex items-center gap-1.5 text-xs font-medium bg-white/15 rounded-full px-2.5 py-1">
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-300" />
+                            <span className="inline-flex items-center gap-1.5 text-xs font-medium bg-primary-foreground/15 rounded-full px-2.5 py-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-success" />
                                 {activeCount} active
                             </span>
                             {overdueCount > 0 && (
-                                <span className="inline-flex items-center gap-1.5 text-xs font-medium bg-white/15 rounded-full px-2.5 py-1">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-300" />
+                                <span className="inline-flex items-center gap-1.5 text-xs font-medium bg-primary-foreground/15 rounded-full px-2.5 py-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-warning" />
                                     {overdueCount} late
                                 </span>
                             )}
@@ -157,8 +158,8 @@ export default function DashboardPage() {
                 {loans.length === 0 ? (
                     <Card className="rounded-3xl">
                         <CardContent className="p-8 text-center">
-                            <div className="w-10 h-10 mx-auto rounded-full bg-emerald-100 dark:bg-emerald-900/20 flex items-center justify-center mb-2">
-                                <HugeiconsIcon icon={CheckmarkCircle02Icon} className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                            <div className="w-10 h-10 mx-auto rounded-full bg-success/15 flex items-center justify-center mb-2">
+                                <HugeiconsIcon icon={CheckmarkCircle02Icon} className="w-5 h-5 text-success" />
                             </div>
                             <p className="text-sm font-semibold">No active loans</p>
                             <p className="text-xs text-muted-foreground mt-1">Give your first loan to get started.</p>
@@ -173,17 +174,12 @@ export default function DashboardPage() {
                                 <Card key={loan.id} className="rounded-2xl overflow-hidden">
                                     <CardContent className="p-3.5 flex items-center gap-3">
                                         <Link href={`/loans/${loan.id}`} className="flex items-center gap-3 min-w-0 flex-1">
-                                            <div className={cn(
-                                                "w-11 h-11 rounded-2xl flex items-center justify-center text-white text-base font-semibold shrink-0 uppercase",
-                                                isLate ? "bg-amber-500" : "bg-primary",
-                                            )}>
-                                                {loan.customer.name.charAt(0)}
-                                            </div>
+                                            <PersonAvatar seed={loan.customer.id} name={loan.customer.name} className="w-11 h-11 shrink-0" />
                                             <div className="min-w-0">
                                                 <p className="font-semibold text-sm truncate capitalize flex items-center gap-1.5">
                                                     {loan.customer.name}
                                                     {isLate && (
-                                                        <HugeiconsIcon icon={Alert02Icon} className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                                                        <HugeiconsIcon icon={Alert02Icon} className="w-3.5 h-3.5 text-warning shrink-0" />
                                                     )}
                                                 </p>
                                                 <p className="text-xs text-muted-foreground tabular-nums">

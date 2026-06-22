@@ -103,7 +103,7 @@ export function CustomerForm({ open, onOpenChange, defaultValues, onSuccess }: C
                                 name="name"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Full Name <span className="text-red-500">*</span></FormLabel>
+                                        <FormLabel>Full Name <span className="text-destructive">*</span></FormLabel>
                                         <FormControl>
                                             <Input placeholder="John Doe" {...field} />
                                         </FormControl>

@@ -15,11 +15,11 @@ export function FilePreviewThumbnail({
     const url = isImage ? URL.createObjectURL(file) : null;
 
     return (
-        <div className="relative group w-24 h-24 rounded-lg border border-zinc-200 overflow-hidden bg-zinc-50 flex items-center justify-center">
+        <div className="relative group w-24 h-24 rounded-lg border border-border overflow-hidden bg-muted flex items-center justify-center">
             {isImage && url ? (
                 <Image fill src={url} alt={file.name} className="object-cover w-full h-full" />
             ) : (
-                <div className="flex flex-col items-center p-2 text-center text-zinc-500">
+                <div className="flex flex-col items-center p-2 text-center text-muted-foreground">
                     <HugeiconsIcon icon={DocumentAttachmentIcon} className="w-8 h-8 mb-1" />
                     <span className="text-[10px] truncate max-w-full">{file.name}</span>
                 </div>
@@ -28,7 +28,7 @@ export function FilePreviewThumbnail({
                 <button
                     type="button"
                     onClick={onRemove}
-                    className="absolute top-1 right-1 bg-black/50 hover:bg-black/80 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute top-1 right-1 bg-foreground/20 hover:bg-foreground/20 text-primary-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                     <HugeiconsIcon icon={Cancel01Icon} className="w-3 h-3" />
                 </button>

@@ -12,9 +12,9 @@ export function LoanCard({ loan }: { loan: LoanSummary }) {
 
     return (
         <Link href={`/loans/${loan.id}`}>
-            <Card className="hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors cursor-pointer group">
+            <Card className="hover:border-border dark:hover:border-border transition-colors cursor-pointer group">
                 <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                    <CardTitle className="text-sm font-medium text-zinc-500">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
                         Loan: {formatCurrency(parseFloat(loan.principalAmount))}
                     </CardTitle>
                     <Badge
@@ -29,11 +29,11 @@ export function LoanCard({ loan }: { loan: LoanSummary }) {
                             <div className="text-2xl font-semibold tracking-tight">
                                 {(parseFloat(loan.interestRate) * 100).toFixed(1)}% / mo
                             </div>
-                            <p className="text-xs text-zinc-500 mt-1">
+                            <p className="text-xs text-muted-foreground mt-1">
                                 Started {formatDate(loan.startDate)}
                             </p>
                         </div>
-                        <HugeiconsIcon icon={ArrowUpRight01Icon} className="w-5 h-5 text-zinc-300 group-hover:text-black dark:group-hover:text-white transition-colors" />
+                        <HugeiconsIcon icon={ArrowUpRight01Icon} className="w-5 h-5 text-muted-foreground group-hover:text-foreground dark:group-hover:text-primary-foreground transition-colors" />
                     </div>
                 </CardContent>
             </Card>

@@ -30,14 +30,14 @@ export default function SignIn() {
                     <Image src="/blessed.png" alt="Blessed" width={60} height={60} priority />
                 </div>
                 <CardTitle className="text-4xl sm:text-3xl font-bold tracking-tight">Welcome back</CardTitle>
-                <CardDescription className="text-sm text-zinc-500 mt-2">
+                <CardDescription className="text-sm text-muted-foreground mt-2">
                     Sign in to manage your clients and loans.
                 </CardDescription>
             </CardHeader>
             <CardContent className="px-6">
                 <Button
                     variant="outline"
-                    className="w-full h-11 rounded-xl border-zinc-200 dark:border-zinc-800"
+                    className="w-full h-11 rounded-xl border-border"
                     onClick={handleSignIn}
                     disabled={isLoading}
                 >

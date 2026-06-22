@@ -10,7 +10,7 @@ export default function NewLoanPage() {
         <div className="max-w-3xl mx-auto space-y-8 pb-24 px-4 sm:px-6 pt-8">
             <Link
                 href="/"
-                className="inline-flex items-center text-sm font-medium text-zinc-500 hover:text-primary transition-colors"
+                className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
             >
                 <HugeiconsIcon icon={ArrowLeft01Icon} className="w-3.5 h-3.5 mr-2" />
                 Back to dashboard
@@ -18,7 +18,7 @@ export default function NewLoanPage() {
 
             <div>
                 <h1 className="text-3xl font-semibold tracking-tight">Give a loan</h1>
-                <p className="text-zinc-500 mt-1">Pick a borrower and set the amount and terms.</p>
+                <p className="text-muted-foreground mt-1">Pick a borrower and set the amount and terms.</p>
             </div>
 
             <LoanForm />
