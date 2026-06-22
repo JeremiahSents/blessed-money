@@ -3,7 +3,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ShieldAlertIcon } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Alert02Icon } from "@hugeicons/core-free-icons";
 import { authClient } from "@/lib/auth-client";
 
 export default function AccessDeniedPage() {
@@ -25,7 +26,7 @@ export default function AccessDeniedPage() {
             <Card className="max-w-md w-full p-8 text-center space-y-6">
                 <div className="flex justify-center">
                     <div className="w-16 h-16 rounded-full bg-warning/15 flex items-center justify-center">
-                        <ShieldAlertIcon className="w-8 h-8 text-warning" />
+                        <HugeiconsIcon icon={Alert02Icon} className="w-8 h-8 text-warning" />
                     </div>
                 </div>
 

@@ -5,7 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
 import Image from "next/image";
-import { Loader2 } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Loading03Icon } from "@hugeicons/core-free-icons";
 
 export default function SignIn() {
     const [isLoading, setIsLoading] = useState(false);
@@ -43,7 +44,7 @@ export default function SignIn() {
                 >
                     {isLoading ? (
                         <span className="flex items-center justify-center gap-2">
-                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <HugeiconsIcon icon={Loading03Icon} className="w-4 h-4 animate-spin" />
                             Connecting...
                         </span>
                     ) : (
