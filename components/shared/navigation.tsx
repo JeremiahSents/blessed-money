@@ -126,10 +126,11 @@ export function Navigation() {
 
         {/* Sign out */}
         <div className="p-3 border-t border-border shrink-0">
-          <button
+          <Button
+            variant="ghost"
             onClick={handleSignOut}
             className={cn(
-              "w-full flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors",
+              "w-full h-auto justify-start gap-3 rounded-lg px-3 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 hover:text-destructive",
               collapsed && "justify-center",
             )}
           >
@@ -147,7 +148,7 @@ export function Navigation() {
               <line x1="21" y1="12" x2="9" y2="12" />
             </svg>
             {!collapsed && <span>Sign Out</span>}
-          </button>
+          </Button>
         </div>
       </aside>
 

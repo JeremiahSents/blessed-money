@@ -7,11 +7,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Logout03Icon, Settings01Icon, Notification03Icon, Alert01Icon } from '@hugeicons/core-free-icons';
+import { Logout03Icon, Settings01Icon, Notification03Icon, Alert01Icon, CheckmarkCircle02Icon } from '@hugeicons/core-free-icons';
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Switch } from "@/components/ui/switch";
 import { useEffect, useState } from "react";
 import { AdminPanel } from "@/features/admin/components/admin-panel";
 import { DetailPageSkeleton } from "@/components/shared/page-skeletons";
@@ -118,25 +117,17 @@ export default function SettingsPage() {
                         <CardDescription className="font-medium text-muted-foreground">Configure your default lending parameters and capital.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6 pt-2">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            <div className="space-y-2.5">
-                                <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Default Interest Rate (%)</Label>
-                                <Input 
-                                    type="number" 
-                                    defaultValue="20" 
-                                    className="h-11 rounded-xl border-border focus-visible:ring-primary/20"
-                                />
-                            </div>
-                            <div className="space-y-2.5">
-                                <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Your Money (UGX)</Label>
-                                <Input
-                                    type="text"
-                                    value={workingCapital}
-                                    onChange={(e) => setWorkingCapital(formatNumber(e.target.value))}
-                                    placeholder="Enter starting capital..."
-                                    className="h-11 rounded-xl border-border focus-visible:ring-primary/20 font-semibold tabular-nums"
-                                />
-                            </div>
+                        <div className="space-y-2.5">
+                            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Your Money (UGX)</Label>
+                            <Input
+                                type="text"
+                                inputMode="decimal"
+                                value={workingCapital}
+                                onChange={(e) => setWorkingCapital(formatNumber(e.target.value))}
+                                placeholder="Enter starting capital..."
+                                className="h-12 rounded-xl border-border focus-visible:ring-primary/20 font-semibold tabular-nums"
+                            />
+                            <p className="text-xs text-muted-foreground">Your starting cash. We subtract loans you give and add payments you collect to track your balance.</p>
                         </div>
                         <div className="pt-2">
                             <Button 
@@ -159,22 +150,19 @@ export default function SettingsPage() {
                             </div>
                             <CardTitle className="text-xl font-semibold text-foreground">Notifications</CardTitle>
                         </div>
-                        <CardDescription className="font-medium text-muted-foreground">Stay updated with automated alerts.</CardDescription>
+                        <CardDescription className="font-medium text-muted-foreground">Automated email alerts to keep you on top of payments.</CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-0 divide-y divide-border">
-                        <div className="flex items-center justify-between py-5">
-                            <div className="space-y-1">
-                                <p className="font-semibold text-sm text-foreground">Daily Summary</p>
-                                <p className="text-xs text-muted-foreground font-medium leading-relaxed max-w-sm">Receive a daily breakdown of overdue installments every morning.</p>
+                    <CardContent>
+                        <div className="flex items-start gap-3 rounded-2xl bg-success/10 p-4">
+                            <div className="w-9 h-9 rounded-xl bg-success/15 flex items-center justify-center text-success shrink-0">
+                                <HugeiconsIcon icon={CheckmarkCircle02Icon} className="w-4 h-4" />
                             </div>
-                            <Switch checked={true} className="data-[state=checked]:bg-success" />
-                        </div>
-                        <div className="flex items-center justify-between py-5">
                             <div className="space-y-1">
-                                <p className="font-semibold text-sm text-foreground">Payment Reports</p>
-                                <p className="text-xs text-muted-foreground font-medium leading-relaxed max-w-sm">Get real-time alerts whenever a customer deposits a payment.</p>
+                                <p className="font-semibold text-sm text-foreground">Daily reminder is on</p>
+                                <p className="text-xs text-muted-foreground font-medium leading-relaxed">
+                                    Each morning we email you a summary of payments due that day, so you know who to follow up with.
+                                </p>
                             </div>
-                            <Switch checked={false} />
                         </div>
                     </CardContent>
                 </Card>

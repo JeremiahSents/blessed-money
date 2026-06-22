@@ -1,14 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { formatCurrency, formatDate, displayStatus, cn } from "@/lib/utils";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { HugeiconsIcon } from '@hugeicons/react';
 import { 
-    CheckmarkCircle02Icon, 
-    Alert02Icon, 
     Clock01Icon, 
     ArrowDown01Icon, 
     ArrowUp01Icon 
@@ -32,9 +29,10 @@ function BillingCycleCard({ cycle }: { cycle: BillingCycle }) {
                         : "border-border bg-card shadow-sm"
             )}
         >
-            <button
+            <Button
+                variant="ghost"
                 onClick={() => setExpanded(v => !v)}
-                className="w-full text-left p-5"
+                className="h-auto w-full justify-start text-left p-5 hover:bg-transparent"
             >
                 <div className="flex items-start justify-between gap-4">
                     <div className="flex flex-col gap-1">
@@ -91,7 +89,7 @@ function BillingCycleCard({ cycle }: { cycle: BillingCycle }) {
                         </div>
                     </div>
                 )}
-            </button>
+            </Button>
         </div>
     );
 }

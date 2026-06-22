@@ -3,6 +3,7 @@
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Cancel01Icon, DocumentAttachmentIcon } from '@hugeicons/core-free-icons';
 import Image from 'next/image';
+import { Button } from "@/components/ui/button";
 
 export function FilePreviewThumbnail({
     file,
@@ -25,13 +26,15 @@ export function FilePreviewThumbnail({
                 </div>
             )}
             {onRemove && (
-                <button
+                <Button
                     type="button"
+                    variant="ghost"
+                    size="icon-xs"
                     onClick={onRemove}
                     className="absolute top-1 right-1 bg-foreground/20 hover:bg-foreground/20 text-primary-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                     <HugeiconsIcon icon={Cancel01Icon} className="w-3 h-3" />
-                </button>
+                </Button>
             )}
         </div>
     );

@@ -18,7 +18,7 @@ import { DashboardPageSkeleton } from "@/components/shared/page-skeletons";
 import { NewLoanSheet } from "@/features/loans/components/new-loan-sheet";
 import { PaymentForm } from "@/features/loans/components/payment-form";
 import { PersonAvatar } from "@/components/shared/person-avatar";
-import { formatCurrency, getGreeting } from "@/lib/utils";
+import { cn, formatCurrency, getGreeting } from "@/lib/utils";
 import { authClient } from "@/lib/auth-client";
 
 type DashboardResponse = {
@@ -37,7 +37,7 @@ type ActiveLoan = {
     principalAmount: string;
     status: "active" | "overdue" | "settled";
     customer: { id: string; name: string; phone: string | null };
-    billingCycles: Array<{ balance: string }>;
+    billingCycles: Array<{ balance: string; cycleEndDate?: string; status?: string }>;
 };
 
 export default function DashboardPage() {
@@ -170,21 +170,44 @@ export default function DashboardPage() {
                         {loans.map((loan) => {
                             const balance = balanceOf(loan);
                             const isLate = loan.status === "overdue";
+                            const cycle = loan.billingCycles?.[0];
+                            const daysLeft = cycle?.cycleEndDate
+                                ? Math.ceil((new Date(cycle.cycleEndDate).getTime() - Date.now()) / 86400000)
+                                : null;
+                            const dueLabel =
+                                daysLeft === null ? null
+                                    : daysLeft < 0 ? `${Math.abs(daysLeft)}d late`
+                                        : daysLeft === 0 ? "Due today"
+                                            : `Due in ${daysLeft}d`;
                             return (
                                 <Card key={loan.id} className="rounded-2xl overflow-hidden">
                                     <CardContent className="p-3.5 flex items-center gap-3">
                                         <Link href={`/loans/${loan.id}`} className="flex items-center gap-3 min-w-0 flex-1">
                                             <PersonAvatar seed={loan.customer.id} name={loan.customer.name} className="w-11 h-11 shrink-0" />
                                             <div className="min-w-0">
-                                                <p className="font-semibold text-sm truncate capitalize flex items-center gap-1.5">
+                                                <p className="font-semibold text-sm truncate capitalize">
                                                     {loan.customer.name}
-                                                    {isLate && (
-                                                        <HugeiconsIcon icon={Alert02Icon} className="w-3.5 h-3.5 text-warning shrink-0" />
+                                                </p>
+                                                <div className="flex items-center gap-2 mt-0.5">
+                                                    <span className="text-xs font-semibold text-foreground tabular-nums">
+                                                        {formatCurrency(balance)}
+                                                    </span>
+                                                    {dueLabel && (
+                                                        <span className={cn(
+                                                            "inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-tight rounded-full px-1.5 py-0.5",
+                                                            isLate || (daysLeft !== null && daysLeft < 0)
+                                                                ? "bg-destructive/10 text-destructive"
+                                                                : daysLeft !== null && daysLeft <= 3
+                                                                    ? "bg-warning/15 text-warning"
+                                                                    : "bg-muted text-muted-foreground",
+                                                        )}>
+                                                            {(isLate || (daysLeft !== null && daysLeft < 0)) && (
+                                                                <HugeiconsIcon icon={Alert02Icon} className="w-2.5 h-2.5" />
+                                                            )}
+                                                            {dueLabel}
+                                                        </span>
                                                     )}
-                                                </p>
-                                                <p className="text-xs text-muted-foreground tabular-nums">
-                                                    {formatCurrency(balance)} owed
-                                                </p>
+                                                </div>
                                             </div>
                                         </Link>
                                         <Button

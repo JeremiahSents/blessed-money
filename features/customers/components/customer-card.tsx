@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { PersonAvatar } from "@/components/shared/person-avatar";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
@@ -16,9 +17,10 @@ export function CustomerCard({ customer }: CustomerCardProps) {
     const activeLoans = customer.activeLoanCount ?? customer.loans?.filter(l => l.status === "active" || l.status === "overdue").length ?? 0;
 
     return (
-        <button
+        <Button
+            variant="ghost"
             onClick={() => router.push(`/customers/${customer.id}`)}
-            className="w-full flex items-center gap-4 p-4 pr-3 bg-card rounded-2xl border border-border shadow-sm active:scale-[0.99] transition-all text-left hover:border-primary/20 hover:shadow-md"
+            className="h-auto w-full justify-start gap-4 p-4 pr-3 bg-card rounded-2xl border border-border shadow-sm active:scale-[0.99] transition-all text-left hover:bg-card hover:border-primary/20 hover:shadow-md"
         >
             <PersonAvatar seed={customer.id} name={customer.name} className="w-11 h-11 shrink-0" />
 
@@ -45,6 +47,6 @@ export function CustomerCard({ customer }: CustomerCardProps) {
                     <HugeiconsIcon icon={ArrowRight01Icon} className="w-4 h-4 text-muted-foreground" />
                 </div>
             </div>
-        </button>
+        </Button>
     );
 }

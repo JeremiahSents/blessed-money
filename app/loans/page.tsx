@@ -9,8 +9,10 @@ import {
     PlusSignIcon,
     Calendar04Icon,
     Coins01Icon,
+    Search01Icon,
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { PersonAvatar } from "@/components/shared/person-avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -29,6 +31,7 @@ type LoanWithCustomer = LoanSummary & {
 export default function LoansPage() {
     const [selectedLoan, setSelectedLoan] = useState<LoanWithCustomer | null>(null);
     const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+    const [search, setSearch] = useState("");
 
     const { data, isLoading } = useQuery<{ data: LoanWithCustomer[] }>({
         queryKey: ["loans", "all"],
@@ -40,7 +43,10 @@ export default function LoansPage() {
     });
 
     const { dueThisWeek, current, finished } = useMemo(() => {
-        const loans = data?.data || [];
+        const q = search.trim().toLowerCase();
+        const loans = (data?.data || []).filter(
+            (l) => !q || (l.customer?.name || "").toLowerCase().includes(q),
+        );
         const weekFromNow = new Date().getTime() + 7 * 86400000;
 
         const getNextDueTime = (loan: LoanWithCustomer) => {
@@ -66,7 +72,7 @@ export default function LoansPage() {
         dueThisWeek.sort((a, b) => getNextDueTime(a) - getNextDueTime(b));
 
         return { dueThisWeek, current, finished };
-    }, [data]);
+    }, [data, search]);
 
     const defaultTab =
         dueThisWeek.length > 0 ? "due" :
@@ -120,6 +126,20 @@ export default function LoansPage() {
                 </Link>
             </div>
 
+            {/* Search */}
+            <div className="relative">
+                <HugeiconsIcon
+                    icon={Search01Icon}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none"
+                />
+                <Input
+                    placeholder="Search by borrower name..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="pl-10 h-12 rounded-2xl border-border bg-card shadow-sm focus-visible:ring-primary/20"
+                />
+            </div>
+
             {/* Tabbed groups */}
             <Tabs defaultValue={defaultTab} className="gap-6">
                 <TabsList className="w-full h-auto p-1.5 rounded-3xl bg-muted shadow-sm dark:shadow-none">
@@ -170,6 +190,11 @@ function LoanListItem({ loan, onCollect }: { loan: LoanWithCustomer, onCollect: 
     const router = useRouter();
     const isSettled = loan.status === "settled";
     const isOverdue = loan.status === "overdue";
+
+    const nextCycle = (loan.billingCycles || []).find((c) => c.status !== "closed") || loan.billingCycles?.[0];
+    const balance = nextCycle ? parseFloat(nextCycle.balance) : 0;
+    const dueDateStr = nextCycle?.cycleEndDate || loan.dueDate;
+    const daysLeft = dueDateStr ? Math.ceil((new Date(dueDateStr).getTime() - Date.now()) / 86400000) : null;
 
     const handleCardClick = () => {
         router.push(`/loans/${loan.id}`);
@@ -224,25 +249,43 @@ function LoanListItem({ loan, onCollect }: { loan: LoanWithCustomer, onCollect: 
                 </Badge>
             </div>
 
-            {/* Mid: Stats */}
+            {/* Mid: the two numbers that matter — what's owed and when it's due */}
             <div className="grid grid-cols-2 gap-6 mb-6">
                 <div className="space-y-1.5">
                     <div className="flex items-center gap-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-tight">
                         <HugeiconsIcon icon={Coins01Icon} className="w-3.5 h-3.5 opacity-60" />
-                        Principal
+                        {isSettled ? "Principal" : "Owed"}
                     </div>
-                    <p className="text-lg font-semibold text-foreground tabular-nums tracking-tight">
-                        {formatCurrency(parseFloat(loan.principalAmount))}
+                    <p className={cn(
+                        "text-lg font-semibold tabular-nums tracking-tight",
+                        isSettled ? "text-foreground" : isOverdue ? "text-destructive" : "text-foreground",
+                    )}>
+                        {formatCurrency(isSettled ? parseFloat(loan.principalAmount) : balance)}
                     </p>
                 </div>
                 <div className="space-y-1.5">
                     <div className="flex items-center gap-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-tight">
                         <HugeiconsIcon icon={Calendar04Icon} className="w-3.5 h-3.5 opacity-60" />
-                        Issued
+                        {isSettled ? "Status" : "Due"}
                     </div>
-                    <p className="text-lg font-semibold text-muted-foreground tabular-nums tracking-tight">
-                        {formatDate(loan.startDate)}
-                    </p>
+                    {isSettled ? (
+                        <p className="text-lg font-semibold text-success tracking-tight">Cleared</p>
+                    ) : (
+                        <p className={cn(
+                            "text-lg font-semibold tabular-nums tracking-tight",
+                            isOverdue ? "text-destructive" : "text-foreground",
+                        )}>
+                            {dueDateStr ? formatDate(dueDateStr) : "—"}
+                            {daysLeft !== null && (
+                                <span className={cn(
+                                    "block text-[10px] font-semibold uppercase tracking-tight mt-0.5",
+                                    daysLeft < 0 ? "text-destructive" : daysLeft <= 3 ? "text-warning" : "text-muted-foreground",
+                                )}>
+                                    {daysLeft < 0 ? `${Math.abs(daysLeft)}d late` : daysLeft === 0 ? "Due today" : `in ${daysLeft}d`}
+                                </span>
+                            )}
+                        </p>
+                    )}
                 </div>
             </div>
 
