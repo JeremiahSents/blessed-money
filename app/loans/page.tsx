@@ -92,7 +92,7 @@ export default function LoansPage() {
                 ))
             ) : (
                 <div className="col-span-full py-12 flex flex-col items-center justify-center rounded-3xl bg-muted border border-dashed border-border">
-                    <HugeiconsIcon icon={Wallet01Icon} className="w-10 h-10 text-primary-foreground mb-3" />
+                    <HugeiconsIcon icon={Wallet01Icon} className="w-10 h-10 text-muted-foreground mb-3" />
                     <p className="text-sm font-semibold text-muted-foreground uppercase tracking-tight">{emptyText}</p>
                 </div>
             )}
