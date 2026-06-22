@@ -156,7 +156,7 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
                 {customer.notes ? (
                     <div className="rounded-[32px] border border-border bg-muted p-6 shadow-sm dark:shadow-none">
                         <div className="flex items-center gap-3 mb-5">
-                            <div className="w-10 h-10 rounded-2xl bg-muted text-primary-foreground flex items-center justify-center shrink-0">
+                            <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
                                 <HugeiconsIcon icon={InformationCircleIcon} className="w-4 h-4" />
                             </div>
                             <div>
@@ -224,7 +224,7 @@ export default function CustomerDetailPage(props: { params: Promise<{ id: string
                                                             "h-5 rounded-full px-2 text-[9px] font-semibold uppercase border-none shadow-none",
                                                             isSettled ? "bg-success text-primary-foreground" :
                                                                 isOverdue ? "bg-destructive text-primary-foreground" :
-                                                                    "bg-muted text-primary-foreground"
+                                                                    "bg-muted text-muted-foreground"
                                                         )}>
                                                             {loan.status}
                                                         </Badge>
