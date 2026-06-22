@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getErrorMessage } from "@/lib/errors";
-import { sendDailyReminders } from "@/core/services/cron-service";
+import { sendDailyReminders } from "@/features/reminders/service";
 
 export async function POST(req: NextRequest) {
     const authHeader = req.headers.get("authorization");

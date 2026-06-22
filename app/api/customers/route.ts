@@ -1,46 +1,25 @@
-import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import { getErrorMessage } from "@/lib/errors";
-import { listCustomers, createCustomerWithAudit } from "@/core/services/customer-service";
+import { withAuth } from "@/lib/api";
+import { listCustomers, createCustomerWithAudit } from "@/features/customers/service";
 
-export async function GET(req: NextRequest) {
-    const session = await auth.api.getSession({ headers: await headers() });
-    if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
+export const GET = withAuth(async ({ req }) => {
     const { searchParams } = new URL(req.url);
-    const search = searchParams.get("search") || "";
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
+    const page = Number(searchParams.get("page") ?? 1);
+    const limit = Number(searchParams.get("limit") ?? 10);
+    const { data, total } = await listCustomers({
+        search: searchParams.get("search") ?? "",
+        page,
+        limit,
+    });
+    return { data, meta: { total, page, limit, totalPages: Math.ceil(total / limit) } };
+});
 
-    try {
-        const { data, total } = await listCustomers({ search, page, limit });
-
-        return NextResponse.json({
-            data,
-            meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
-        });
-    } catch (err: unknown) {
-        return NextResponse.json({ error: getErrorMessage(err) }, { status: 500 });
-    }
-}
-
-export async function POST(req: NextRequest) {
-    const session = await auth.api.getSession({ headers: await headers() });
-    if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    try {
-        const body = await req.json();
-
-        const newCustomer = await createCustomerWithAudit({
-            userId: session.user.id,
-            name: body.name,
-            phone: body.phone,
-            notes: body.notes,
-        });
-
-        return NextResponse.json({ data: newCustomer });
-    } catch (err: unknown) {
-        return NextResponse.json({ error: getErrorMessage(err) }, { status: 400 });
-    }
-}
+export const POST = withAuth(async ({ req, user }) => {
+    const body = await req.json();
+    const data = await createCustomerWithAudit({
+        userId: user.id,
+        name: body.name,
+        phone: body.phone,
+        notes: body.notes,
+    });
+    return { data };
+}, 400);

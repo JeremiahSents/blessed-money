@@ -1,17 +1,4 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import { getErrorMessage } from "@/lib/errors";
-import { getDashboardData } from "@/core/services/dashboard-service";
+import { withAuth } from "@/lib/api";
+import { getDashboardData } from "@/features/dashboard/service";
 
-export async function GET() {
-    const session = await auth.api.getSession({ headers: await headers() });
-    if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    try {
-        const data = await getDashboardData();
-        return NextResponse.json({ data });
-    } catch (err: unknown) {
-        return NextResponse.json({ error: getErrorMessage(err) }, { status: 500 });
-    }
-}
+export const GET = withAuth(async () => ({ data: await getDashboardData() }));

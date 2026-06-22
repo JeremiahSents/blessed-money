@@ -1,0 +1,38 @@
+"use client";
+
+import { PageHeader } from "@/components/shared/page-header";
+import { CustomerTable } from "@/features/customers/components/customer-table";
+import { CustomerForm } from "@/features/customers/components/customer-form";
+import { Button } from "@/components/ui/button";
+import { HugeiconsIcon } from '@hugeicons/react';
+import { PlusSignIcon } from '@hugeicons/core-free-icons';
+import { useState } from "react";
+
+export default function CustomersPage() {
+    const [isFormOpen, setIsFormOpen] = useState(false);
+
+    return (
+        <div className="max-w-6xl mx-auto">
+            <PageHeader
+                title="Customers"
+                description="Manage your client base and view their profiles."
+                action={
+                    <Button
+                        onClick={() => setIsFormOpen(true)}
+                        className="w-full sm:w-auto h-12 sm:h-11 rounded-2xl px-5 text-sm font-semibold"
+                    >
+                        <HugeiconsIcon icon={PlusSignIcon} className="w-4 h-4 mr-2" />
+                        Add Customer
+                    </Button>
+                }
+            />
+
+            <CustomerTable />
+
+            <CustomerForm
+                open={isFormOpen}
+                onOpenChange={setIsFormOpen}
+            />
+        </div>
+    );
+}

@@ -1,30 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import { getErrorMessage } from "@/lib/errors";
-import { getAppSettings, updateAppSettings } from "@/core/services/settings-service";
+import { withAuth } from "@/lib/api";
+import { getAppSettings, updateAppSettings } from "@/features/settings/service";
 
-export async function GET() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export const GET = withAuth(async () => ({ data: await getAppSettings() }));
 
-  try {
-    const data = await getAppSettings();
-    return NextResponse.json({ data });
-  } catch (err: unknown) {
-    return NextResponse.json({ error: getErrorMessage(err) }, { status: 500 });
-  }
-}
-
-export async function PUT(req: NextRequest) {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  try {
+export const PUT = withAuth(async ({ req }) => {
     const body = await req.json();
-    const data = await updateAppSettings({ workingCapital: body.workingCapital });
-    return NextResponse.json({ data });
-  } catch (err: unknown) {
-    return NextResponse.json({ error: getErrorMessage(err) }, { status: 400 });
-  }
-}
+    return { data: await updateAppSettings({ workingCapital: body.workingCapital }) };
+}, 400);

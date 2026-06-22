@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getErrorMessage } from "@/lib/errors";
-import { rolloverOverdueCycles } from "@/core/services/cron-service";
+import { rolloverOverdueCycles } from "@/features/reminders/service";
 
 export async function POST(req: NextRequest) {
     // Secured by CRON_SECRET

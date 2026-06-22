@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { isUserAdmin } from "@/core/services/business-service";
+import { isUserAdmin } from "@/features/admin/service";
 
 // GET /api/admin/me — check if current user is admin
 export async function GET() {

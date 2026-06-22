@@ -1,17 +1,4 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import { getErrorMessage } from "@/lib/errors";
-import { listPayments } from "@/core/services/payment-service";
+import { withAuth } from "@/lib/api";
+import { listPayments } from "@/features/payments/service";
 
-export async function GET() {
-    const session = await auth.api.getSession({ headers: await headers() });
-    if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    try {
-        const data = await listPayments();
-        return NextResponse.json({ data });
-    } catch (err: unknown) {
-        return NextResponse.json({ error: getErrorMessage(err) }, { status: 500 });
-    }
-}
+export const GET = withAuth(async () => ({ data: await listPayments() }));

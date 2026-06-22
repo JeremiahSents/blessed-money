@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist_Mono, IBM_Plex_Sans, Roboto, DM_Sans, Geist } from "next/font/google"
 import "./globals.css";
 import { Providers } from "@/components/providers";
+import { AppShell } from "@/components/shared/app-shell";
 import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 
@@ -32,7 +33,7 @@ export default function RootLayout({
     >
       <body>
         <Providers>
-          {children}
+          <AppShell>{children}</AppShell>
         </Providers>
         <Toaster position="bottom-right" richColors />
       </body>

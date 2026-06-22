@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { getErrorMessage } from "@/lib/errors";
-import { isUserAdmin, listAllUsers, setUserAdminRole } from "@/core/services/business-service";
+import { isUserAdmin, listAllUsers, setUserAdminRole } from "@/features/admin/service";
 
 // GET /api/admin/users — list all users (admin only)
 export async function GET() {

@@ -1,0 +1,1 @@
+DROP TABLE "collateral" CASCADE;
